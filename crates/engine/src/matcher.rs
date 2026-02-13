@@ -1,6 +1,5 @@
 use crate::dom::DomSnapshot;
 use crate::state::{Action, ProfileData};
-use strsim::levenshtein;
 
 pub fn match_fields(dom: &DomSnapshot, profile: &ProfileData) -> Vec<Action> {
     let mut actions = Vec::new();
@@ -29,8 +28,8 @@ pub fn match_fields(dom: &DomSnapshot, profile: &ProfileData) -> Vec<Action> {
 
         for (field_key, key_list) in &keywords {
             for keyword in key_list {
-                if levenshtein(&text, keyword) <= 2 {
-                    // Fuzzy threshold
+                if text.contains(keyword) {
+                    // Check if keyword appears in the field text
                     let value = match *field_key {
                         "full_name" => profile.full_name.as_ref(),
                         "email" => profile.email.as_ref(),

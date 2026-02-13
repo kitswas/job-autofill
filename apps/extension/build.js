@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { mkdir, copyFile } from "fs/promises";
+import { mkdir, copyFile, readdir, cp } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -28,3 +28,11 @@ await copyFile(
 	path.join(__dirname, "manifest.json"),
 	path.join(distDir, "manifest.json")
 );
+
+// Copy popup files
+const popupDist = path.join(__dirname, "../popup-ui/dist");
+try {
+	await cp(popupDist, distDir, { recursive: true });
+} catch (error) {
+	console.warn("Popup dist not found, skipping popup copy", error);
+}

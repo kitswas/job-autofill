@@ -10,7 +10,8 @@
 		"type": "module"
 	},
 	"action": {
-		"default_title": "Job Autofill"
+		"default_title": "Job Autofill",
+		"default_popup": "index.html"
 	},
 	"permissions": [
 		"storage",

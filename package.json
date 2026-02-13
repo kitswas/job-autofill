@@ -2,7 +2,7 @@
 	"name": "job-autofill",
 	"private": true,
 	"scripts": {
-		"build:all": "pnpm wasm:build && pnpm build:extension && pnpm build:popup",
+		"build:all": "pnpm wasm:build && pnpm build:popup && pnpm build:extension",
 		"wasm:build": "cd crates/engine && wasm-pack build --target bundler --out-dir ../../packages/core-wasm --out-name core_wasm",
 		"wasm:clean": "cd crates/engine && wasm-pack clean",
 		"build:extension": "pnpm --filter extension build",

@@ -7,7 +7,7 @@ Monorepo for a Manifest V3 browser extension that autofills job application form
 - `crates/engine`: Rust WebAssembly core (`wasm-bindgen` exports)
 - `packages/core-wasm`: Generated wasm-pack output consumed by apps
 - `apps/extension`: Manifest V3 extension (background + content scripts)
-- `apps/popup-ui`: Placeholder popup UI (Vite + React)
+- `apps/popup-ui`: React popup UI for managing profiles
 
 ## Prerequisites
 
@@ -57,12 +57,16 @@ pnpm build:popup
 3. Click **Load unpacked**.
 4. Select folder: [`apps/extension/dist`](./apps/extension/dist).
 
-## Load Extension in Firefox (Temporary Add-On)
+## Using the Extension
 
-1. Open Firefox and go to `about:debugging`.
-2. Click **This Firefox** (on the left sidebar).
-3. Click **Load Temporary Add-on**.
-4. Select the `manifest.json` file inside [`apps/extension/dist`](./apps/extension/dist).
+1. Load the extension as described above.
+2. Click the extension icon to open the popup.
+3. Create profiles with your information (name, email, phone).
+4. Select a profile to use for autofilling.
+5. Navigate to a job application form (currently supports Workday).
+6. The extension will automatically detect and fill matching fields.
+
+The popup UI allows you to manage multiple profiles for different applications or variations of your information.
 
 ## Current Message Flow
 
@@ -84,11 +88,14 @@ pnpm build:popup
 
 ## Current Status
 
-This repo is scaffolded and wired end-to-end for build/import, with placeholder matching logic in Rust (`analyze_form` currently returns an empty actions list).
+This repo has end-to-end functionality with profile management implemented.
 
-Next implementation targets:
+Features:
 
-- Parse DOM/profile payloads in Rust
-- Add fuzzy matching + scoring in `crates/engine/src/matcher.rs`
-- Return concrete `set_value` actions for content script execution
-- Add profile persistence in extension storage
+- Profile creation, editing, deletion, and selection via popup UI
+- Profiles stored in `chrome.storage.sync`
+- Content script uses selected profile for autofilling
+- Fuzzy matching in Rust engine for name, email, phone fields
+- Actions applied to matching form fields
+
+The extension can now autofill job application forms using user-defined profiles.

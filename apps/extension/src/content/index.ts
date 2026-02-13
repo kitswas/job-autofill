@@ -36,7 +36,18 @@ function extractFields(): DomSnapshot {
 
 async function requestActions() {
 	const domPayload = JSON.stringify(extractFields());
-	const profilePayload = JSON.stringify({});
+
+	// Get selected profile
+	const { profiles, selectedProfileId } = await chrome.storage.sync.get(['profiles', 'selectedProfileId']);
+	let profilePayload = JSON.stringify({});
+	if (profiles && selectedProfileId && profiles[selectedProfileId]) {
+		const profile = profiles[selectedProfileId];
+		profilePayload = JSON.stringify({
+			full_name: profile.full_name || null,
+			email: profile.email || null,
+			phone: profile.phone || null,
+		});
+	}
 
 	const response = await chrome.runtime.sendMessage({
 		type: "ANALYZE_FORM",
