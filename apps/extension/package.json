@@ -1,0 +1,16 @@
+{
+	"name": "extension",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "node build.js"
+	},
+	"dependencies": {
+		"core-wasm": "workspace:*"
+	},
+	"devDependencies": {
+		"esbuild": "^0.20.0",
+		"typescript": "^5.5.0"
+	}
+}

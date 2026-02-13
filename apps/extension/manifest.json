@@ -1,0 +1,40 @@
+{
+	"manifest_version": 3,
+	"name": "Job Autofill",
+	"version": "0.1.0",
+	"description": "Autofill job application forms.",
+	"background": {
+		"scripts": [
+			"dist/background.js"
+		],
+		"type": "module"
+	},
+	"action": {
+		"default_title": "Job Autofill"
+	},
+	"permissions": [
+		"storage",
+		"scripting",
+		"activeTab"
+	],
+	"host_permissions": [
+		"https://*.myworkdayjobs.com/*",
+		"https://*.workday.com/*"
+	],
+	"content_scripts": [
+		{
+			"matches": [
+				"https://*.myworkdayjobs.com/*",
+				"https://*.workday.com/*"
+			],
+			"js": [
+				"dist/content.js"
+			]
+		}
+	],
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "job-autofill@kitswas.github.io"
+		}
+	}
+}
