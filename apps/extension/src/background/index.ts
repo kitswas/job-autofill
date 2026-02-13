@@ -16,12 +16,20 @@ chrome.runtime.onMessage.addListener((message: AnalyzeRequest, _sender, sendResp
 	}
 
 	(async () => {
-		const result = analyze_form(message.domPayload, message.profilePayload);
-		const parsed: AnalyzeResponse = JSON.parse(result);
-		sendResponse(parsed);
+		try {
+			console.debug('[Job Autofill][background] ANALYZE_FORM input:', message.domPayload, message.profilePayload);
+			const result = analyze_form(message.domPayload, message.profilePayload);
+			console.debug('[Job Autofill][background] analyze_form raw result:', result);
+			const parsed: AnalyzeResponse = JSON.parse(result);
+			console.debug('[Job Autofill][background] parsed response:', parsed);
+			sendResponse(parsed);
+		} catch (error) {
+			console.error('[Job Autofill][background] analyze_form failed:', error);
+			sendResponse({ actions: [] });
+		}
 	})().catch((error) => {
+		console.error('[Job Autofill][background] unexpected error:', error);
 		sendResponse({ actions: [] });
-		console.error("analyze_form failed", error);
 	});
 
 	return true;

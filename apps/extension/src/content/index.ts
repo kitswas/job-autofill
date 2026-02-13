@@ -49,13 +49,24 @@ async function requestActions() {
 		});
 	}
 
-	const response = await chrome.runtime.sendMessage({
-		type: "ANALYZE_FORM",
-		domPayload,
-		profilePayload
-	});
+	console.debug('[Job Autofill][content] domPayload:', domPayload);
+	console.debug('[Job Autofill][content] profilePayload:', profilePayload);
+
+	let response: any = null;
+	try {
+		response = await chrome.runtime.sendMessage({
+			type: "ANALYZE_FORM",
+			domPayload,
+			profilePayload
+		});
+		console.debug('[Job Autofill][content] analyze response:', response);
+	} catch (err) {
+		console.error('[Job Autofill][content] sendMessage error:', err);
+		return;
+	}
 
 	if (!response?.actions) {
+		console.debug('[Job Autofill][content] no actions returned');
 		return;
 	}
 
@@ -65,6 +76,7 @@ async function requestActions() {
 		payload: string;
 	}>) {
 		if (action.action !== "set_value") {
+			console.debug('[Job Autofill][content] skipped action (not set_value):', action);
 			continue;
 		}
 
@@ -75,9 +87,11 @@ async function requestActions() {
 			| null;
 
 		if (!target) {
+			console.debug('[Job Autofill][content] selector not found:', action.selector);
 			continue;
 		}
 
+		console.debug('[Job Autofill][content] set', action.selector, '=>', action.payload);
 		target.focus();
 		target.value = action.payload;
 		target.dispatchEvent(new Event("input", { bubbles: true }));

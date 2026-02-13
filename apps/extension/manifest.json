@@ -20,13 +20,17 @@
 	],
 	"host_permissions": [
 		"https://*.myworkdayjobs.com/*",
-		"https://*.workday.com/*"
+		"https://*.workday.com/*",
+		"http://localhost/*",
+		"http://127.0.0.1/*"
 	],
 	"content_scripts": [
 		{
 			"matches": [
 				"https://*.myworkdayjobs.com/*",
-				"https://*.workday.com/*"
+				"https://*.workday.com/*",
+				"http://localhost/*",
+				"http://127.0.0.1/*"
 			],
 			"js": [
 				"dist/content.js"

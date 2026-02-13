@@ -57,16 +57,50 @@ pnpm build:popup
 3. Click **Load unpacked**.
 4. Select folder: [`apps/extension/dist`](./apps/extension/dist).
 
-## Using the Extension
+## Load Extension in Firefox (Developer Run)
 
-1. Load the extension as described above.
-2. Click the extension icon to open the popup.
-3. Create profiles with your information (name, email, phone).
-4. Select a profile to use for autofilling.
-5. Navigate to a job application form (currently supports Workday).
-6. The extension will automatically detect and fill matching fields.
+If you want to launch the extension in Firefox for development, `web-ext` provides a convenient runner that installs a temporary add-on and opens a browser instance.
 
-The popup UI allows you to manage multiple profiles for different applications or variations of your information.
+From the built extension directory run:
+
+```bash
+cd apps/extension/dist
+web-ext run --browser-console --devtools --start-url http://localhost:3000/test-page.html
+```
+
+Notes:
+
+- `web-ext` installs a temporary add-on into a new Firefox profile and opens a window; closing that window does not persist the add-on.
+- Install `web-ext` globally with `npm i -g web-ext` if you don't have it already.
+
+## Testing the Extension
+
+### Automated Testing
+
+Run the WebAssembly engine test:
+
+```bash
+node test-engine.js
+```
+
+This tests the core matching logic without needing to load the extension.
+
+### Manual Testing
+
+1. Load the extension in Chrome/Edge as described above.
+2. Open the extension popup and create a profile with your information.
+3. Select the profile to use for autofilling.
+4. Open `test-form.html` in your browser (or visit a supported job site).
+5. The extension should automatically fill matching form fields.
+
+### Debug Mode
+
+To enable debug logging, temporarily uncomment the `console.log` statements in:
+
+- `apps/extension/src/content/index.ts`
+- `apps/extension/src/background/index.ts`
+
+Then rebuild and reload the extension to see detailed logs in the browser console.
 
 ## Current Message Flow
 
