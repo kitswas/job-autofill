@@ -10,13 +10,47 @@ function extractFields(): DomSnapshot {
 	elements.forEach((el) => {
 		const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
+		// Ignore hidden fields
+		if (
+			element.type === "hidden" ||
+			element.style.display === "none" ||
+			element.style.visibility === "hidden" ||
+			element.offsetParent === null
+		) {
+			return;
+		}
+
 		let label = element.getAttribute("aria-label");
+
+		// Try aria-labelledby
+		if (!label) {
+			const labelledBy = element.getAttribute("aria-labelledby");
+			if (labelledBy) {
+				label = labelledBy
+					.split(/\s+/)
+					.map((id) => document.getElementById(id)?.textContent)
+					.filter(Boolean)
+					.join(" ")
+					.trim();
+			}
+		}
+
+		// Try standard <label>
 		if (!label && element.labels && element.labels.length > 0) {
 			label = Array.from(element.labels)
 				.map((l) => l.textContent)
 				.filter(Boolean)
 				.join(" ")
 				.trim();
+		}
+
+		// Try to find text in parent if it's a small container
+		if (!label) {
+			const parent = element.parentElement;
+			if (parent && parent.textContent && parent.textContent.length < 100) {
+				// Get text but exclude the element's own value/text if any
+				label = parent.textContent.trim();
+			}
 		}
 
 		fields.push({

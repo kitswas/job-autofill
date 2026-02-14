@@ -7,7 +7,7 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 	// Check if profile is enabled for this domain
 	const isEnabled = profile.enabledDomains.some((domain) => {
 		if (domain === "*") return true;
-		return hostname.endsWith(domain);
+		return hostname === domain || hostname.endsWith(`.${domain}`);
 	});
 
 	if (!isEnabled) return [];
@@ -17,16 +17,26 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			continue;
 		}
 
-		const fieldText = [field.label, field.placeholder, field.name, field.id]
+		const rawText = [field.label, field.placeholder, field.name, field.id]
 			.filter(Boolean)
-			.join(" ")
+			.join(" ");
+
+		// Normalize text: replace underscores, hyphens, and camelCase with spaces
+		const normalizedText = rawText
+			.replace(/([a-z])([A-Z])/g, "$1 $2")
+			.replace(/[_-]/g, " ")
 			.toLowerCase();
 
 		// Iterate through all mappings in the profile
 		for (const [fieldName, mapping] of Object.entries(profile.mappings)) {
 			const keywords = [fieldName, ...mapping.keywords].map((k) => k.toLowerCase());
 
-			const isMatch = keywords.some((keyword) => fieldText.includes(keyword));
+			const isMatch = keywords.some((keyword) => {
+				// Escape keyword for regex and use word boundaries
+				const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+				const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
+				return regex.test(normalizedText);
+			});
 
 			if (isMatch) {
 				const selector = field.id

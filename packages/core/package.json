@@ -4,8 +4,12 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"test": "vitest run"
 	},
 	"main": "./dist/index.js",
-	"types": "./src/index.ts"
+	"types": "./src/index.ts",
+	"devDependencies": {
+		"vitest": "^4.0.18"
+	}
 }
