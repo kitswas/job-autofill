@@ -88,6 +88,142 @@ export function App() {
     saveProfiles(profiles, id);
   };
 
+  // Run autofill end-to-end from the popup (doesn't rely on content script injection)
+  const autofillActiveTab = async () => {
+    if (!selectedProfileId) {
+      alert("Select a profile first");
+      return;
+    }
+
+    const profile = profiles[selectedProfileId];
+
+    const tabs = await new Promise<chrome.tabs.Tab[]>((resolve) =>
+      chrome.tabs.query({ active: true, currentWindow: true }, (t) =>
+        resolve(t),
+      ),
+    );
+    const tab = tabs[0];
+    if (!tab?.id) {
+      alert("No active tab");
+      return;
+    }
+
+    // extract DOM snapshot from the page
+    let domSnapshot: any = null;
+    try {
+      if ((chrome as any).scripting?.executeScript) {
+        const results = await (chrome as any).scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            const elements = Array.from(
+              document.querySelectorAll("input, select, textarea"),
+            );
+            return {
+              url: location.href,
+              fields: elements.map((el) => ({
+                id: el.id || null,
+                name: el.getAttribute("name"),
+                label: el.getAttribute("aria-label"),
+                placeholder: el.getAttribute("placeholder"),
+                kind: el.tagName.toLowerCase(),
+              })),
+            };
+          },
+        });
+        domSnapshot = results[0].result;
+      } else if ((chrome as any).tabs?.executeScript) {
+        domSnapshot = await new Promise((resolve) =>
+          chrome.tabs.executeScript(
+            tab.id!,
+            {
+              code: `(() => { const elements = Array.from(document.querySelectorAll('input, select, textarea')); return JSON.stringify({url:location.href,fields: elements.map(el=>({id:el.id||null,name:el.getAttribute('name'),label:el.getAttribute('aria-label'),placeholder:el.getAttribute('placeholder'),kind:el.tagName.toLowerCase()}))}); })();`,
+            },
+            (res) => resolve(JSON.parse(res?.[0] ?? "{}")),
+          ),
+        );
+      } else {
+        alert("scripting.executeScript not available in this browser");
+        return;
+      }
+    } catch (err) {
+      console.error("extract DOM failed", err);
+      alert("Failed to read page DOM — check console");
+      return;
+    }
+
+    const domPayload = JSON.stringify(domSnapshot);
+    const profilePayload = JSON.stringify({
+      full_name: profile.full_name || null,
+      email: profile.email || null,
+      phone: profile.phone || null,
+    });
+
+    console.debug("[Job Autofill][popup] domPayload:", domPayload);
+    console.debug("[Job Autofill][popup] profilePayload:", profilePayload);
+    // Debug: show what we extracted
+    const fieldSummary = domSnapshot.fields
+      .map(
+        (f) =>
+          `${f.kind}[${f.name || f.id}]: "${f.label || ""}" "${f.placeholder || ""}"`,
+      )
+      .join("\n");
+    alert(
+      `Extracted ${domSnapshot.fields.length} fields:\n${fieldSummary}\n\nProfile: name=${profile.full_name}, email=${profile.email}, phone=${profile.phone}`,
+    );
+    const response: any = await new Promise((resolve) =>
+      chrome.runtime.sendMessage(
+        { type: "ANALYZE_FORM", domPayload, profilePayload },
+        (res) => resolve(res),
+      ),
+    );
+
+    console.debug("[Job Autofill][popup] analyzer response:", response);
+
+    if (!response?.actions?.length) {
+      alert(
+        "Analyzer returned no actions — check background console and popup console",
+      );
+      return;
+    }
+
+    try {
+      if ((chrome as any).scripting?.executeScript) {
+        await (chrome as any).scripting.executeScript({
+          target: { tabId: tab.id },
+          args: [response.actions],
+          func: (actions: any[]) => {
+            for (const a of actions) {
+              try {
+                const t = document.querySelector(a.selector) as
+                  | HTMLInputElement
+                  | HTMLTextAreaElement
+                  | HTMLSelectElement
+                  | null;
+                if (!t) continue;
+                t.focus();
+                (t as any).value = a.payload;
+                t.dispatchEvent(new Event("input", { bubbles: true }));
+                t.dispatchEvent(new Event("change", { bubbles: true }));
+              } catch (e) {
+                /* ignore per-field errors */
+              }
+            }
+            return true;
+          },
+        });
+      } else if ((chrome as any).tabs?.executeScript) {
+        const code = `(() => { const actions = ${JSON.stringify(response.actions)}; for (const a of actions) { const t = document.querySelector(a.selector); if (!t) continue; t.focus(); t.value = a.payload; t.dispatchEvent(new Event('input', { bubbles: true })); t.dispatchEvent(new Event('change', { bubbles: true })); } return true; })();`;
+        await new Promise((resolve) =>
+          chrome.tabs.executeScript(tab.id!, { code }, () => resolve(true)),
+        );
+      }
+      alert("Autofill applied — check the page");
+    } catch (err) {
+      console.error("apply actions failed", err);
+      alert("Failed to apply actions — check console");
+    }
+  };
+
   return (
     <main
       style={{ padding: "16px", fontFamily: "sans-serif", maxWidth: "400px" }}
@@ -96,6 +232,11 @@ export function App() {
 
       <div style={{ marginBottom: "20px" }}>
         <h2>Profiles</h2>
+        <div style={{ marginBottom: "8px" }}>
+          <button onClick={autofillActiveTab}>
+            Run autofill on active tab
+          </button>
+        </div>
         {Object.values(profiles).map((profile) => (
           <div
             key={profile.id}

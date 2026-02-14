@@ -17,12 +17,21 @@ function extractFields(): DomSnapshot {
 
 	elements.forEach((el) => {
 		const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-		const label = element.getAttribute("aria-label");
+		
+		// Try to get label from aria-label, then from associated label elements
+		let label = element.getAttribute("aria-label");
+		if (!label && element.labels && element.labels.length > 0) {
+			label = Array.from(element.labels)
+				.map(l => l.textContent)
+				.filter(Boolean)
+				.join(" ")
+				.trim();
+		}
 
 		fields.push({
 			id: element.id || null,
 			name: element.getAttribute("name"),
-			label,
+			label: label || null,
 			placeholder: element.getAttribute("placeholder"),
 			kind: element.tagName.toLowerCase()
 		});

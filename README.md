@@ -61,7 +61,7 @@ pnpm build:popup
 
 If you want to launch the extension in Firefox for development, `web-ext` provides a convenient runner that installs a temporary add-on and opens a browser instance.
 
-From the built extension directory run:
+From the project root, run:
 
 ```bash
 cd apps/extension/dist

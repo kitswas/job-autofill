@@ -25,6 +25,11 @@ await build({
 });
 
 await copyFile(
+	path.join(__dirname, "../../packages/core-wasm/core_wasm_bg.wasm"),
+	path.join(distDir, "core_wasm_bg.wasm")
+);
+
+await copyFile(
 	path.join(__dirname, "manifest.json"),
 	path.join(distDir, "manifest.json")
 );

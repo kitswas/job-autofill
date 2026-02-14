@@ -5,13 +5,11 @@
   "files": [
     "core_wasm_bg.wasm",
     "core_wasm.js",
-    "core_wasm_bg.js",
     "core_wasm.d.ts"
   ],
   "main": "core_wasm.js",
   "types": "core_wasm.d.ts",
   "sideEffects": [
-    "./core_wasm.js",
     "./snippets/*"
   ]
 }
