@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import { DomSnapshot, DomField } from "core";
 
 console.log("[Job Autofill][content] script loaded");
@@ -33,9 +34,9 @@ function extractFields(): DomSnapshot {
 	};
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, _sender) => {
 	if (message.type === "GET_DOM_SNAPSHOT") {
-		sendResponse(extractFields());
+		return Promise.resolve(extractFields());
 	} else if (message.type === "APPLY_ACTIONS") {
 		const actions = message.actions;
 		for (const action of actions) {
@@ -52,5 +53,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 			target.dispatchEvent(new Event("input", { bubbles: true }));
 			target.dispatchEvent(new Event("change", { bubbles: true }));
 		}
+		return Promise.resolve({ success: true });
 	}
 });

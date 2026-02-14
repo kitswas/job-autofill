@@ -1,27 +1,28 @@
+import browser from "webextension-polyfill";
 import { matchFields, Profile, DomSnapshot } from "core";
 
 console.log("[Job Autofill][background] script loaded");
 
 // Open dashboard on icon click
-chrome.action.onClicked.addListener(() => {
-	chrome.tabs.create({ url: "index.html" });
+browser.action.onClicked.addListener(() => {
+	browser.tabs.create({ url: "index.html" });
 });
 
 // Update context menus based on profiles
 async function updateContextMenus() {
-	await chrome.contextMenus.removeAll();
+	await browser.contextMenus.removeAll();
 
-	const { profiles } = await chrome.storage.sync.get(["profiles"]);
+	const { profiles } = await browser.storage.sync.get(["profiles"]);
 	if (!profiles) return;
 
-	chrome.contextMenus.create({
+	browser.contextMenus.create({
 		id: "autofill-root",
 		title: "Job Autofill",
 		contexts: ["editable"],
 	});
 
 	Object.values(profiles as Record<string, Profile>).forEach((profile) => {
-		chrome.contextMenus.create({
+		browser.contextMenus.create({
 			id: `autofill-profile-${profile.id}`,
 			parentId: "autofill-root",
 			title: profile.name || "Unnamed Profile",
@@ -34,50 +35,52 @@ async function updateContextMenus() {
 updateContextMenus();
 
 // Watch for profile changes to update menus
-chrome.storage.onChanged.addListener((changes) => {
+browser.storage.onChanged.addListener((changes) => {
 	if (changes.profiles) {
 		updateContextMenus();
 	}
 });
 
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+browser.contextMenus.onClicked.addListener(async (info, tab) => {
 	if (!tab?.id || !info.menuItemId.toString().startsWith("autofill-profile-")) return;
 
 	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
-	const { profiles } = await chrome.storage.sync.get(["profiles"]);
+	const { profiles } = await browser.storage.sync.get(["profiles"]);
 	const profile = profiles?.[profileId];
 
 	if (!profile) return;
 
 	// Request DOM snapshot from content script
-	chrome.tabs.sendMessage(tab.id, { type: "GET_DOM_SNAPSHOT" }, (response) => {
-		if (chrome.runtime.lastError || !response) {
-			console.error(
-				"[Job Autofill][background] Failed to get DOM snapshot:",
-				chrome.runtime.lastError,
-			);
+	try {
+		const response = await browser.tabs.sendMessage(tab.id, { type: "GET_DOM_SNAPSHOT" });
+		if (!response) {
+			console.error("[Job Autofill][background] Received empty response for DOM snapshot");
 			return;
 		}
 
 		const actions = matchFields(response as DomSnapshot, profile as Profile);
 		if (actions.length > 0) {
-			chrome.tabs.sendMessage(tab.id, { type: "APPLY_ACTIONS", actions });
+			await browser.tabs.sendMessage(tab.id, { type: "APPLY_ACTIONS", actions });
 		}
-	});
+	} catch (error) {
+		console.error(
+			"[Job Autofill][background] Failed to get DOM snapshot or apply actions:",
+			error,
+		);
+	}
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, _sender) => {
 	if (message.type === "ANALYZE_FORM") {
 		const { domPayload, profilePayload } = message;
 		try {
 			const dom = JSON.parse(domPayload);
 			const profile = JSON.parse(profilePayload);
 			const actions = matchFields(dom, profile);
-			sendResponse({ actions });
+			return Promise.resolve({ actions });
 		} catch (e) {
 			console.error("[Job Autofill][background] ANALYZE_FORM error:", e);
-			sendResponse({ actions: [] });
+			return Promise.resolve({ actions: [] });
 		}
-		return true;
 	}
 });
