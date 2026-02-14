@@ -2,15 +2,20 @@
   "name": "job-autofill",
   "private": true,
   "scripts": {
-    "build:all": "pnpm wasm:build && pnpm build:popup && pnpm build:extension",
-    		"wasm:build": "cd crates/engine && wasm-pack build --target web --out-dir ../../packages/core-wasm --out-name core_wasm && node ../../scripts/patch-wasm.js",    "wasm:clean": "cd crates/engine && wasm-pack clean",
-    "build:extension": "pnpm --filter extension build",
+    "dev:popup": "pnpm --filter popup-ui dev",
+    "build": "pnpm build:core && pnpm build:popup && pnpm build:extension",
+    "build:core": "pnpm --filter core build",
     "build:popup": "pnpm --filter popup-ui build",
+    "build:extension": "pnpm --filter extension build",
+    "type-check": "pnpm -r exec tsc --noEmit",
+    "lint": "pnpm -r exec eslint apps packages",
+    "clean": "pnpm -r --parallel exec rm -rf dist node_modules",
     "launch": "start-server-and-test \"http-server apps/extension -p 5173 -c-1\" http://localhost:5173/test-page.html \"cd apps/extension/dist && web-ext run --browser-console --devtools --start-url http://localhost:5173/test-page.html\""
   },
   "devDependencies": {
     "start-server-and-test": "^2.1.3",
     "http-server": "^14.1.1",
-    "web-ext": "^9.3.0"
+    "web-ext": "^9.3.0",
+    "typescript": "^5.5.0"
   }
 }

@@ -6,10 +6,9 @@
   "scripts": {
     "build": "node build.js"
   },
-  "dependencies": {
-    "core-wasm": "workspace:*"
-  },
-  "devDependencies": {
+  	"dependencies": {
+  		"core": "workspace:*"
+  	},  "devDependencies": {
     "esbuild": "^0.27.3",
     "typescript": "^5.5.0"
   }

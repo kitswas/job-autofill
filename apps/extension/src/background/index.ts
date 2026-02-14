@@ -1,67 +1,80 @@
-import init, { analyze_form } from "core-wasm";
-import wasmUrl from "core-wasm/core_wasm_bg.wasm";
+import { matchFields, Profile, DomSnapshot } from "core";
 
-console.log('[Job Autofill][background] script loaded (ESM)');
+console.log('[Job Autofill][background] script loaded');
 
-let wasmReady = false;
-let initializing: Promise<void> | null = null;
+// Open dashboard on icon click
+chrome.action.onClicked.addListener(() => {
+	chrome.tabs.create({ url: 'index.html' });
+});
 
-async function initWasm() {
-	if (wasmReady) return;
-	if (initializing) return initializing;
+// Update context menus based on profiles
+async function updateContextMenus() {
+	await chrome.contextMenus.removeAll();
+	
+	const { profiles } = await chrome.storage.sync.get(['profiles']);
+	if (!profiles) return;
 
-	initializing = (async () => {
-		try {
-			const url = chrome.runtime.getURL(wasmUrl);
-			console.debug('[Job Autofill][background] Initializing WASM from:', url);
-			await init(url);
-			wasmReady = true;
-			console.debug('[Job Autofill][background] WASM initialized');
-		} catch (err) {
-			console.error('[Job Autofill][background] WASM initialization failed:', err);
-			initializing = null;
-			throw err;
-		}
-	})();
-
-	return initializing;
-}
-
-// Start initialization immediately
-initWasm().catch(() => {});
-
-type AnalyzeRequest = {
-	type: "ANALYZE_FORM";
-	domPayload: string;
-	profilePayload: string;
-};
-
-type AnalyzeResponse = {
-	actions: Array<{ selector: string; action: string; payload: string }>;
-};
-
-chrome.runtime.onMessage.addListener((message: AnalyzeRequest, _sender, sendResponse) => {
-	if (message?.type !== "ANALYZE_FORM") {
-		return;
-	}
-
-	(async () => {
-		try {
-			await initWasm();
-			console.debug('[Job Autofill][background] ANALYZE_FORM input:', message.domPayload, message.profilePayload);
-			const result = analyze_form(message.domPayload, message.profilePayload);
-			console.debug('[Job Autofill][background] analyze_form raw result:', result);
-			const parsed: AnalyzeResponse = JSON.parse(result);
-			console.debug('[Job Autofill][background] parsed response:', parsed);
-			sendResponse(parsed);
-		} catch (error) {
-			console.error('[Job Autofill][background] analyze_form failed:', error);
-			sendResponse({ actions: [] });
-		}
-	})().catch((error) => {
-		console.error('[Job Autofill][background] unexpected error:', error);
-		sendResponse({ actions: [] });
+	chrome.contextMenus.create({
+		id: "autofill-root",
+		title: "Job Autofill",
+		contexts: ["editable"]
 	});
 
-	return true;
+	Object.values(profiles as Record<string, Profile>).forEach((profile) => {
+		chrome.contextMenus.create({
+			id: `autofill-profile-${profile.id}`,
+			parentId: "autofill-root",
+			title: profile.name || "Unnamed Profile",
+			contexts: ["editable"]
+		});
+	});
+}
+
+// Initial update
+updateContextMenus();
+
+// Watch for profile changes to update menus
+chrome.storage.onChanged.addListener((changes) => {
+	if (changes.profiles) {
+		updateContextMenus();
+	}
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+	if (!tab?.id || !info.menuItemId.toString().startsWith("autofill-profile-")) return;
+
+	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
+	const { profiles } = await chrome.storage.sync.get(['profiles']);
+	const profile = profiles?.[profileId];
+
+	if (!profile) return;
+
+	// Request DOM snapshot from content script
+	chrome.tabs.sendMessage(tab.id, { type: "GET_DOM_SNAPSHOT" }, (response) => {
+		if (chrome.runtime.lastError || !response) {
+			console.error('[Job Autofill][background] Failed to get DOM snapshot:', chrome.runtime.lastError);
+			return;
+		}
+
+		const actions = matchFields(response as DomSnapshot, profile as Profile);
+		if (actions.length > 0) {
+			chrome.tabs.sendMessage(tab.id, { type: "APPLY_ACTIONS", actions });
+		}
+	});
+});
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+	if (message.type === "ANALYZE_FORM") {
+		const { domPayload, profilePayload } = message;
+		try {
+			const dom = JSON.parse(domPayload);
+			const profile = JSON.parse(profilePayload);
+			const actions = matchFields(dom, profile);
+			sendResponse({ actions });
+		} catch (e) {
+			console.error('[Job Autofill][background] ANALYZE_FORM error:', e);
+			sendResponse({ actions: [] });
+		}
+		return true;
+	}
 });

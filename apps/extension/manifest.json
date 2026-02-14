@@ -10,17 +10,14 @@
 		"type": "module"
 	},
 	"action": {
-		"default_title": "Job Autofill",
-		"default_popup": "index.html"
+		"default_title": "Job Autofill"
 	},
 	"permissions": [
 		"storage",
 		"scripting",
-		"activeTab"
+		"activeTab",
+		"contextMenus"
 	],
-	"content_security_policy": {
-		"extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-	},
 	"host_permissions": [
 		"https://*.myworkdayjobs.com/*",
 		"https://*.workday.com/*",

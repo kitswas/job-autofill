@@ -1,15 +1,6 @@
-type DomField = {
-	id: string | null;
-	name: string | null;
-	label: string | null;
-	placeholder: string | null;
-	kind: string;
-};
+import { DomSnapshot, DomField } from "core";
 
-type DomSnapshot = {
-	url: string;
-	fields: DomField[];
-};
+console.log('[Job Autofill][content] script loaded');
 
 function extractFields(): DomSnapshot {
 	const fields: DomField[] = [];
@@ -18,7 +9,6 @@ function extractFields(): DomSnapshot {
 	elements.forEach((el) => {
 		const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 		
-		// Try to get label from aria-label, then from associated label elements
 		let label = element.getAttribute("aria-label");
 		if (!label && element.labels && element.labels.length > 0) {
 			label = Array.from(element.labels)
@@ -43,69 +33,24 @@ function extractFields(): DomSnapshot {
 	};
 }
 
-async function requestActions() {
-	const domPayload = JSON.stringify(extractFields());
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+	if (message.type === "GET_DOM_SNAPSHOT") {
+		sendResponse(extractFields());
+	} else if (message.type === "APPLY_ACTIONS") {
+		const actions = message.actions;
+		for (const action of actions) {
+			const target = document.querySelector(action.selector) as
+				| HTMLInputElement
+				| HTMLTextAreaElement
+				| HTMLSelectElement
+				| null;
 
-	// Get selected profile
-	const { profiles, selectedProfileId } = await chrome.storage.sync.get(['profiles', 'selectedProfileId']);
-	let profilePayload = JSON.stringify({});
-	if (profiles && selectedProfileId && profiles[selectedProfileId]) {
-		const profile = profiles[selectedProfileId];
-		profilePayload = JSON.stringify({
-			full_name: profile.full_name || null,
-			email: profile.email || null,
-			phone: profile.phone || null,
-		});
-	}
+			if (!target) continue;
 
-	console.debug('[Job Autofill][content] domPayload:', domPayload);
-	console.debug('[Job Autofill][content] profilePayload:', profilePayload);
-
-	let response: any = null;
-	try {
-		response = await chrome.runtime.sendMessage({
-			type: "ANALYZE_FORM",
-			domPayload,
-			profilePayload
-		});
-		console.debug('[Job Autofill][content] analyze response:', response);
-	} catch (err) {
-		console.error('[Job Autofill][content] sendMessage error:', err);
-		return;
-	}
-
-	if (!response?.actions) {
-		console.debug('[Job Autofill][content] no actions returned');
-		return;
-	}
-
-	for (const action of response.actions as Array<{
-		selector: string;
-		action: string;
-		payload: string;
-	}>) {
-		if (action.action !== "set_value") {
-			console.debug('[Job Autofill][content] skipped action (not set_value):', action);
-			continue;
+			target.focus();
+			target.value = action.payload;
+			target.dispatchEvent(new Event("input", { bubbles: true }));
+			target.dispatchEvent(new Event("change", { bubbles: true }));
 		}
-
-		const target = document.querySelector(action.selector) as
-			| HTMLInputElement
-			| HTMLTextAreaElement
-			| HTMLSelectElement
-			| null;
-
-		if (!target) {
-			console.debug('[Job Autofill][content] selector not found:', action.selector);
-			continue;
-		}
-
-		console.debug('[Job Autofill][content] set', action.selector, '=>', action.payload);
-		target.focus();
-		target.value = action.payload;
-		target.dispatchEvent(new Event("input", { bubbles: true }));
-		target.dispatchEvent(new Event("change", { bubbles: true }));
 	}
-}
-
-void requestActions();
+});

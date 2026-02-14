@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { mkdir, copyFile, readdir, cp } from "fs/promises";
+import { mkdir, copyFile, cp, rm } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -8,6 +8,18 @@ const __dirname = path.dirname(__filename);
 const distDir = path.join(__dirname, "dist");
 
 await mkdir(distDir, { recursive: true });
+
+// Clean up any old wasm files
+try {
+	const files = await readdir(distDir);
+	for (const file of files) {
+		if (file.endsWith(".wasm")) {
+			await rm(path.join(distDir, file));
+		}
+	}
+} catch (e) {
+	// ignore
+}
 
 await build({
 	entryPoints: {
@@ -19,25 +31,17 @@ await build({
 	format: "esm",
 	target: "es2022",
 	sourcemap: true,
-	loader: {
-		'.wasm': 'file'
-	}
 });
-
-await copyFile(
-	path.join(__dirname, "../../packages/core-wasm/core_wasm_bg.wasm"),
-	path.join(distDir, "core_wasm_bg.wasm")
-);
 
 await copyFile(
 	path.join(__dirname, "manifest.json"),
 	path.join(distDir, "manifest.json")
 );
 
-// Copy popup files
+// Copy popup files (now dashboard)
 const popupDist = path.join(__dirname, "../popup-ui/dist");
 try {
 	await cp(popupDist, distDir, { recursive: true });
 } catch (error) {
-	console.warn("Popup dist not found, skipping popup copy", error);
+	console.warn("Popup dist not found, skipping popup copy");
 }
