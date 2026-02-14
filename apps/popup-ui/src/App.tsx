@@ -37,6 +37,15 @@ export function App() {
 		setEditingProfile(newProfile);
 	};
 
+	const createProfileFrom = (baseProfile: Profile) => {
+		const newProfile: Profile = {
+			...baseProfile,
+			id: Date.now().toString(),
+			name: baseProfile.name + " Copy",
+		};
+		setEditingProfile(newProfile);
+	};
+
 	const saveEditingProfile = () => {
 		if (!editingProfile) return;
 		const newProfiles = { ...profiles, [editingProfile.id]: editingProfile };
@@ -130,6 +139,12 @@ export function App() {
 						>
 							<h1>Edit Profile</h1>
 							<div>
+								<button
+									onClick={() => createProfileFrom(editingProfile)}
+									style={{ marginRight: "10px" }}
+								>
+									Duplicate
+								</button>
 								<button
 									onClick={() => deleteProfile(editingProfile.id)}
 									style={{ marginRight: "10px", color: "red" }}
