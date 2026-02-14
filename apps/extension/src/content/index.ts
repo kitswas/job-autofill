@@ -1,6 +1,6 @@
 import { DomSnapshot, DomField } from "core";
 
-console.log('[Job Autofill][content] script loaded');
+console.log("[Job Autofill][content] script loaded");
 
 function extractFields(): DomSnapshot {
 	const fields: DomField[] = [];
@@ -8,11 +8,11 @@ function extractFields(): DomSnapshot {
 
 	elements.forEach((el) => {
 		const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-		
+
 		let label = element.getAttribute("aria-label");
 		if (!label && element.labels && element.labels.length > 0) {
 			label = Array.from(element.labels)
-				.map(l => l.textContent)
+				.map((l) => l.textContent)
 				.filter(Boolean)
 				.join(" ")
 				.trim();
@@ -23,13 +23,13 @@ function extractFields(): DomSnapshot {
 			name: element.getAttribute("name"),
 			label: label || null,
 			placeholder: element.getAttribute("placeholder"),
-			kind: element.tagName.toLowerCase()
+			kind: element.tagName.toLowerCase(),
 		});
 	});
 
 	return {
 		url: window.location.href,
-		fields
+		fields,
 	};
 }
 

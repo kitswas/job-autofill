@@ -24,7 +24,7 @@ try {
 await build({
 	entryPoints: {
 		background: path.join(__dirname, "src/background/index.ts"),
-		content: path.join(__dirname, "src/content/index.ts")
+		content: path.join(__dirname, "src/content/index.ts"),
 	},
 	outdir: distDir,
 	bundle: true,
@@ -33,10 +33,7 @@ await build({
 	sourcemap: true,
 });
 
-await copyFile(
-	path.join(__dirname, "manifest.json"),
-	path.join(distDir, "manifest.json")
-);
+await copyFile(path.join(__dirname, "manifest.json"), path.join(distDir, "manifest.json"));
 
 // Copy popup files (now dashboard)
 const popupDist = path.join(__dirname, "../popup-ui/dist");

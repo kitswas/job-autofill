@@ -5,7 +5,7 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 	const hostname = new URL(dom.url).hostname;
 
 	// Check if profile is enabled for this domain
-	const isEnabled = profile.enabledDomains.some(domain => {
+	const isEnabled = profile.enabledDomains.some((domain) => {
 		if (domain === "*") return true;
 		return hostname.endsWith(domain);
 	});
@@ -17,26 +17,28 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			continue;
 		}
 
-		const fieldText = [
-			field.label,
-			field.placeholder,
-			field.name,
-			field.id
-		].filter(Boolean).join(" ").toLowerCase();
+		const fieldText = [field.label, field.placeholder, field.name, field.id]
+			.filter(Boolean)
+			.join(" ")
+			.toLowerCase();
 
 		// Iterate through all mappings in the profile
 		for (const [fieldName, mapping] of Object.entries(profile.mappings)) {
-			const keywords = [fieldName, ...mapping.keywords].map(k => k.toLowerCase());
-			
-			const isMatch = keywords.some(keyword => fieldText.includes(keyword));
+			const keywords = [fieldName, ...mapping.keywords].map((k) => k.toLowerCase());
+
+			const isMatch = keywords.some((keyword) => fieldText.includes(keyword));
 
 			if (isMatch) {
-				const selector = field.id ? `#${field.id}` : field.name ? `[name="${field.name}"]` : null;
+				const selector = field.id
+					? `#${field.id}`
+					: field.name
+						? `[name="${field.name}"]`
+						: null;
 				if (selector) {
 					actions.push({
 						selector,
 						action: "set_value",
-						payload: mapping.content
+						payload: mapping.content,
 					});
 					break; // Move to next field once matched
 				}

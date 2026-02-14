@@ -1,15 +1,16 @@
 {
-  "name": "extension",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "node build.js"
-  },
-  	"dependencies": {
-  		"core": "workspace:*"
-  	},  "devDependencies": {
-    "esbuild": "^0.27.3",
-    "typescript": "^5.5.0"
-  }
+	"name": "extension",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "node build.js"
+	},
+	"dependencies": {
+		"core": "workspace:*"
+	},
+	"devDependencies": {
+		"esbuild": "^0.27.3",
+		"typescript": "^5.5.0"
+	}
 }

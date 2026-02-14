@@ -35,7 +35,7 @@ pnpm build:core
 pnpm dev:popup
 ```
 
-*The dashboard includes a mock storage layer for debugging in a standard browser tab.*
+_The dashboard includes a mock storage layer for debugging in a standard browser tab._
 
 ### Building the Extension
 

@@ -4,20 +4,13 @@
 	"version": "0.1.0",
 	"description": "Autofill job application forms.",
 	"background": {
-		"scripts": [
-			"background.js"
-		],
+		"scripts": ["background.js"],
 		"type": "module"
 	},
 	"action": {
 		"default_title": "Job Autofill"
 	},
-	"permissions": [
-		"storage",
-		"scripting",
-		"activeTab",
-		"contextMenus"
-	],
+	"permissions": ["storage", "scripting", "activeTab", "contextMenus"],
 	"host_permissions": [
 		"https://*.myworkdayjobs.com/*",
 		"https://*.workday.com/*",
@@ -32,9 +25,7 @@
 				"http://localhost/*",
 				"http://127.0.0.1/*"
 			],
-			"js": [
-				"content.js"
-			]
+			"js": ["content.js"]
 		}
 	],
 	"browser_specific_settings": {

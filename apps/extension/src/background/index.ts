@@ -1,23 +1,23 @@
 import { matchFields, Profile, DomSnapshot } from "core";
 
-console.log('[Job Autofill][background] script loaded');
+console.log("[Job Autofill][background] script loaded");
 
 // Open dashboard on icon click
 chrome.action.onClicked.addListener(() => {
-	chrome.tabs.create({ url: 'index.html' });
+	chrome.tabs.create({ url: "index.html" });
 });
 
 // Update context menus based on profiles
 async function updateContextMenus() {
 	await chrome.contextMenus.removeAll();
-	
-	const { profiles } = await chrome.storage.sync.get(['profiles']);
+
+	const { profiles } = await chrome.storage.sync.get(["profiles"]);
 	if (!profiles) return;
 
 	chrome.contextMenus.create({
 		id: "autofill-root",
 		title: "Job Autofill",
-		contexts: ["editable"]
+		contexts: ["editable"],
 	});
 
 	Object.values(profiles as Record<string, Profile>).forEach((profile) => {
@@ -25,7 +25,7 @@ async function updateContextMenus() {
 			id: `autofill-profile-${profile.id}`,
 			parentId: "autofill-root",
 			title: profile.name || "Unnamed Profile",
-			contexts: ["editable"]
+			contexts: ["editable"],
 		});
 	});
 }
@@ -44,7 +44,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	if (!tab?.id || !info.menuItemId.toString().startsWith("autofill-profile-")) return;
 
 	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
-	const { profiles } = await chrome.storage.sync.get(['profiles']);
+	const { profiles } = await chrome.storage.sync.get(["profiles"]);
 	const profile = profiles?.[profileId];
 
 	if (!profile) return;
@@ -52,7 +52,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	// Request DOM snapshot from content script
 	chrome.tabs.sendMessage(tab.id, { type: "GET_DOM_SNAPSHOT" }, (response) => {
 		if (chrome.runtime.lastError || !response) {
-			console.error('[Job Autofill][background] Failed to get DOM snapshot:', chrome.runtime.lastError);
+			console.error(
+				"[Job Autofill][background] Failed to get DOM snapshot:",
+				chrome.runtime.lastError,
+			);
 			return;
 		}
 
@@ -72,7 +75,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 			const actions = matchFields(dom, profile);
 			sendResponse({ actions });
 		} catch (e) {
-			console.error('[Job Autofill][background] ANALYZE_FORM error:', e);
+			console.error("[Job Autofill][background] ANALYZE_FORM error:", e);
 			sendResponse({ actions: [] });
 		}
 		return true;
