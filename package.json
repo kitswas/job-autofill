@@ -8,7 +8,7 @@
 		"build:popup": "pnpm --filter popup-ui build",
 		"build:extension": "pnpm --filter extension build",
 		"type-check": "pnpm -r exec tsc --noEmit",
-		"lint": "pnpm -r exec eslint apps packages",
+		"lint": "pnpm -w exec eslint --ext .ts,.tsx,.js,.jsx \"apps/**\" \"packages/**\"",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"clean": "pnpm -r --parallel exec rm -rf dist node_modules",
@@ -21,6 +21,10 @@
 		"prettier": "^3.8.1",
 		"start-server-and-test": "^2.1.3",
 		"typescript": "^5.9.3",
+		"eslint": "^10.0.0",
+		"@typescript-eslint/parser": "^8.55.0",
+		"@typescript-eslint/eslint-plugin": "^8.55.0",
+		"eslint-plugin-react": "^7.32.2",
 		"web-ext": "^9.3.0"
 	}
 }
