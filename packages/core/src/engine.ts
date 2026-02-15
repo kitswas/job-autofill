@@ -1,32 +1,42 @@
 import Fuse from "fuse.js";
 import { Action, DomSnapshot, Profile, Rule } from "./types";
 
-function isMatch(normalizedText: string, normalizedKeyword: string, type: Rule["type"]): boolean {
+function calculateScore(
+	normalizedText: string,
+	normalizedKeyword: string,
+	type: Rule["type"],
+): number {
 	switch (type) {
 		case "exact": {
 			const escapedKeyword = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 			const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
-			return regex.test(normalizedText);
+			return regex.test(normalizedText) ? 100 : 0;
 		}
 		case "contains":
-			return normalizedText.includes(normalizedKeyword);
+			return normalizedText.includes(normalizedKeyword) ? 50 : 0;
 		case "starts_with":
-			return normalizedText.startsWith(normalizedKeyword);
+			return normalizedText.startsWith(normalizedKeyword) ? 30 : 0;
 		case "fuzzy": {
+			// Basic substring check as a fast path for fuzzy
+			if (normalizedText.includes(normalizedKeyword)) return 40;
+
 			const fuse = new Fuse([normalizedText], {
 				includeScore: true,
 				threshold: 0.4,
 			});
 			const results = fuse.search(normalizedKeyword);
-			return results.length > 0;
+			if (results.length > 0 && results[0].score !== undefined) {
+				return Math.round((1 - results[0].score) * 40);
+			}
+			return 0;
 		}
 		default:
-			return false;
+			return 0;
 	}
 }
 
 export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
-	const actionsMap = new Map<string, Action>();
+	const fieldBestMatches = new Map<string, { action: Action; score: number }>();
 	const hostname = new URL(dom.url).hostname;
 
 	// Check if profile is enabled for this domain
@@ -53,7 +63,6 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			.filter(Boolean)
 			.join(" ");
 
-		// Normalize text: replace underscores, hyphens, and camelCase with spaces, then collapse spaces
 		const normalizedText = rawText
 			.replace(/([a-z])([A-Z])/g, "$1 $2")
 			.replace(/[_-]/g, " ")
@@ -71,30 +80,39 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 
 		if (!selector) continue;
 
-		// Iterate through all rules in the profile
-		// Later rules overwrite earlier ones, so we just let them overwrite in the map
 		for (const rule of profile.rules) {
 			const keywords = [rule.name, ...rule.keywords];
 
-			const matched = keywords.some((keyword) => {
+			let maxRuleScore = 0;
+			for (const keyword of keywords) {
 				const normalizedKeyword = keyword
 					.replace(/([a-z])([A-Z])/g, "$1 $2")
 					.replace(/[_-]/g, " ")
 					.replace(/\s+/g, " ")
 					.trim()
 					.toLowerCase();
-				return isMatch(normalizedText, normalizedKeyword, rule.type);
-			});
 
-			if (matched) {
-				actionsMap.set(selector, {
-					selector,
-					action: "set_value",
-					payload: rule.content,
-				});
+				const score = calculateScore(normalizedText, normalizedKeyword, rule.type);
+				if (score > maxRuleScore) {
+					maxRuleScore = score;
+				}
+			}
+
+			if (maxRuleScore > 0) {
+				const existing = fieldBestMatches.get(selector);
+				if (!existing || maxRuleScore >= existing.score) {
+					fieldBestMatches.set(selector, {
+						action: {
+							selector,
+							action: "set_value",
+							payload: rule.content,
+						},
+						score: maxRuleScore,
+					});
+				}
 			}
 		}
 	}
 
-	return Array.from(actionsMap.values());
+	return Array.from(fieldBestMatches.values()).map((m) => m.action);
 }

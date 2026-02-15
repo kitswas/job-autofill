@@ -85,6 +85,7 @@ function extractFields(): DomSnapshot {
 			placeholder: element.getAttribute("placeholder"),
 			automationId: element.getAttribute("data-automation-id"),
 			kind: element.tagName.toLowerCase(),
+			type: (element as HTMLInputElement).type || null,
 		});
 	});
 
@@ -108,14 +109,81 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 
 			if (!target) continue;
 
+			const payload = action.payload;
+
+			// Handle Checkboxes and Radios
+			if (
+				target instanceof HTMLInputElement &&
+				(target.type === "checkbox" || target.type === "radio")
+			) {
+				const shouldBeChecked =
+					payload.toLowerCase() === "true" ||
+					payload.toLowerCase() === "yes" ||
+					payload.toLowerCase() === "1";
+				if (target.checked !== shouldBeChecked) {
+					target.click(); // Using click() is often more reliable for triggering framework events
+				}
+				continue;
+			}
+
+			// Handle Select/Dropdowns
+			if (target instanceof HTMLSelectElement) {
+				const normalizedPayload = payload.toLowerCase();
+				// Try to find matching option by value or text
+				const optionToSelect = Array.from(target.options).find(
+					(opt) =>
+						opt.value.toLowerCase() === normalizedPayload ||
+						opt.text.toLowerCase().includes(normalizedPayload),
+				);
+
+				if (optionToSelect) {
+					target.value = optionToSelect.value;
+					target.dispatchEvent(new Event("change", { bubbles: true }));
+					target.dispatchEvent(new Event("input", { bubbles: true }));
+				}
+				continue;
+			}
+
+			// Handle Text/TextArea/Date with typing simulation
 			target.focus();
-			target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-			target.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
-			target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-			target.value = action.payload;
+
+			// Use the prototype's value setter to bypass React/Vue's internal trackers if they exist
+			const nativeValueSetter = Object.getOwnPropertyDescriptor(
+				target instanceof HTMLTextAreaElement
+					? HTMLTextAreaElement.prototype
+					: HTMLInputElement.prototype,
+				"value",
+			)?.set;
+
+			if (nativeValueSetter) {
+				nativeValueSetter.call(target, "");
+			} else {
+				target.value = "";
+			}
 			target.dispatchEvent(new Event("input", { bubbles: true }));
+
+			// Typing simulation for more reliability
+			const isDatePart =
+				target.id.includes("dateSectionMonth") || target.id.includes("dateSectionYear");
+			const textToType = isDatePart ? payload.replace(/\D/g, "") : payload;
+
+			for (const char of textToType) {
+				const opts = { bubbles: true, key: char, char: char, keyCode: char.charCodeAt(0) };
+				target.dispatchEvent(new KeyboardEvent("keydown", opts));
+
+				if (nativeValueSetter) {
+					const currentValue = target.value;
+					nativeValueSetter.call(target, currentValue + char);
+				} else {
+					target.value += char;
+				}
+
+				target.dispatchEvent(new Event("input", { bubbles: true }));
+				target.dispatchEvent(new KeyboardEvent("keyup", opts));
+			}
+
 			target.dispatchEvent(new Event("change", { bubbles: true }));
-			target.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true }));
+			target.dispatchEvent(new Event("blur", { bubbles: true }));
 			target.blur();
 		}
 		return Promise.resolve({ success: true });

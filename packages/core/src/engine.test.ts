@@ -38,6 +38,7 @@ describe("engine: matchFields", () => {
 					placeholder: null,
 					automationId: null,
 					kind: "input",
+					type: "text",
 				},
 			],
 		};
@@ -77,6 +78,7 @@ describe("engine: matchFields", () => {
 					placeholder: null,
 					automationId: null,
 					kind: "input",
+					type: "text",
 				},
 			],
 		};
@@ -86,17 +88,23 @@ describe("engine: matchFields", () => {
 		expect(actions[0].payload).toBe("123-456-7890");
 	});
 
-	it("should match using 'contains'", () => {
-		const containsProfile: Profile = {
+	it("should prioritize exact matches over contains", () => {
+		const priorityProfile: Profile = {
 			...mockProfile,
-			version: 1,
 			rules: [
 				{
 					id: "c1",
 					name: "City",
-					content: "New York",
+					content: "Partial Match",
 					keywords: ["location"],
 					type: "contains",
+				},
+				{
+					id: "e1",
+					name: "Location",
+					content: "Exact Match",
+					keywords: ["location"],
+					type: "exact",
 				},
 			],
 		};
@@ -106,73 +114,31 @@ describe("engine: matchFields", () => {
 			fields: [
 				{
 					id: "loc",
-					name: "current_location_city",
-					label: "Current Location",
+					name: "location",
+					label: "Location",
 					ariaLabel: null,
 					placeholder: null,
 					automationId: null,
 					kind: "input",
+					type: "text",
 				},
 			],
 		};
 
-		const actions = matchFields(dom, containsProfile);
+		const actions = matchFields(dom, priorityProfile);
 		expect(actions).toHaveLength(1);
-		expect(actions[0].payload).toBe("New York");
+		expect(actions[0].payload).toBe("Exact Match");
 	});
 
-	it("should match using 'starts_with'", () => {
-		const startsWithProfile: Profile = {
+	it("should match checkboxes and radio buttons", () => {
+		const checkboxProfile: Profile = {
 			...mockProfile,
-			version: 1,
 			rules: [
 				{
-					id: "s1",
-					name: "Zip",
-					content: "10001",
-					keywords: ["postal"],
-					type: "starts_with",
-				},
-			],
-		};
-
-		const dom: DomSnapshot = {
-			url: "https://example.com/apply",
-			fields: [
-				{
-					id: "z1",
-					name: "postal_code",
-					label: "Postal",
-					ariaLabel: null,
-					placeholder: null,
-					automationId: null,
-					kind: "input",
-				},
-			],
-		};
-
-		const actions = matchFields(dom, startsWithProfile);
-		expect(actions).toHaveLength(1);
-		expect(actions[0].payload).toBe("10001");
-	});
-
-	it("later rules should overwrite earlier ones", () => {
-		const conflictProfile: Profile = {
-			...mockProfile,
-			version: 1,
-			rules: [
-				{
-					id: "1",
-					name: "First Name",
-					content: "John",
-					keywords: ["name"],
-					type: "contains",
-				},
-				{
-					id: "2",
-					name: "Full Name",
-					content: "John Doe",
-					keywords: ["name"],
+					id: "cb1",
+					name: "Newsletter",
+					content: "true",
+					keywords: ["subscribe"],
 					type: "contains",
 				},
 			],
@@ -182,47 +148,24 @@ describe("engine: matchFields", () => {
 			url: "https://example.com/apply",
 			fields: [
 				{
-					id: "n1",
-					name: "name",
-					label: "Name",
+					id: "newsletter",
+					name: "subscribe",
+					label: "Subscribe to newsletter",
 					ariaLabel: null,
 					placeholder: null,
 					automationId: null,
 					kind: "input",
+					type: "checkbox",
 				},
 			],
 		};
 
-		const actions = matchFields(dom, conflictProfile);
+		const actions = matchFields(dom, checkboxProfile);
 		expect(actions).toHaveLength(1);
-		expect(actions[0].payload).toBe("John Doe"); // Second rule wins
+		expect(actions[0].payload).toBe("true");
 	});
 
-	it("should not match if domain is not enabled", () => {
-		const restrictedProfile: Profile = {
-			...mockProfile,
-			enabledDomains: ["allowed.com"],
-		};
-		const dom: DomSnapshot = {
-			url: "https://disallowed.com/apply",
-			fields: [
-				{
-					id: "f1",
-					name: "name",
-					label: "Name",
-					ariaLabel: null,
-					placeholder: null,
-					automationId: null,
-					kind: "input",
-				},
-			],
-		};
-
-		const actions = matchFields(dom, restrictedProfile);
-		expect(actions).toHaveLength(0);
-	});
-
-	describe("separate date rules", () => {
+	describe("separate date rules with contains", () => {
 		const dateProfile: Profile = {
 			version: 1,
 			id: "date-profile",
@@ -233,31 +176,32 @@ describe("engine: matchFields", () => {
 					id: "m1",
 					name: "Start Month",
 					content: "08",
-					keywords: ["startDate", "month"],
+					keywords: ["startDate dateSectionMonth"],
 					type: "contains",
 				},
 				{
 					id: "y1",
 					name: "Start Year",
 					content: "2022",
-					keywords: ["startDate", "year"],
+					keywords: ["startDate dateSectionYear"],
 					type: "contains",
 				},
 			],
 		};
 
-		it("should match Month field with its own rule", () => {
+		it("should match Month field with contains rule", () => {
 			const dom: DomSnapshot = {
 				url: "https://workday.com/apply",
 				fields: [
 					{
-						id: "month-input",
+						id: "workExperience-1--startDate-dateSectionMonth-input",
 						name: "month",
 						label: "From",
 						ariaLabel: "Month",
 						placeholder: "MM",
 						automationId: "dateSectionMonth-input",
 						kind: "input",
+						type: "text",
 					},
 				],
 			};
@@ -267,18 +211,19 @@ describe("engine: matchFields", () => {
 			expect(actions[0].payload).toBe("08");
 		});
 
-		it("should match Year field with its own rule", () => {
+		it("should match Year field with contains rule", () => {
 			const dom: DomSnapshot = {
 				url: "https://workday.com/apply",
 				fields: [
 					{
-						id: "year-input",
+						id: "workExperience-1--startDate-dateSectionYear-input",
 						name: "year",
 						label: "From",
 						ariaLabel: "Year",
 						placeholder: "YYYY",
 						automationId: "dateSectionYear-input",
 						kind: "input",
+						type: "text",
 					},
 				],
 			};

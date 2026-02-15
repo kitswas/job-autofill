@@ -6,6 +6,7 @@ export type DomField = {
 	placeholder: string | null;
 	automationId: string | null;
 	kind: string;
+	type: string | null;
 };
 
 export type DomSnapshot = {
