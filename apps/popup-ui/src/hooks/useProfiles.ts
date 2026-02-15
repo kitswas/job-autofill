@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
-import { Profile, Rule, PROFILE_TEMPLATES } from "core";
+import { Profile, Rule, PROFILE_TEMPLATES, CURRENT_SCHEMA_VERSION } from "core";
 import { storage } from "../storage";
+
+function migrateProfile(profile: any): Profile {
+	const currentProfile = { ...profile };
+
+	// Future migrations will be added here
+	// if (currentProfile.version < 2) {
+	//    currentProfile = v1ToV2(currentProfile);
+	// }
+
+	currentProfile.version = CURRENT_SCHEMA_VERSION;
+	return currentProfile as Profile;
+}
 
 export function useProfiles() {
 	const [profiles, setProfiles] = useState<Record<string, Profile>>({});
@@ -15,6 +27,7 @@ export function useProfiles() {
 				PROFILE_TEMPLATES.forEach((template) => {
 					const id = template.id;
 					initialProfiles[id] = {
+						version: CURRENT_SCHEMA_VERSION,
 						id,
 						name: template.name,
 						enabledDomains: ["*"],
@@ -26,7 +39,12 @@ export function useProfiles() {
 				});
 				saveProfiles(initialProfiles, PROFILE_TEMPLATES[0]?.id || null);
 			} else {
-				setProfiles(data.profiles);
+				// Migrate existing profiles
+				const migratedProfiles: Record<string, Profile> = {};
+				Object.entries(data.profiles).forEach(([id, p]) => {
+					migratedProfiles[id] = migrateProfile(p);
+				});
+				setProfiles(migratedProfiles);
 				setSelectedProfileId(data.selectedProfileId);
 			}
 		});
@@ -43,6 +61,7 @@ export function useProfiles() {
 
 	const createProfile = () => {
 		const newProfile: Profile = {
+			version: CURRENT_SCHEMA_VERSION,
 			id: Date.now().toString(),
 			name: "New Profile",
 			enabledDomains: ["*"],

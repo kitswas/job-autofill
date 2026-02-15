@@ -4,6 +4,7 @@ import { Profile, DomSnapshot } from "./types";
 
 describe("engine: matchFields", () => {
 	const mockProfile: Profile = {
+		version: 1,
 		id: "test-profile",
 		name: "Test Profile",
 		enabledDomains: ["*"],
@@ -51,6 +52,7 @@ describe("engine: matchFields", () => {
 	it("should match using fuzzy matching", () => {
 		const fuzzyProfile: Profile = {
 			...mockProfile,
+			version: 1,
 			rules: [
 				{
 					id: "f1",
@@ -83,6 +85,7 @@ describe("engine: matchFields", () => {
 	it("should match using 'contains'", () => {
 		const containsProfile: Profile = {
 			...mockProfile,
+			version: 1,
 			rules: [
 				{
 					id: "c1",
@@ -115,6 +118,7 @@ describe("engine: matchFields", () => {
 	it("should match using 'starts_with'", () => {
 		const startsWithProfile: Profile = {
 			...mockProfile,
+			version: 1,
 			rules: [
 				{
 					id: "s1",
@@ -147,6 +151,7 @@ describe("engine: matchFields", () => {
 	it("later rules should overwrite earlier ones", () => {
 		const conflictProfile: Profile = {
 			...mockProfile,
+			version: 1,
 			rules: [
 				{
 					id: "1",

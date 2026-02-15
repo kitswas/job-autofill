@@ -13,6 +13,8 @@ export type DomSnapshot = {
 
 export type MatchType = "contains" | "starts_with" | "fuzzy" | "exact";
 
+export const CURRENT_SCHEMA_VERSION = 1;
+
 export type Rule = {
 	id: string;
 	name: string;
@@ -22,6 +24,7 @@ export type Rule = {
 };
 
 export type Profile = {
+	version: number;
 	id: string;
 	name: string;
 	enabledDomains: string[]; // e.g., ["myworkdayjobs.com", "*"]
