@@ -112,6 +112,38 @@ describe("engine: matchFields", () => {
 		expect(actions[0].payload).toBe("New York");
 	});
 
+	it("should match using 'starts_with'", () => {
+		const startsWithProfile: Profile = {
+			...mockProfile,
+			mappings: [
+				{
+					id: "s1",
+					name: "Zip",
+					content: "10001",
+					keywords: ["postal"],
+					type: "starts_with",
+				},
+			],
+		};
+
+		const dom: DomSnapshot = {
+			url: "https://example.com/apply",
+			fields: [
+				{
+					id: "z1",
+					name: "postal_code",
+					label: "Postal",
+					placeholder: null,
+					kind: "input",
+				},
+			],
+		};
+
+		const actions = matchFields(dom, startsWithProfile);
+		expect(actions).toHaveLength(1);
+		expect(actions[0].payload).toBe("10001");
+	});
+
 	it("later rules should overwrite earlier ones", () => {
 		const conflictProfile: Profile = {
 			...mockProfile,
