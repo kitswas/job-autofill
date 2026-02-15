@@ -11,10 +11,10 @@ export function App() {
 		createProfileFrom,
 		saveEditingProfile,
 		deleteProfile,
-		addMapping,
-		updateMapping,
-		deleteMapping,
-		reorderMapping,
+		addRule,
+		updateRule,
+		deleteRule,
+		reorderRule,
 		updateEditingProfile,
 	} = useProfiles();
 
@@ -35,10 +35,10 @@ export function App() {
 						onSave={saveEditingProfile}
 						onDelete={deleteProfile}
 						onDuplicate={createProfileFrom}
-						onAddMapping={addMapping}
-						onUpdateMapping={updateMapping}
-						onDeleteMapping={deleteMapping}
-						onReorderMapping={reorderMapping}
+						onAddRule={addRule}
+						onUpdateRule={updateRule}
+						onDeleteRule={deleteRule}
+						onReorderRule={reorderRule}
 					/>
 				) : (
 					<div style={{ textAlign: "center", marginTop: "100px", color: "#888" }}>

@@ -1,10 +1,10 @@
-import { Mapping, MatchType } from "core";
+import { Rule, MatchType } from "core";
 
-interface MappingTableProps {
-	mappings: Mapping[];
-	onUpdateMapping: (id: string, field: keyof Mapping, value: any) => void;
-	onDeleteMapping: (id: string) => void;
-	onReorderMapping: (id: string, direction: "up" | "down") => void;
+interface RuleTableProps {
+	rules: Rule[];
+	onUpdateRule: (id: string, field: keyof Rule, value: any) => void;
+	onDeleteRule: (id: string) => void;
+	onReorderRule: (id: string, direction: "up" | "down") => void;
 }
 
 const matchTypes: { value: MatchType; label: string }[] = [
@@ -14,12 +14,7 @@ const matchTypes: { value: MatchType; label: string }[] = [
 	{ value: "fuzzy", label: "Fuzzy" },
 ];
 
-export function MappingTable({
-	mappings,
-	onUpdateMapping,
-	onDeleteMapping,
-	onReorderMapping,
-}: MappingTableProps) {
+export function RuleTable({ rules, onUpdateRule, onDeleteRule, onReorderRule }: RuleTableProps) {
 	return (
 		<table style={{ width: "100%", borderCollapse: "collapse" }}>
 			<thead>
@@ -37,20 +32,20 @@ export function MappingTable({
 				</tr>
 			</thead>
 			<tbody>
-				{mappings.map((mapping, index) => (
-					<tr key={mapping.id} style={{ borderBottom: "1px solid #eee" }}>
+				{rules.map((rule, index) => (
+					<tr key={rule.id} style={{ borderBottom: "1px solid #eee" }}>
 						<td style={{ padding: "10px" }}>
 							<div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
 								<button
 									disabled={index === 0}
-									onClick={() => onReorderMapping(mapping.id, "up")}
+									onClick={() => onReorderRule(rule.id, "up")}
 									style={{ padding: "2px 5px", fontSize: "10px" }}
 								>
 									▲
 								</button>
 								<button
-									disabled={index === mappings.length - 1}
-									onClick={() => onReorderMapping(mapping.id, "down")}
+									disabled={index === rules.length - 1}
+									onClick={() => onReorderRule(rule.id, "down")}
 									style={{ padding: "2px 5px", fontSize: "10px" }}
 								>
 									▼
@@ -59,10 +54,8 @@ export function MappingTable({
 						</td>
 						<td style={{ padding: "10px" }}>
 							<select
-								value={mapping.type}
-								onChange={(e) =>
-									onUpdateMapping(mapping.id, "type", e.target.value)
-								}
+								value={rule.type}
+								onChange={(e) => onUpdateRule(rule.id, "type", e.target.value)}
 								style={{ width: "100%", padding: "5px" }}
 							>
 								{matchTypes.map((t) => (
@@ -76,19 +69,17 @@ export function MappingTable({
 							<input
 								type="text"
 								placeholder="Field Name"
-								value={mapping.name}
-								onChange={(e) =>
-									onUpdateMapping(mapping.id, "name", e.target.value)
-								}
+								value={rule.name}
+								onChange={(e) => onUpdateRule(rule.id, "name", e.target.value)}
 								style={{ width: "90%", padding: "5px", marginBottom: "5px" }}
 							/>
 							<input
 								type="text"
 								placeholder="Keywords (comma separated)"
-								value={mapping.keywords.join(", ")}
+								value={rule.keywords.join(", ")}
 								onChange={(e) =>
-									onUpdateMapping(
-										mapping.id,
+									onUpdateRule(
+										rule.id,
 										"keywords",
 										e.target.value
 											.split(",")
@@ -101,10 +92,8 @@ export function MappingTable({
 						</td>
 						<td style={{ padding: "10px" }}>
 							<textarea
-								value={mapping.content}
-								onChange={(e) =>
-									onUpdateMapping(mapping.id, "content", e.target.value)
-								}
+								value={rule.content}
+								onChange={(e) => onUpdateRule(rule.id, "content", e.target.value)}
 								style={{
 									width: "90%",
 									padding: "5px",
@@ -115,7 +104,7 @@ export function MappingTable({
 						</td>
 						<td style={{ padding: "10px" }}>
 							<button
-								onClick={() => onDeleteMapping(mapping.id)}
+								onClick={() => onDeleteRule(rule.id)}
 								style={{
 									backgroundColor: "#ff4444",
 									color: "white",

@@ -48,7 +48,7 @@ export function Sidebar({
 					>
 						<strong>{p.name}</strong>
 						<div style={{ fontSize: "12px", color: "#666" }}>
-							{Array.isArray(p.mappings) ? p.mappings.length : 0} fields
+							{Array.isArray(p.rules) ? p.rules.length : 0} fields
 						</div>
 					</div>
 				))}

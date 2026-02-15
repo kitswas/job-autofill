@@ -7,7 +7,7 @@ describe("engine: matchFields", () => {
 		id: "test-profile",
 		name: "Test Profile",
 		enabledDomains: ["*"],
-		mappings: [
+		rules: [
 			{
 				id: "1",
 				name: "fullName",
@@ -51,7 +51,7 @@ describe("engine: matchFields", () => {
 	it("should match using fuzzy matching", () => {
 		const fuzzyProfile: Profile = {
 			...mockProfile,
-			mappings: [
+			rules: [
 				{
 					id: "f1",
 					name: "Phone Number",
@@ -83,7 +83,7 @@ describe("engine: matchFields", () => {
 	it("should match using 'contains'", () => {
 		const containsProfile: Profile = {
 			...mockProfile,
-			mappings: [
+			rules: [
 				{
 					id: "c1",
 					name: "City",
@@ -115,7 +115,7 @@ describe("engine: matchFields", () => {
 	it("should match using 'starts_with'", () => {
 		const startsWithProfile: Profile = {
 			...mockProfile,
-			mappings: [
+			rules: [
 				{
 					id: "s1",
 					name: "Zip",
@@ -147,7 +147,7 @@ describe("engine: matchFields", () => {
 	it("later rules should overwrite earlier ones", () => {
 		const conflictProfile: Profile = {
 			...mockProfile,
-			mappings: [
+			rules: [
 				{
 					id: "1",
 					name: "First Name",

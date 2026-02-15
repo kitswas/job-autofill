@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Profile, Mapping, PROFILE_TEMPLATES } from "core";
+import { Profile, Rule, PROFILE_TEMPLATES } from "core";
 import { storage } from "../storage";
 
 export function useProfiles() {
@@ -18,8 +18,8 @@ export function useProfiles() {
 						id,
 						name: template.name,
 						enabledDomains: ["*"],
-						mappings: template.mappings.map((m) => ({
-							...m,
+						rules: template.rules.map((r) => ({
+							...r,
 							id: Math.random().toString(36).substr(2, 9),
 						})),
 					};
@@ -46,7 +46,7 @@ export function useProfiles() {
 			id: Date.now().toString(),
 			name: "New Profile",
 			enabledDomains: ["*"],
-			mappings: [
+			rules: [
 				{
 					id: "1",
 					name: "full_name",
@@ -97,57 +97,52 @@ export function useProfiles() {
 		}
 	};
 
-	const addMapping = () => {
+	const addRule = () => {
 		if (!editingProfile) return;
-		const newMapping: Mapping = {
+		const newRule: Rule = {
 			id: Date.now().toString(),
-			name: `field_${editingProfile.mappings.length + 1}`,
+			name: `field_${editingProfile.rules.length + 1}`,
 			content: "",
 			keywords: [],
 			type: "contains",
 		};
 		setEditingProfile({
 			...editingProfile,
-			mappings: [...editingProfile.mappings, newMapping],
+			rules: [...editingProfile.rules, newRule],
 		});
 	};
 
-	const updateMapping = (id: string, field: keyof Mapping, value: any) => {
+	const updateRule = (id: string, field: keyof Rule, value: any) => {
 		if (!editingProfile) return;
 		setEditingProfile({
 			...editingProfile,
-			mappings: editingProfile.mappings.map((m) =>
-				m.id === id ? { ...m, [field]: value } : m,
-			),
+			rules: editingProfile.rules.map((r) => (r.id === id ? { ...r, [field]: value } : r)),
 		});
 	};
 
-	const deleteMapping = (id: string) => {
+	const deleteRule = (id: string) => {
 		if (!editingProfile) return;
 		setEditingProfile({
 			...editingProfile,
-			mappings: editingProfile.mappings.filter((m) => m.id !== id),
+			rules: editingProfile.rules.filter((r) => r.id !== id),
 		});
 	};
 
-	const reorderMapping = (id: string, direction: "up" | "down") => {
+	const reorderRule = (id: string, direction: "up" | "down") => {
 		if (!editingProfile) return;
-		const index = editingProfile.mappings.findIndex((m) => m.id === id);
+		const index = editingProfile.rules.findIndex((r) => r.id === id);
 		if (index === -1) return;
 
-		const newMappings = [...editingProfile.mappings];
+		const newRules = [...editingProfile.rules];
 		const targetIndex = direction === "up" ? index - 1 : index + 1;
 
-		if (targetIndex < 0 || targetIndex >= newMappings.length) return;
+		if (targetIndex < 0 || targetIndex >= newRules.length) return;
 
-		[newMappings[index], newMappings[targetIndex]] = [
-			newMappings[targetIndex],
-			newMappings[index],
-		];
+		[newRules[index], newRules[targetIndex]] = [newRules[targetIndex], newRules[index]];
 
 		setEditingProfile({
 			...editingProfile,
-			mappings: newMappings,
+			rules: newRules,
 		});
 	};
 
@@ -165,10 +160,10 @@ export function useProfiles() {
 		createProfileFrom,
 		saveEditingProfile,
 		deleteProfile,
-		addMapping,
-		updateMapping,
-		deleteMapping,
-		reorderMapping,
+		addRule,
+		updateRule,
+		deleteRule,
+		reorderRule,
 		updateEditingProfile,
 	};
 }

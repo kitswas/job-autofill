@@ -5,7 +5,7 @@ A professional browser extension for managing and automating job application for
 ## Features
 
 - **Profile Dashboard**: Manage multiple application profiles in a full-page interface.
-- **Dynamic Mapping**: Map custom keywords to form fields for flexible autofilling.
+- **Dynamic Rules**: Define custom keywords to match form fields for flexible autofilling.
 - **Context Menu**: Right-click any input to fill using a specific profile.
 - **Privacy First**: All data is stored locally via `browser.storage`.
 

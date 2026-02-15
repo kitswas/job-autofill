@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
-import { Action, DomSnapshot, Profile, Mapping } from "./types";
+import { Action, DomSnapshot, Profile, Rule } from "./types";
 
-function isMatch(text: string, keyword: string, type: Mapping["type"]): boolean {
+function isMatch(text: string, keyword: string, type: Rule["type"]): boolean {
 	const normalizedText = text.toLowerCase();
 	const normalizedKeyword = keyword.toLowerCase();
 
@@ -59,20 +59,18 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 
 		if (!selector) continue;
 
-		// Iterate through all mappings in the profile
+		// Iterate through all rules in the profile
 		// Later rules overwrite earlier ones, so we just let them overwrite in the map
-		for (const mapping of profile.mappings) {
-			const keywords = [mapping.name, ...mapping.keywords];
+		for (const rule of profile.rules) {
+			const keywords = [rule.name, ...rule.keywords];
 
-			const matched = keywords.some((keyword) =>
-				isMatch(normalizedText, keyword, mapping.type),
-			);
+			const matched = keywords.some((keyword) => isMatch(normalizedText, keyword, rule.type));
 
 			if (matched) {
 				actionsMap.set(selector, {
 					selector,
 					action: "set_value",
-					payload: mapping.content,
+					payload: rule.content,
 				});
 			}
 		}

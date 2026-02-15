@@ -13,7 +13,7 @@ export type DomSnapshot = {
 
 export type MatchType = "contains" | "starts_with" | "fuzzy" | "exact";
 
-export type Mapping = {
+export type Rule = {
 	id: string;
 	name: string;
 	content: string;
@@ -25,7 +25,7 @@ export type Profile = {
 	id: string;
 	name: string;
 	enabledDomains: string[]; // e.g., ["myworkdayjobs.com", "*"]
-	mappings: Mapping[];
+	rules: Rule[];
 };
 
 export type Action = {

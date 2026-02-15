@@ -1,5 +1,5 @@
-import { Profile, Mapping } from "core";
-import { MappingTable } from "./MappingTable";
+import { Profile, Rule } from "core";
+import { RuleTable } from "./RuleTable";
 
 interface ProfileEditorProps {
 	profile: Profile;
@@ -7,10 +7,10 @@ interface ProfileEditorProps {
 	onSave: () => void;
 	onDelete: (id: string) => void;
 	onDuplicate: (profile: Profile) => void;
-	onAddMapping: () => void;
-	onUpdateMapping: (id: string, field: keyof Mapping, value: any) => void;
-	onDeleteMapping: (id: string) => void;
-	onReorderMapping: (id: string, direction: "up" | "down") => void;
+	onAddRule: () => void;
+	onUpdateRule: (id: string, field: keyof Rule, value: any) => void;
+	onDeleteRule: (id: string) => void;
+	onReorderRule: (id: string, direction: "up" | "down") => void;
 }
 
 export function ProfileEditor({
@@ -19,10 +19,10 @@ export function ProfileEditor({
 	onSave,
 	onDelete,
 	onDuplicate,
-	onAddMapping,
-	onUpdateMapping,
-	onDeleteMapping,
-	onReorderMapping,
+	onAddRule,
+	onUpdateRule,
+	onDeleteRule,
+	onReorderRule,
 }: ProfileEditorProps) {
 	return (
 		<div>
@@ -98,13 +98,13 @@ export function ProfileEditor({
 							Rules are applied in order, with later rules overwriting earlier ones.
 						</p>
 					</div>
-					<button onClick={onAddMapping}>+ Add Field</button>
+					<button onClick={onAddRule}>+ Add Field</button>
 				</div>
-				<MappingTable
-					mappings={profile.mappings}
-					onUpdateMapping={onUpdateMapping}
-					onDeleteMapping={onDeleteMapping}
-					onReorderMapping={onReorderMapping}
+				<RuleTable
+					rules={profile.rules}
+					onUpdateRule={onUpdateRule}
+					onDeleteRule={onDeleteRule}
+					onReorderRule={onReorderRule}
 				/>
 			</section>
 		</div>

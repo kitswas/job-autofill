@@ -1,10 +1,10 @@
-import { Mapping } from "./types";
+import { Rule } from "./types";
 
 export interface ProfileTemplate {
 	id: string;
 	name: string;
 	description: string;
-	mappings: Mapping[];
+	rules: Rule[];
 }
 
 export const PROFILE_TEMPLATES: ProfileTemplate[] = [
@@ -12,7 +12,7 @@ export const PROFILE_TEMPLATES: ProfileTemplate[] = [
 		id: "basic-info",
 		name: "Basic Information",
 		description: "Standard contact details (Name, Email, Phone)",
-		mappings: [
+		rules: [
 			{
 				id: "t1",
 				name: "Given Name",
@@ -46,8 +46,8 @@ export const PROFILE_TEMPLATES: ProfileTemplate[] = [
 	{
 		id: "workday-full",
 		name: "Workday Standard",
-		description: "Comprehensive mappings for Workday application forms",
-		mappings: [
+		description: "Comprehensive rules for Workday application forms",
+		rules: [
 			{
 				id: "w1",
 				name: "Given Name",
@@ -110,7 +110,7 @@ export const PROFILE_TEMPLATES: ProfileTemplate[] = [
 		id: "workday-experience",
 		name: "Workday Experience",
 		description: "Experience, Education, Skills, and Social profiles for Workday",
-		mappings: [
+		rules: [
 			{
 				id: "we1",
 				name: "Job Title",
