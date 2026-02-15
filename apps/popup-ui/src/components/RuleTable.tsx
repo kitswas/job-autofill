@@ -17,11 +17,22 @@ const matchTypes: { value: MatchType; label: string }[] = [
 const inputTypes: { value: InputType; label: string }[] = [
 	{ value: "any", label: "Any" },
 	{ value: "text", label: "Text" },
+	{ value: "textarea", label: "Textarea" },
 	{ value: "select", label: "Select" },
 	{ value: "multiselect", label: "Multiselect" },
 	{ value: "spinbox", label: "Spinbox" },
 	{ value: "number", label: "Number" },
 	{ value: "date", label: "Date" },
+	{ value: "checkbox", label: "Checkbox" },
+	{ value: "radio", label: "Radio" },
+	{ value: "email", label: "Email" },
+	{ value: "tel", label: "Tel" },
+	{ value: "url", label: "URL" },
+	{ value: "password", label: "Password" },
+	{ value: "range", label: "Range" },
+	{ value: "file", label: "File" },
+	{ value: "time", label: "Time" },
+	{ value: "datetime-local", label: "DateTime Local" },
 ];
 
 export function RuleTable({ rules, onUpdateRule, onDeleteRule, onReorderRule }: RuleTableProps) {

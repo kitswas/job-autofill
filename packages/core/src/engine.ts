@@ -92,25 +92,43 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 					field.type === "date" ||
 					field.type === "month" ||
 					field.type === "week" ||
-					field.type === "time";
+					field.type === "time" ||
+					field.type === "datetime-local";
 				const isText =
 					field.kind === "textarea" ||
 					(field.kind === "input" &&
-						["text", "email", "tel", "url", "password", "search"].includes(
-							field.type || "text",
-						));
+						[
+							"text",
+							"email",
+							"tel",
+							"url",
+							"password",
+							"search",
+							"number",
+							"date",
+						].includes(field.type || "text"));
+
+				const t = field.type;
+				const k = field.kind;
 
 				if (rule.inputtype === "text" && !isText) continue;
-				if (rule.inputtype === "select" && !isSelect && field.kind !== "input") continue;
-				if (
-					rule.inputtype === "multiselect" &&
-					field.type !== "select-multiple" &&
-					field.kind !== "input"
-				)
+				if (rule.inputtype === "textarea" && k !== "textarea") continue;
+				if (rule.inputtype === "select" && !isSelect && k !== "input") continue;
+				if (rule.inputtype === "multiselect" && t !== "select-multiple" && k !== "input")
 					continue;
-				if (rule.inputtype === "number" && !isNumber && field.kind !== "input") continue;
-				if (rule.inputtype === "date" && !isDate && field.kind !== "input") continue;
-				if (rule.inputtype === "spinbox" && field.kind !== "input") continue;
+				if (rule.inputtype === "number" && t !== "number" && k !== "input") continue;
+				if (rule.inputtype === "date" && t !== "date" && k !== "input") continue;
+				if (rule.inputtype === "spinbox" && k !== "input") continue;
+				if (rule.inputtype === "checkbox" && t !== "checkbox") continue;
+				if (rule.inputtype === "radio" && t !== "radio") continue;
+				if (rule.inputtype === "email" && t !== "email") continue;
+				if (rule.inputtype === "tel" && t !== "tel") continue;
+				if (rule.inputtype === "url" && t !== "url") continue;
+				if (rule.inputtype === "password" && t !== "password") continue;
+				if (rule.inputtype === "range" && t !== "range") continue;
+				if (rule.inputtype === "file" && t !== "file") continue;
+				if (rule.inputtype === "time" && t !== "time") continue;
+				if (rule.inputtype === "datetime-local" && t !== "datetime-local") continue;
 			}
 
 			const keywords = [rule.name, ...rule.keywords];

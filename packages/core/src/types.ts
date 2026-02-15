@@ -16,7 +16,25 @@ export type DomSnapshot = {
 
 export type MatchType = "contains" | "starts_with" | "fuzzy" | "exact";
 
-export type InputType = "any" | "text" | "select" | "multiselect" | "spinbox" | "number" | "date";
+export type InputType =
+	| "any"
+	| "text"
+	| "textarea"
+	| "select"
+	| "multiselect"
+	| "spinbox"
+	| "number"
+	| "date"
+	| "checkbox"
+	| "radio"
+	| "email"
+	| "tel"
+	| "url"
+	| "password"
+	| "range"
+	| "file"
+	| "time"
+	| "datetime-local";
 
 export const CURRENT_SCHEMA_VERSION = 1;
 
