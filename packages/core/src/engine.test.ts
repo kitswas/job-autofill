@@ -34,7 +34,9 @@ describe("engine: matchFields", () => {
 					id: "f1",
 					name: "q1",
 					label: "Full Name",
+					ariaLabel: null,
 					placeholder: null,
+					automationId: null,
 					kind: "input",
 				},
 			],
@@ -43,7 +45,7 @@ describe("engine: matchFields", () => {
 		const actions = matchFields(dom, mockProfile);
 		expect(actions).toHaveLength(1);
 		expect(actions[0]).toEqual({
-			selector: "#f1",
+			selector: '[id="f1"]',
 			action: "set_value",
 			payload: "John Doe",
 		});
@@ -71,7 +73,9 @@ describe("engine: matchFields", () => {
 					id: "p1",
 					name: "phne", // typo
 					label: "Phne Number", // typo
+					ariaLabel: null,
 					placeholder: null,
+					automationId: null,
 					kind: "input",
 				},
 			],
@@ -104,7 +108,9 @@ describe("engine: matchFields", () => {
 					id: "loc",
 					name: "current_location_city",
 					label: "Current Location",
+					ariaLabel: null,
 					placeholder: null,
+					automationId: null,
 					kind: "input",
 				},
 			],
@@ -137,7 +143,9 @@ describe("engine: matchFields", () => {
 					id: "z1",
 					name: "postal_code",
 					label: "Postal",
+					ariaLabel: null,
 					placeholder: null,
+					automationId: null,
 					kind: "input",
 				},
 			],
@@ -177,7 +185,9 @@ describe("engine: matchFields", () => {
 					id: "n1",
 					name: "name",
 					label: "Name",
+					ariaLabel: null,
 					placeholder: null,
+					automationId: null,
 					kind: "input",
 				},
 			],
@@ -200,7 +210,9 @@ describe("engine: matchFields", () => {
 					id: "f1",
 					name: "name",
 					label: "Name",
+					ariaLabel: null,
 					placeholder: null,
+					automationId: null,
 					kind: "input",
 				},
 			],
@@ -208,5 +220,72 @@ describe("engine: matchFields", () => {
 
 		const actions = matchFields(dom, restrictedProfile);
 		expect(actions).toHaveLength(0);
+	});
+
+	describe("separate date rules", () => {
+		const dateProfile: Profile = {
+			version: 1,
+			id: "date-profile",
+			name: "Date Profile",
+			enabledDomains: ["*"],
+			rules: [
+				{
+					id: "m1",
+					name: "Start Month",
+					content: "08",
+					keywords: ["startDate", "month"],
+					type: "contains",
+				},
+				{
+					id: "y1",
+					name: "Start Year",
+					content: "2022",
+					keywords: ["startDate", "year"],
+					type: "contains",
+				},
+			],
+		};
+
+		it("should match Month field with its own rule", () => {
+			const dom: DomSnapshot = {
+				url: "https://workday.com/apply",
+				fields: [
+					{
+						id: "month-input",
+						name: "month",
+						label: "From",
+						ariaLabel: "Month",
+						placeholder: "MM",
+						automationId: "dateSectionMonth-input",
+						kind: "input",
+					},
+				],
+			};
+
+			const actions = matchFields(dom, dateProfile);
+			expect(actions).toHaveLength(1);
+			expect(actions[0].payload).toBe("08");
+		});
+
+		it("should match Year field with its own rule", () => {
+			const dom: DomSnapshot = {
+				url: "https://workday.com/apply",
+				fields: [
+					{
+						id: "year-input",
+						name: "year",
+						label: "From",
+						ariaLabel: "Year",
+						placeholder: "YYYY",
+						automationId: "dateSectionYear-input",
+						kind: "input",
+					},
+				],
+			};
+
+			const actions = matchFields(dom, dateProfile);
+			expect(actions).toHaveLength(1);
+			expect(actions[0].payload).toBe("2022");
+		});
 	});
 });

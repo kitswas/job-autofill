@@ -1,10 +1,7 @@
 import Fuse from "fuse.js";
 import { Action, DomSnapshot, Profile, Rule } from "./types";
 
-function isMatch(text: string, keyword: string, type: Rule["type"]): boolean {
-	const normalizedText = text.toLowerCase();
-	const normalizedKeyword = keyword.toLowerCase();
-
+function isMatch(normalizedText: string, normalizedKeyword: string, type: Rule["type"]): boolean {
 	switch (type) {
 		case "exact": {
 			const escapedKeyword = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -18,7 +15,7 @@ function isMatch(text: string, keyword: string, type: Rule["type"]): boolean {
 		case "fuzzy": {
 			const fuse = new Fuse([normalizedText], {
 				includeScore: true,
-				threshold: 0.4, // Adjust threshold for better fuzzy matching
+				threshold: 0.4,
 			});
 			const results = fuse.search(normalizedKeyword);
 			return results.length > 0;
@@ -45,17 +42,32 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			continue;
 		}
 
-		const rawText = [field.label, field.placeholder, field.name, field.id]
+		const rawText = [
+			field.label,
+			field.ariaLabel,
+			field.placeholder,
+			field.name,
+			field.id,
+			field.automationId,
+		]
 			.filter(Boolean)
 			.join(" ");
 
-		// Normalize text: replace underscores, hyphens, and camelCase with spaces
+		// Normalize text: replace underscores, hyphens, and camelCase with spaces, then collapse spaces
 		const normalizedText = rawText
 			.replace(/([a-z])([A-Z])/g, "$1 $2")
 			.replace(/[_-]/g, " ")
+			.replace(/\s+/g, " ")
+			.trim()
 			.toLowerCase();
 
-		const selector = field.id ? `#${field.id}` : field.name ? `[name="${field.name}"]` : null;
+		const selector = field.id
+			? `[id="${field.id}"]`
+			: field.name
+				? `[name="${field.name}"]`
+				: field.automationId
+					? `[data-automation-id="${field.automationId}"]`
+					: null;
 
 		if (!selector) continue;
 
@@ -64,7 +76,15 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 		for (const rule of profile.rules) {
 			const keywords = [rule.name, ...rule.keywords];
 
-			const matched = keywords.some((keyword) => isMatch(normalizedText, keyword, rule.type));
+			const matched = keywords.some((keyword) => {
+				const normalizedKeyword = keyword
+					.replace(/([a-z])([A-Z])/g, "$1 $2")
+					.replace(/[_-]/g, " ")
+					.replace(/\s+/g, " ")
+					.trim()
+					.toLowerCase();
+				return isMatch(normalizedText, normalizedKeyword, rule.type);
+			});
 
 			if (matched) {
 				actionsMap.set(selector, {

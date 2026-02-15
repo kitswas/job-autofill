@@ -2,7 +2,9 @@ export type DomField = {
 	id: string | null;
 	name: string | null;
 	label: string | null;
+	ariaLabel: string | null;
 	placeholder: string | null;
+	automationId: string | null;
 	kind: string;
 };
 

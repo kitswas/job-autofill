@@ -35,6 +35,19 @@ function extractFields(): DomSnapshot {
 			}
 		}
 
+		// Try aria-describedby
+		if (!label) {
+			const describedBy = element.getAttribute("aria-describedby");
+			if (describedBy) {
+				label = describedBy
+					.split(/\s+/)
+					.map((id) => document.getElementById(id)?.textContent)
+					.filter(Boolean)
+					.join(" ")
+					.trim();
+			}
+		}
+
 		// Try standard <label>
 		if (!label && element.labels && element.labels.length > 0) {
 			label = Array.from(element.labels)
@@ -42,6 +55,17 @@ function extractFields(): DomSnapshot {
 				.filter(Boolean)
 				.join(" ")
 				.trim();
+		}
+
+		// Try to find a legend if in a fieldset
+		if (!label) {
+			const fieldset = element.closest("fieldset");
+			if (fieldset) {
+				const legend = fieldset.querySelector("legend");
+				if (legend) {
+					label = legend.textContent?.trim() || null;
+				}
+			}
 		}
 
 		// Try to find text in parent if it's a small container
@@ -57,7 +81,9 @@ function extractFields(): DomSnapshot {
 			id: element.id || null,
 			name: element.getAttribute("name"),
 			label: label || null,
+			ariaLabel: element.getAttribute("aria-label"),
 			placeholder: element.getAttribute("placeholder"),
+			automationId: element.getAttribute("data-automation-id"),
 			kind: element.tagName.toLowerCase(),
 		});
 	});
@@ -83,9 +109,14 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 			if (!target) continue;
 
 			target.focus();
+			target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+			target.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+			target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 			target.value = action.payload;
 			target.dispatchEvent(new Event("input", { bubbles: true }));
 			target.dispatchEvent(new Event("change", { bubbles: true }));
+			target.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true }));
+			target.blur();
 		}
 		return Promise.resolve({ success: true });
 	}
