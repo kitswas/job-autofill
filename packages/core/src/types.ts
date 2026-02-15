@@ -16,6 +16,8 @@ export type DomSnapshot = {
 
 export type MatchType = "contains" | "starts_with" | "fuzzy" | "exact";
 
+export type InputType = "any" | "text" | "select" | "multiselect" | "spinbox" | "number" | "date";
+
 export const CURRENT_SCHEMA_VERSION = 1;
 
 export type Rule = {
@@ -23,7 +25,8 @@ export type Rule = {
 	name: string;
 	content: string;
 	keywords: string[];
-	type: MatchType;
+	matchtype: MatchType;
+	inputtype: InputType;
 };
 
 export type Profile = {
@@ -38,6 +41,7 @@ export type Action = {
 	selector: string;
 	action: "set_value";
 	payload: string;
+	inputtype: InputType;
 };
 
 export type AnalyzeResponse = {

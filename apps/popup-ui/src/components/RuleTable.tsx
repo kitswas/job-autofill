@@ -1,4 +1,4 @@
-import { Rule, MatchType } from "core";
+import { Rule, MatchType, InputType } from "core";
 
 interface RuleTableProps {
 	rules: Rule[];
@@ -14,6 +14,16 @@ const matchTypes: { value: MatchType; label: string }[] = [
 	{ value: "fuzzy", label: "Fuzzy" },
 ];
 
+const inputTypes: { value: InputType; label: string }[] = [
+	{ value: "any", label: "Any" },
+	{ value: "text", label: "Text" },
+	{ value: "select", label: "Select" },
+	{ value: "multiselect", label: "Multiselect" },
+	{ value: "spinbox", label: "Spinbox" },
+	{ value: "number", label: "Number" },
+	{ value: "date", label: "Date" },
+];
+
 export function RuleTable({ rules, onUpdateRule, onDeleteRule, onReorderRule }: RuleTableProps) {
 	return (
 		<table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -25,7 +35,8 @@ export function RuleTable({ rules, onUpdateRule, onDeleteRule, onReorderRule }: 
 					}}
 				>
 					<th style={{ padding: "10px", width: "50px" }}>Order</th>
-					<th style={{ padding: "10px", width: "120px" }}>Type</th>
+					<th style={{ padding: "10px", width: "100px" }}>Match</th>
+					<th style={{ padding: "10px", width: "100px" }}>Input</th>
 					<th style={{ padding: "10px" }}>Field Name / Keywords</th>
 					<th style={{ padding: "10px" }}>Content to Fill</th>
 					<th style={{ padding: "10px", width: "80px" }}>Actions</th>
@@ -54,11 +65,24 @@ export function RuleTable({ rules, onUpdateRule, onDeleteRule, onReorderRule }: 
 						</td>
 						<td style={{ padding: "10px" }}>
 							<select
-								value={rule.type}
-								onChange={(e) => onUpdateRule(rule.id, "type", e.target.value)}
+								value={rule.matchtype}
+								onChange={(e) => onUpdateRule(rule.id, "matchtype", e.target.value)}
 								style={{ width: "100%", padding: "5px" }}
 							>
 								{matchTypes.map((t) => (
+									<option key={t.value} value={t.value}>
+										{t.label}
+									</option>
+								))}
+							</select>
+						</td>
+						<td style={{ padding: "10px" }}>
+							<select
+								value={rule.inputtype}
+								onChange={(e) => onUpdateRule(rule.id, "inputtype", e.target.value)}
+								style={{ width: "100%", padding: "5px" }}
+							>
+								{inputTypes.map((t) => (
 									<option key={t.value} value={t.value}>
 										{t.label}
 									</option>

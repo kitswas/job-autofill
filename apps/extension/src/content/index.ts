@@ -152,6 +152,8 @@ browser.runtime.onMessage.addListener(async (message, _sender) => {
 			// Handle Workday Custom Selects / Multiselects
 			// These usually look like inputs with data-uxi-widget-type="selectinput" or "multiselect"
 			const isCustomSelect =
+				action.inputtype === "select" ||
+				action.inputtype === "multiselect" ||
 				target.getAttribute("data-uxi-widget-type") === "selectinput" ||
 				target.getAttribute("role") === "combobox" ||
 				target.getAttribute("data-automation-id") === "searchBox" ||
@@ -249,7 +251,9 @@ browser.runtime.onMessage.addListener(async (message, _sender) => {
 
 			// Typing simulation for more reliability
 			const isDatePart =
-				target.id.includes("dateSectionMonth") || target.id.includes("dateSectionYear");
+				action.inputtype === "spinbox" ||
+				target.id.includes("dateSectionMonth") ||
+				target.id.includes("dateSectionYear");
 			const textToType = isDatePart ? payload.replace(/\D/g, "") : payload;
 
 			for (const char of textToType) {

@@ -4,7 +4,7 @@ import { Action, DomSnapshot, Profile, Rule } from "./types";
 function calculateScore(
 	normalizedText: string,
 	normalizedKeyword: string,
-	type: Rule["type"],
+	type: Rule["matchtype"],
 ): number {
 	switch (type) {
 		case "exact": {
@@ -81,6 +81,38 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 		if (!selector) continue;
 
 		for (const rule of profile.rules) {
+			// Filter by inputtype compatibility
+			if (rule.inputtype !== "any") {
+				const isSelect =
+					field.kind === "select" ||
+					field.type === "select-one" ||
+					field.type === "select-multiple";
+				const isNumber = field.type === "number" || field.type === "range";
+				const isDate =
+					field.type === "date" ||
+					field.type === "month" ||
+					field.type === "week" ||
+					field.type === "time";
+				const isText =
+					field.kind === "textarea" ||
+					(field.kind === "input" &&
+						["text", "email", "tel", "url", "password", "search"].includes(
+							field.type || "text",
+						));
+
+				if (rule.inputtype === "text" && !isText) continue;
+				if (rule.inputtype === "select" && !isSelect && field.kind !== "input") continue;
+				if (
+					rule.inputtype === "multiselect" &&
+					field.type !== "select-multiple" &&
+					field.kind !== "input"
+				)
+					continue;
+				if (rule.inputtype === "number" && !isNumber && field.kind !== "input") continue;
+				if (rule.inputtype === "date" && !isDate && field.kind !== "input") continue;
+				if (rule.inputtype === "spinbox" && field.kind !== "input") continue;
+			}
+
 			const keywords = [rule.name, ...rule.keywords];
 
 			let maxRuleScore = 0;
@@ -92,7 +124,7 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 					.trim()
 					.toLowerCase();
 
-				const score = calculateScore(normalizedText, normalizedKeyword, rule.type);
+				const score = calculateScore(normalizedText, normalizedKeyword, rule.matchtype);
 				if (score > maxRuleScore) {
 					maxRuleScore = score;
 				}
@@ -106,6 +138,7 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 							selector,
 							action: "set_value",
 							payload: rule.content,
+							inputtype: rule.inputtype,
 						},
 						score: maxRuleScore,
 					});

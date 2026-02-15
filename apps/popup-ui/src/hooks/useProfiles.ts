@@ -71,21 +71,24 @@ export function useProfiles() {
 					name: "full_name",
 					content: "",
 					keywords: ["name", "full name"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "any",
 				},
 				{
 					id: "2",
 					name: "email",
 					content: "",
 					keywords: ["email", "e-mail"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "any",
 				},
 				{
 					id: "3",
 					name: "phone",
 					content: "",
 					keywords: ["phone", "mobile"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "any",
 				},
 			],
 		};
@@ -123,7 +126,8 @@ export function useProfiles() {
 			name: `field_${editingProfile.rules.length + 1}`,
 			content: "",
 			keywords: [],
-			type: "contains",
+			matchtype: "contains",
+			inputtype: "any",
 		};
 		setEditingProfile({
 			...editingProfile,

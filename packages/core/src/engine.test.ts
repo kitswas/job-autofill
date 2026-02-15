@@ -14,14 +14,16 @@ describe("engine: matchFields", () => {
 				name: "fullName",
 				content: "John Doe",
 				keywords: ["full name", "name"],
-				type: "exact",
+				matchtype: "exact",
+				inputtype: "any",
 			},
 			{
 				id: "2",
 				name: "email",
 				content: "john@example.com",
 				keywords: ["email", "e-mail"],
-				type: "exact",
+				matchtype: "exact",
+				inputtype: "any",
 			},
 		],
 	};
@@ -49,20 +51,21 @@ describe("engine: matchFields", () => {
 			selector: '[id="f1"]',
 			action: "set_value",
 			payload: "John Doe",
+			inputtype: "any",
 		});
 	});
 
 	it("should match using fuzzy matching", () => {
 		const fuzzyProfile: Profile = {
 			...mockProfile,
-			version: 1,
 			rules: [
 				{
 					id: "f1",
 					name: "Phone Number",
 					content: "123-456-7890",
 					keywords: ["phone"],
-					type: "fuzzy",
+					matchtype: "fuzzy",
+					inputtype: "any",
 				},
 			],
 		};
@@ -97,14 +100,16 @@ describe("engine: matchFields", () => {
 					name: "City",
 					content: "Partial Match",
 					keywords: ["location"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "any",
 				},
 				{
 					id: "e1",
 					name: "Location",
 					content: "Exact Match",
 					keywords: ["location"],
-					type: "exact",
+					matchtype: "exact",
+					inputtype: "any",
 				},
 			],
 		};
@@ -139,7 +144,8 @@ describe("engine: matchFields", () => {
 					name: "Newsletter",
 					content: "true",
 					keywords: ["subscribe"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "any",
 				},
 			],
 		};
@@ -177,14 +183,16 @@ describe("engine: matchFields", () => {
 					name: "Start Month",
 					content: "08",
 					keywords: ["startDate dateSectionMonth"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "spinbox",
 				},
 				{
 					id: "y1",
 					name: "Start Year",
 					content: "2022",
 					keywords: ["startDate dateSectionYear"],
-					type: "contains",
+					matchtype: "contains",
+					inputtype: "spinbox",
 				},
 			],
 		};
@@ -209,6 +217,7 @@ describe("engine: matchFields", () => {
 			const actions = matchFields(dom, dateProfile);
 			expect(actions).toHaveLength(1);
 			expect(actions[0].payload).toBe("08");
+			expect(actions[0].inputtype).toBe("spinbox");
 		});
 
 		it("should match Year field with contains rule", () => {
@@ -231,6 +240,53 @@ describe("engine: matchFields", () => {
 			const actions = matchFields(dom, dateProfile);
 			expect(actions).toHaveLength(1);
 			expect(actions[0].payload).toBe("2022");
+			expect(actions[0].inputtype).toBe("spinbox");
 		});
+	});
+
+	it("should respect inputtype filtering", () => {
+		const typedProfile: Profile = {
+			...mockProfile,
+			rules: [
+				{
+					id: "s1",
+					name: "Selection",
+					content: "Option 1",
+					keywords: ["choice"],
+					matchtype: "contains",
+					inputtype: "select",
+				},
+			],
+		};
+
+		const dom: DomSnapshot = {
+			url: "https://example.com/apply",
+			fields: [
+				{
+					id: "c1",
+					name: "choice",
+					label: "Your Choice",
+					ariaLabel: null,
+					placeholder: null,
+					automationId: null,
+					kind: "input", // Should still match if rule is select but DOM is input (custom select)
+					type: "text",
+				},
+				{
+					id: "t1",
+					name: "other_choice",
+					label: "Another Choice",
+					ariaLabel: null,
+					placeholder: null,
+					automationId: null,
+					kind: "textarea", // Should NOT match textarea if rule is select
+					type: "textarea",
+				},
+			],
+		};
+
+		const actions = matchFields(dom, typedProfile);
+		expect(actions).toHaveLength(1);
+		expect(actions[0].selector).toBe('[id="c1"]');
 	});
 });
