@@ -95,7 +95,7 @@ function extractFields(): DomSnapshot {
 	};
 }
 
-browser.runtime.onMessage.addListener((message, _sender) => {
+browser.runtime.onMessage.addListener(async (message, _sender) => {
 	if (message.type === "GET_DOM_SNAPSHOT") {
 		return Promise.resolve(extractFields());
 	} else if (message.type === "APPLY_ACTIONS") {
@@ -146,6 +146,13 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 
 			// Handle Text/TextArea/Date with typing simulation
 			target.focus();
+			// "Wake up" the component with mouse events
+			target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+			target.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+			target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+			// Warm-up delay: give the component time to initialize its internal state
+			await new Promise((resolve) => setTimeout(resolve, 50));
 
 			// Use the prototype's value setter to bypass React/Vue's internal trackers if they exist
 			const nativeValueSetter = Object.getOwnPropertyDescriptor(
@@ -168,7 +175,15 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 			const textToType = isDatePart ? payload.replace(/\D/g, "") : payload;
 
 			for (const char of textToType) {
-				const opts = { bubbles: true, key: char, char: char, keyCode: char.charCodeAt(0) };
+				const keyCode = char.charCodeAt(0);
+				const opts = {
+					bubbles: true,
+					key: char,
+					code: isFinite(Number(char)) ? `Digit${char}` : `Key${char.toUpperCase()}`,
+					which: keyCode,
+					keyCode: keyCode,
+				};
+
 				target.dispatchEvent(new KeyboardEvent("keydown", opts));
 
 				if (nativeValueSetter) {
@@ -180,6 +195,9 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 
 				target.dispatchEvent(new Event("input", { bubbles: true }));
 				target.dispatchEvent(new KeyboardEvent("keyup", opts));
+
+				// Small delay to allow framework/component state to catch up
+				await new Promise((resolve) => setTimeout(resolve, 10));
 			}
 
 			target.dispatchEvent(new Event("change", { bubbles: true }));
