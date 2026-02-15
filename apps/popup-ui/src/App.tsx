@@ -14,6 +14,7 @@ export function App() {
 		addMapping,
 		updateMapping,
 		deleteMapping,
+		reorderMapping,
 		updateEditingProfile,
 	} = useProfiles();
 
@@ -37,6 +38,7 @@ export function App() {
 						onAddMapping={addMapping}
 						onUpdateMapping={updateMapping}
 						onDeleteMapping={deleteMapping}
+						onReorderMapping={reorderMapping}
 					/>
 				) : (
 					<div style={{ textAlign: "center", marginTop: "100px", color: "#888" }}>

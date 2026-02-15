@@ -8,8 +8,9 @@ interface ProfileEditorProps {
 	onDelete: (id: string) => void;
 	onDuplicate: (profile: Profile) => void;
 	onAddMapping: () => void;
-	onUpdateMapping: (key: string, field: keyof Mapping, value: string | string[]) => void;
-	onDeleteMapping: (key: string) => void;
+	onUpdateMapping: (id: string, field: keyof Mapping, value: any) => void;
+	onDeleteMapping: (id: string) => void;
+	onReorderMapping: (id: string, direction: "up" | "down") => void;
 }
 
 export function ProfileEditor({
@@ -21,6 +22,7 @@ export function ProfileEditor({
 	onAddMapping,
 	onUpdateMapping,
 	onDeleteMapping,
+	onReorderMapping,
 }: ProfileEditorProps) {
 	return (
 		<div>
@@ -90,13 +92,19 @@ export function ProfileEditor({
 						alignItems: "center",
 					}}
 				>
-					<h3>Field Mappings</h3>
+					<div>
+						<h3>Autofill Rules</h3>
+						<p style={{ fontSize: "0.9rem", color: "#666", marginTop: "-10px" }}>
+							Rules are applied in order, with later rules overwriting earlier ones.
+						</p>
+					</div>
 					<button onClick={onAddMapping}>+ Add Field</button>
 				</div>
 				<MappingTable
 					mappings={profile.mappings}
 					onUpdateMapping={onUpdateMapping}
 					onDeleteMapping={onDeleteMapping}
+					onReorderMapping={onReorderMapping}
 				/>
 			</section>
 		</div>

@@ -28,11 +28,29 @@ export function useProfiles() {
 			id: Date.now().toString(),
 			name: "New Profile",
 			enabledDomains: ["*"],
-			mappings: {
-				full_name: { content: "", keywords: ["name", "full name"] },
-				email: { content: "", keywords: ["email", "e-mail"] },
-				phone: { content: "", keywords: ["phone", "mobile"] },
-			},
+			mappings: [
+				{
+					id: "1",
+					name: "full_name",
+					content: "",
+					keywords: ["name", "full name"],
+					type: "contains",
+				},
+				{
+					id: "2",
+					name: "email",
+					content: "",
+					keywords: ["email", "e-mail"],
+					type: "contains",
+				},
+				{
+					id: "3",
+					name: "phone",
+					content: "",
+					keywords: ["phone", "mobile"],
+					type: "contains",
+				},
+			],
 		};
 		setEditingProfile(newProfile);
 	};
@@ -63,31 +81,56 @@ export function useProfiles() {
 
 	const addMapping = () => {
 		if (!editingProfile) return;
-		const key = `field_${Date.now()}`;
+		const newMapping: Mapping = {
+			id: Date.now().toString(),
+			name: `field_${editingProfile.mappings.length + 1}`,
+			content: "",
+			keywords: [],
+			type: "contains",
+		};
 		setEditingProfile({
 			...editingProfile,
-			mappings: {
-				...editingProfile.mappings,
-				[key]: { content: "", keywords: [] },
-			},
+			mappings: [...editingProfile.mappings, newMapping],
 		});
 	};
 
-	const updateMapping = (key: string, field: keyof Mapping, value: string | string[]) => {
+	const updateMapping = (id: string, field: keyof Mapping, value: any) => {
 		if (!editingProfile) return;
 		setEditingProfile({
 			...editingProfile,
-			mappings: {
-				...editingProfile.mappings,
-				[key]: { ...editingProfile.mappings[key], [field]: value },
-			},
+			mappings: editingProfile.mappings.map((m) =>
+				m.id === id ? { ...m, [field]: value } : m,
+			),
 		});
 	};
 
-	const deleteMapping = (key: string) => {
+	const deleteMapping = (id: string) => {
 		if (!editingProfile) return;
-		const { [key]: _, ...rest } = editingProfile.mappings;
-		setEditingProfile({ ...editingProfile, mappings: rest });
+		setEditingProfile({
+			...editingProfile,
+			mappings: editingProfile.mappings.filter((m) => m.id !== id),
+		});
+	};
+
+	const reorderMapping = (id: string, direction: "up" | "down") => {
+		if (!editingProfile) return;
+		const index = editingProfile.mappings.findIndex((m) => m.id === id);
+		if (index === -1) return;
+
+		const newMappings = [...editingProfile.mappings];
+		const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+		if (targetIndex < 0 || targetIndex >= newMappings.length) return;
+
+		[newMappings[index], newMappings[targetIndex]] = [
+			newMappings[targetIndex],
+			newMappings[index],
+		];
+
+		setEditingProfile({
+			...editingProfile,
+			mappings: newMappings,
+		});
 	};
 
 	const updateEditingProfile = (updates: Partial<Profile>) => {
@@ -107,6 +150,7 @@ export function useProfiles() {
 		addMapping,
 		updateMapping,
 		deleteMapping,
+		reorderMapping,
 		updateEditingProfile,
 	};
 }

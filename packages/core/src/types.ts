@@ -11,16 +11,21 @@ export type DomSnapshot = {
 	fields: DomField[];
 };
 
+export type MatchType = "contains" | "starts_with" | "fuzzy" | "exact";
+
 export type Mapping = {
+	id: string;
+	name: string;
 	content: string;
 	keywords: string[];
+	type: MatchType;
 };
 
 export type Profile = {
 	id: string;
 	name: string;
 	enabledDomains: string[]; // e.g., ["myworkdayjobs.com", "*"]
-	mappings: Record<string, Mapping>;
+	mappings: Mapping[];
 };
 
 export type Action = {

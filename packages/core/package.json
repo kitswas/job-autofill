@@ -11,5 +11,8 @@
 	"types": "./src/index.ts",
 	"devDependencies": {
 		"vitest": "^4.0.18"
+	},
+	"dependencies": {
+		"fuse.js": "^7.1.0"
 	}
 }

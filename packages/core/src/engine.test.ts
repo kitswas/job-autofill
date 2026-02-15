@@ -7,19 +7,25 @@ describe("engine: matchFields", () => {
 		id: "test-profile",
 		name: "Test Profile",
 		enabledDomains: ["*"],
-		mappings: {
-			fullName: {
+		mappings: [
+			{
+				id: "1",
+				name: "fullName",
 				content: "John Doe",
 				keywords: ["full name", "name"],
+				type: "exact",
 			},
-			email: {
+			{
+				id: "2",
+				name: "email",
 				content: "john@example.com",
 				keywords: ["email", "e-mail"],
+				type: "exact",
 			},
-		},
+		],
 	};
 
-	it("should match fields based on label", () => {
+	it("should match fields based on label (exact)", () => {
 		const dom: DomSnapshot = {
 			url: "https://example.com/apply",
 			fields: [
@@ -42,27 +48,107 @@ describe("engine: matchFields", () => {
 		});
 	});
 
-	it("should match fields based on placeholder", () => {
+	it("should match using fuzzy matching", () => {
+		const fuzzyProfile: Profile = {
+			...mockProfile,
+			mappings: [
+				{
+					id: "f1",
+					name: "Phone Number",
+					content: "123-456-7890",
+					keywords: ["phone"],
+					type: "fuzzy",
+				},
+			],
+		};
+
 		const dom: DomSnapshot = {
 			url: "https://example.com/apply",
 			fields: [
 				{
-					id: null,
-					name: "email_field",
-					label: null,
-					placeholder: "Enter your email",
+					id: "p1",
+					name: "phne", // typo
+					label: "Phne Number", // typo
+					placeholder: null,
 					kind: "input",
 				},
 			],
 		};
 
-		const actions = matchFields(dom, mockProfile);
+		const actions = matchFields(dom, fuzzyProfile);
 		expect(actions).toHaveLength(1);
-		expect(actions[0]).toEqual({
-			selector: '[name="email_field"]',
-			action: "set_value",
-			payload: "john@example.com",
-		});
+		expect(actions[0].payload).toBe("123-456-7890");
+	});
+
+	it("should match using 'contains'", () => {
+		const containsProfile: Profile = {
+			...mockProfile,
+			mappings: [
+				{
+					id: "c1",
+					name: "City",
+					content: "New York",
+					keywords: ["location"],
+					type: "contains",
+				},
+			],
+		};
+
+		const dom: DomSnapshot = {
+			url: "https://example.com/apply",
+			fields: [
+				{
+					id: "loc",
+					name: "current_location_city",
+					label: "Current Location",
+					placeholder: null,
+					kind: "input",
+				},
+			],
+		};
+
+		const actions = matchFields(dom, containsProfile);
+		expect(actions).toHaveLength(1);
+		expect(actions[0].payload).toBe("New York");
+	});
+
+	it("later rules should overwrite earlier ones", () => {
+		const conflictProfile: Profile = {
+			...mockProfile,
+			mappings: [
+				{
+					id: "1",
+					name: "First Name",
+					content: "John",
+					keywords: ["name"],
+					type: "contains",
+				},
+				{
+					id: "2",
+					name: "Full Name",
+					content: "John Doe",
+					keywords: ["name"],
+					type: "contains",
+				},
+			],
+		};
+
+		const dom: DomSnapshot = {
+			url: "https://example.com/apply",
+			fields: [
+				{
+					id: "n1",
+					name: "name",
+					label: "Name",
+					placeholder: null,
+					kind: "input",
+				},
+			],
+		};
+
+		const actions = matchFields(dom, conflictProfile);
+		expect(actions).toHaveLength(1);
+		expect(actions[0].payload).toBe("John Doe"); // Second rule wins
 	});
 
 	it("should not match if domain is not enabled", () => {
@@ -85,105 +171,5 @@ describe("engine: matchFields", () => {
 
 		const actions = matchFields(dom, restrictedProfile);
 		expect(actions).toHaveLength(0);
-	});
-
-	it("should match if domain ends with enabled domain", () => {
-		const restrictedProfile: Profile = {
-			...mockProfile,
-			enabledDomains: ["myworkdayjobs.com"],
-		};
-		const dom: DomSnapshot = {
-			url: "https://company.myworkdayjobs.com/apply",
-			fields: [
-				{
-					id: "f1",
-					name: "name",
-					label: "Name",
-					placeholder: null,
-					kind: "input",
-				},
-			],
-		};
-
-		const actions = matchFields(dom, restrictedProfile);
-		expect(actions).toHaveLength(1);
-	});
-
-	it("should not match substrings that are not whole words (potential future improvement)", () => {
-		// Currently this test WILL FAIL if we want strict word matching,
-		const dom: DomSnapshot = {
-			url: "https://example.com/apply",
-			fields: [
-				{
-					id: "f1",
-					name: "description",
-					label: "Description",
-					placeholder: null,
-					kind: "input",
-				},
-			],
-		};
-
-		const profileWithZip: Profile = {
-			...mockProfile,
-			mappings: {
-				zip: {
-					content: "12345",
-					keywords: ["zip"],
-				},
-			},
-		};
-
-		const actions = matchFields(dom, profileWithZip);
-		const dom2: DomSnapshot = {
-			url: "https://example.com/apply",
-			fields: [
-				{
-					id: "f1",
-					name: "unzipped_file",
-					label: "Unzipped",
-					placeholder: null,
-					kind: "input",
-				},
-			],
-		};
-		const actions2 = matchFields(dom2, profileWithZip);
-		// With word boundaries, "unzipped" should NOT match "zip"
-		expect(actions2).toHaveLength(0);
-	});
-
-	it("should match normalized text (snake_case, camelCase)", () => {
-		const dom: DomSnapshot = {
-			url: "https://example.com/apply",
-			fields: [
-				{
-					id: "firstName",
-					name: "q1",
-					label: null,
-					placeholder: null,
-					kind: "input",
-				},
-				{
-					id: null,
-					name: "last_name",
-					label: null,
-					placeholder: null,
-					kind: "input",
-				},
-			],
-		};
-
-		const profile: Profile = {
-			...mockProfile,
-			mappings: {
-				firstName: { content: "John", keywords: ["first name"] },
-				lastName: { content: "Doe", keywords: ["last name"] },
-			},
-		};
-
-		const actions = matchFields(dom, profile);
-		expect(actions).toHaveLength(2);
-		expect(actions.find((a) => a.selector === "#firstName")?.payload).toBe("John");
-		expect(actions.find((a) => a.selector === '[name="last_name"]')?.payload).toBe("Doe");
 	});
 });

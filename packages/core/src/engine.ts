@@ -1,7 +1,35 @@
-import { Action, DomSnapshot, Profile } from "./types";
+import Fuse from "fuse.js";
+import { Action, DomSnapshot, Profile, Mapping } from "./types";
+
+function isMatch(text: string, keyword: string, type: Mapping["type"]): boolean {
+	const normalizedText = text.toLowerCase();
+	const normalizedKeyword = keyword.toLowerCase();
+
+	switch (type) {
+		case "exact": {
+			const escapedKeyword = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
+			return regex.test(normalizedText);
+		}
+		case "contains":
+			return normalizedText.includes(normalizedKeyword);
+		case "starts_with":
+			return normalizedText.startsWith(normalizedKeyword);
+		case "fuzzy": {
+			const fuse = new Fuse([normalizedText], {
+				includeScore: true,
+				threshold: 0.4, // Adjust threshold for better fuzzy matching
+			});
+			const results = fuse.search(normalizedKeyword);
+			return results.length > 0;
+		}
+		default:
+			return false;
+	}
+}
 
 export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
-	const actions: Action[] = [];
+	const actionsMap = new Map<string, Action>();
 	const hostname = new URL(dom.url).hostname;
 
 	// Check if profile is enabled for this domain
@@ -27,34 +55,28 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			.replace(/[_-]/g, " ")
 			.toLowerCase();
 
+		const selector = field.id ? `#${field.id}` : field.name ? `[name="${field.name}"]` : null;
+
+		if (!selector) continue;
+
 		// Iterate through all mappings in the profile
-		for (const [fieldName, mapping] of Object.entries(profile.mappings)) {
-			const keywords = [fieldName, ...mapping.keywords].map((k) => k.toLowerCase());
+		// Later rules overwrite earlier ones, so we just let them overwrite in the map
+		for (const mapping of profile.mappings) {
+			const keywords = [mapping.name, ...mapping.keywords];
 
-			const isMatch = keywords.some((keyword) => {
-				// Escape keyword for regex and use word boundaries
-				const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-				const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
-				return regex.test(normalizedText);
-			});
+			const matched = keywords.some((keyword) =>
+				isMatch(normalizedText, keyword, mapping.type),
+			);
 
-			if (isMatch) {
-				const selector = field.id
-					? `#${field.id}`
-					: field.name
-						? `[name="${field.name}"]`
-						: null;
-				if (selector) {
-					actions.push({
-						selector,
-						action: "set_value",
-						payload: mapping.content,
-					});
-					break; // Move to next field once matched
-				}
+			if (matched) {
+				actionsMap.set(selector, {
+					selector,
+					action: "set_value",
+					payload: mapping.content,
+				});
 			}
 		}
 	}
 
-	return actions;
+	return Array.from(actionsMap.values());
 }
