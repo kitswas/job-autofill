@@ -20,6 +20,8 @@ export function Sidebar({
 				borderRight: "1px solid #ccc",
 				padding: "20px",
 				backgroundColor: "#f9f9f9",
+				display: "flex",
+				flexDirection: "column",
 			}}
 		>
 			<h2>Profiles</h2>
@@ -29,25 +31,28 @@ export function Sidebar({
 			>
 				+ Create Profile
 			</button>
-			{Object.values(profiles).map((p) => (
-				<div
-					key={p.id}
-					onClick={() => onSelectProfile(p)}
-					style={{
-						padding: "10px",
-						border: "1px solid #ddd",
-						marginBottom: "10px",
-						borderRadius: "4px",
-						cursor: "pointer",
-						backgroundColor: editingProfileId === p.id ? "#e0e0e0" : "white",
-					}}
-				>
-					<strong>{p.name}</strong>
-					<div style={{ fontSize: "12px", color: "#666" }}>
-						{Object.keys(p.mappings).length} fields
+
+			<div style={{ flex: 1, overflowY: "auto" }}>
+				{Object.values(profiles).map((p) => (
+					<div
+						key={p.id}
+						onClick={() => onSelectProfile(p)}
+						style={{
+							padding: "10px",
+							border: "1px solid #ddd",
+							marginBottom: "10px",
+							borderRadius: "4px",
+							cursor: "pointer",
+							backgroundColor: editingProfileId === p.id ? "#e0e0e0" : "white",
+						}}
+					>
+						<strong>{p.name}</strong>
+						<div style={{ fontSize: "12px", color: "#666" }}>
+							{Array.isArray(p.mappings) ? p.mappings.length : 0} fields
+						</div>
 					</div>
-				</div>
-			))}
+				))}
+			</div>
 		</div>
 	);
 }

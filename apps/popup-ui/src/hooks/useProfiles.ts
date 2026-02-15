@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Profile, Mapping } from "core";
+import { Profile, Mapping, PROFILE_TEMPLATES } from "core";
 import { storage } from "../storage";
 
 export function useProfiles() {
@@ -9,8 +9,26 @@ export function useProfiles() {
 
 	useEffect(() => {
 		storage.get().then((data) => {
-			setProfiles(data.profiles);
-			setSelectedProfileId(data.selectedProfileId);
+			if (Object.keys(data.profiles).length === 0) {
+				// Prepopulate with templates
+				const initialProfiles: Record<string, Profile> = {};
+				PROFILE_TEMPLATES.forEach((template) => {
+					const id = template.id;
+					initialProfiles[id] = {
+						id,
+						name: template.name,
+						enabledDomains: ["*"],
+						mappings: template.mappings.map((m) => ({
+							...m,
+							id: Math.random().toString(36).substr(2, 9),
+						})),
+					};
+				});
+				saveProfiles(initialProfiles, PROFILE_TEMPLATES[0]?.id || null);
+			} else {
+				setProfiles(data.profiles);
+				setSelectedProfileId(data.selectedProfileId);
+			}
 		});
 	}, []);
 

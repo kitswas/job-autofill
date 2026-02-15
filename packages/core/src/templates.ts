@@ -1,0 +1,221 @@
+import { Mapping } from "./types";
+
+export interface ProfileTemplate {
+	id: string;
+	name: string;
+	description: string;
+	mappings: Mapping[];
+}
+
+export const PROFILE_TEMPLATES: ProfileTemplate[] = [
+	{
+		id: "basic-info",
+		name: "Basic Information",
+		description: "Standard contact details (Name, Email, Phone)",
+		mappings: [
+			{
+				id: "t1",
+				name: "Given Name",
+				content: "",
+				keywords: ["given name", "first name", "firstName"],
+				type: "contains",
+			},
+			{
+				id: "t2",
+				name: "Family Name",
+				content: "",
+				keywords: ["family name", "last name", "lastName"],
+				type: "contains",
+			},
+			{
+				id: "t3",
+				name: "Email",
+				content: "",
+				keywords: ["email", "e-mail", "emailAddress"],
+				type: "contains",
+			},
+			{
+				id: "t4",
+				name: "Phone Number",
+				content: "",
+				keywords: ["phone number", "phoneNumber", "mobile"],
+				type: "contains",
+			},
+		],
+	},
+	{
+		id: "workday-full",
+		name: "Workday Standard",
+		description: "Comprehensive mappings for Workday application forms",
+		mappings: [
+			{
+				id: "w1",
+				name: "Given Name",
+				content: "",
+				keywords: ["legalName--firstName", "given name", "first name"],
+				type: "contains",
+			},
+			{
+				id: "w2",
+				name: "Family Name",
+				content: "",
+				keywords: ["legalName--lastName", "family name", "last name"],
+				type: "contains",
+			},
+			{
+				id: "w3",
+				name: "Address Line 1",
+				content: "",
+				keywords: ["addressLine1", "address line 1", "street"],
+				type: "contains",
+			},
+			{
+				id: "w4",
+				name: "City",
+				content: "",
+				keywords: ["city", "town"],
+				type: "contains",
+			},
+			{
+				id: "w5",
+				name: "Postal Code",
+				content: "",
+				keywords: ["postalCode", "zip code", "postcode"],
+				type: "contains",
+			},
+			{
+				id: "w6",
+				name: "Phone Number",
+				content: "",
+				keywords: ["phoneNumber", "phone number", "mobile"],
+				type: "contains",
+			},
+			{
+				id: "w7",
+				name: "How Did You Hear About Us?",
+				content: "",
+				keywords: ["source", "how did you hear"],
+				type: "contains",
+			},
+			{
+				id: "w8",
+				name: "Previous Worker",
+				content: "No",
+				keywords: ["candidateIsPreviousWorker", "worked for", "previous worker"],
+				type: "contains",
+			},
+		],
+	},
+	{
+		id: "workday-experience",
+		name: "Workday Experience",
+		description: "Experience, Education, Skills, and Social profiles for Workday",
+		mappings: [
+			{
+				id: "we1",
+				name: "Job Title",
+				content: "",
+				keywords: ["jobTitle", "job title", "position"],
+				type: "contains",
+			},
+			{
+				id: "we2",
+				name: "Company",
+				content: "",
+				keywords: ["companyName", "company", "employer"],
+				type: "contains",
+			},
+			{
+				id: "we2_loc",
+				name: "Location",
+				content: "",
+				keywords: ["location", "company location"],
+				type: "contains",
+			},
+			{
+				id: "we2_start",
+				name: "Work Start Date",
+				content: "",
+				keywords: ["workExperience--startDate", "startDate", "from"],
+				type: "contains",
+			},
+			{
+				id: "we2_end",
+				name: "Work End Date",
+				content: "",
+				keywords: ["workExperience--endDate", "endDate", "to"],
+				type: "contains",
+			},
+			{
+				id: "we3",
+				name: "Role Description",
+				content: "",
+				keywords: ["roleDescription", "role description", "responsibilities", "summary"],
+				type: "contains",
+			},
+			{
+				id: "we4",
+				name: "School or University",
+				content: "",
+				keywords: ["schoolName", "school", "university", "college"],
+				type: "contains",
+			},
+			{
+				id: "we5",
+				name: "Degree",
+				content: "",
+				keywords: ["degree"],
+				type: "contains",
+			},
+			{
+				id: "we6",
+				name: "Field of Study",
+				content: "",
+				keywords: ["fieldOfStudy", "field of study", "major"],
+				type: "contains",
+			},
+			{
+				id: "we7",
+				name: "GPA",
+				content: "",
+				keywords: ["gradeAverage", "gpa", "overall result"],
+				type: "contains",
+			},
+			{
+				id: "we7_start",
+				name: "Education Start Year",
+				content: "",
+				keywords: ["education--firstYearAttended", "firstYearAttended", "from"],
+				type: "contains",
+			},
+			{
+				id: "we7_end",
+				name: "Education End Year",
+				content: "",
+				keywords: ["education--lastYearAttended", "lastYearAttended", "to"],
+				type: "contains",
+			},
+			{
+				id: "we8",
+				name: "Skills",
+				content: "",
+				keywords: ["skills", "type to add skills"],
+				type: "contains",
+			},
+			{
+				id: "we9",
+				name: "LinkedIn",
+				content: "",
+				keywords: ["linkedInAccount", "linkedin"],
+				type: "contains",
+			},
+			{
+				id: "we10",
+				name: "Website / Portfolio",
+				content: "",
+				keywords: ["website", "portfolio", "personal link"],
+				type: "contains",
+			},
+		],
+	},
+];
