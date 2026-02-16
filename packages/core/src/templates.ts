@@ -1,17 +1,11 @@
-import { Rule } from "./types";
+import { CURRENT_SCHEMA_VERSION, Profile } from "./types";
 
-export interface ProfileTemplate {
-	id: string;
-	name: string;
-	description: string;
-	rules: Rule[];
-}
-
-export const PROFILE_TEMPLATES: ProfileTemplate[] = [
+export const PROFILE_TEMPLATES: Profile[] = [
 	{
+		version: CURRENT_SCHEMA_VERSION,
 		id: "basic-info",
 		name: "Basic Information",
-		description: "Standard contact details (Name, Email, Phone)",
+		enabledDomains: ["*"],
 		rules: [
 			{
 				id: "t1",
@@ -48,9 +42,10 @@ export const PROFILE_TEMPLATES: ProfileTemplate[] = [
 		],
 	},
 	{
+		version: CURRENT_SCHEMA_VERSION,
 		id: "workday-full",
 		name: "Workday Standard",
-		description: "Comprehensive rules for Workday application forms",
+		enabledDomains: ["*"],
 		rules: [
 			{
 				id: "w1",
@@ -119,9 +114,10 @@ export const PROFILE_TEMPLATES: ProfileTemplate[] = [
 		],
 	},
 	{
+		version: CURRENT_SCHEMA_VERSION,
 		id: "workday-experience",
 		name: "Workday Experience",
-		description: "Experience, Education, Skills, and Social profiles for Workday",
+		enabledDomains: ["*"],
 		rules: [
 			{
 				id: "we1",

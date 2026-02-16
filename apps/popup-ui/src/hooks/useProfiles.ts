@@ -26,16 +26,7 @@ export function useProfiles() {
 				const initialProfiles: Record<string, Profile> = {};
 				PROFILE_TEMPLATES.forEach((template) => {
 					const id = template.id;
-					initialProfiles[id] = {
-						version: CURRENT_SCHEMA_VERSION,
-						id,
-						name: template.name,
-						enabledDomains: ["*"],
-						rules: template.rules.map((r) => ({
-							...r,
-							id: Math.random().toString(36).substr(2, 9),
-						})),
-					};
+					initialProfiles[id] = { ...template };
 				});
 				saveProfiles(initialProfiles, PROFILE_TEMPLATES[0]?.id || null);
 			} else {
