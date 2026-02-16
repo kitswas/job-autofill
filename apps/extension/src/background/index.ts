@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import { matchFields, Profile, DomSnapshot } from "core";
+import { matchFields, Profile, DomSnapshot, mockProfile } from "core";
 
 console.log("[Job Autofill][background] script loaded");
 
@@ -90,3 +90,16 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 		}
 	}
 });
+
+// Test Mode Configuration
+if (typeof __TEST_MODE__ !== "undefined" && __TEST_MODE__) {
+	(globalThis as any).sendAutofillCommand = sendAutofillCommand;
+	(globalThis as any).mockProfile = mockProfile;
+
+	browser.runtime.onInstalled.addListener(async () => {
+		await browser.storage.sync.set({
+			profiles: { [mockProfile.id]: mockProfile },
+		});
+		console.log("[Job Autofill][background] Test mode: Mock profile loaded");
+	});
+}

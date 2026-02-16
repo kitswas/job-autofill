@@ -10,7 +10,10 @@ export const test = base.extend<{
 	extensionId: string;
 }>({
 	context: async ({ browser, browserName }, use) => {
-		const pathToExtension = path.resolve(__dirname, "../dist");
+		const pathToExtension =
+			browserName === "chromium"
+				? path.resolve(__dirname, "../dist-chromium")
+				: path.resolve(__dirname, "../dist");
 
 		if (browserName === "chromium") {
 			const context = await chromium.launchPersistentContext("", {

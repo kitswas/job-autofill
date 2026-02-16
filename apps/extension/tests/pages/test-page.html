@@ -8,16 +8,20 @@
 	<body>
 		<h1>Job Autofill — Local test form</h1>
 		<form>
-			<label for="fullName">Full name</label>
-			<input id="fullName" name="full_name" placeholder="Full name" />
+			<label for="firstName">First Name</label>
+			<input id="firstName" name="first_name" placeholder="First Name" />
+			<br />
+
+			<label for="lastName">Last Name</label>
+			<input id="lastName" name="last_name" placeholder="Last Name" />
 			<br />
 
 			<label for="email">Email</label>
 			<input id="email" name="email" type="email" placeholder="Email" />
 			<br />
 
-			<label for="phone">Phone</label>
-			<input id="phone" name="phone" placeholder="Phone" />
+			<label for="phone">Phone Number</label>
+			<input id="phone" name="phone" type="tel" placeholder="Phone Number" />
 			<br />
 
 			<label for="title">Job title</label>
@@ -29,7 +33,8 @@
 
 		<script>
 			document.getElementById("check").addEventListener("click", () => {
-				console.log("full_name:", document.querySelector('[name="full_name"]').value);
+				console.log("first_name:", document.querySelector('[name="first_name"]').value);
+				console.log("last_name:", document.querySelector('[name="last_name"]').value);
 				console.log("email:", document.querySelector('[name="email"]').value);
 				console.log("phone:", document.querySelector('[name="phone"]').value);
 				console.log("job_title:", document.querySelector('[name="job_title"]').value);

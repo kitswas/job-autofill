@@ -1,4 +1,1 @@
-declare module "*.wasm" {
-	const content: string;
-	export default content;
-}
+declare const __TEST_MODE__: boolean;

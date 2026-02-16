@@ -6,8 +6,11 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = path.join(__dirname, "dist");
+const isTest = process.argv.includes("--test");
 
 await mkdir(distDir, { recursive: true });
+
+console.log(`Building extension... (Test Mode: ${isTest})`);
 
 await build({
 	entryPoints: {
@@ -19,6 +22,9 @@ await build({
 	format: "esm",
 	target: "es2022",
 	sourcemap: true,
+	define: {
+		__TEST_MODE__: isTest ? "true" : "false",
+	},
 });
 
 await copyFile(path.join(__dirname, "manifest.json"), path.join(distDir, "manifest.json"));
