@@ -12,6 +12,10 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"clean": "pnpm -r --parallel exec rm -rf dist node_modules",
+		"test": "pnpm -r test",
+		"test:e2e:prepare": "pnpm --filter extension test:e2e:prepare",
+		"test:e2e:run": "pnpm --filter extension test:e2e:run",
+		"test:e2e": "pnpm test:e2e:prepare && pnpm test:e2e:run",
 		"launch": "start-server-and-test \"http-server apps/extension -p 5173 -c-1\" http://localhost:5173/test-page.html \"cd apps/extension/dist && web-ext run --browser-console --devtools --start-url http://localhost:5173/test-page.html\"",
 		"prepare": "husky"
 	},
