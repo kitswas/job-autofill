@@ -30,15 +30,15 @@ try {
 
 	// Ensure all test URLs are allowed
 	manifest.host_permissions = manifest.host_permissions || [];
-	if (!manifest.host_permissions.includes("file://*")) {
-		manifest.host_permissions.push("file://*");
+	if (!manifest.host_permissions.includes("http://localhost:5173/*")) {
+		manifest.host_permissions.push("http://localhost:5173/*");
 	}
 
-	// Also allow content scripts on file:// URLs
+	// Also allow content scripts on localhost:5173
 	if (manifest.content_scripts) {
 		manifest.content_scripts.forEach((script) => {
-			if (!script.matches.includes("file://*")) {
-				script.matches.push("file://*");
+			if (!script.matches.includes("http://localhost:5173/*")) {
+				script.matches.push("http://localhost:5173/*");
 			}
 		});
 	}
@@ -70,6 +70,13 @@ try {
 	if (chromeManifest.background && chromeManifest.background.scripts) {
 		chromeManifest.background.service_worker = chromeManifest.background.scripts[0];
 		delete chromeManifest.background.scripts;
+
+		// Ensure permissions for localhost:5173 are present (should be inherited from dist but safe to check)
+		chromeManifest.host_permissions = chromeManifest.host_permissions || [];
+		if (!chromeManifest.host_permissions.includes("http://localhost:5173/*")) {
+			chromeManifest.host_permissions.push("http://localhost:5173/*");
+		}
+
 		writeFileSync(chromeManifestPath, JSON.stringify(chromeManifest, null, 2));
 		console.log("Created Chromium manifest at:", chromeManifestPath);
 	}

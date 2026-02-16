@@ -10,6 +10,11 @@ export default defineConfig({
 	use: {
 		trace: "on-first-retry",
 	},
+	webServer: {
+		command: "npx http-server tests/pages -p 5173 -c-1",
+		port: 5173,
+		reuseExistingServer: !process.env.CI,
+	},
 	projects: [
 		{
 			name: "chromium",

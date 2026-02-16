@@ -8,8 +8,7 @@ const __dirname = path.dirname(__filename);
 
 test.describe("Job Autofill E2E", () => {
 	test("should verify field visibility on test page", async ({ page }) => {
-		const testPagePath = "file://" + path.resolve(__dirname, "pages/test-page.html");
-		await page.goto(testPagePath);
+		await page.goto("http://localhost:5173/test-page.html");
 
 		const fields = ["#firstName", "#lastName", "#email", "#phone", "#title"];
 		for (const selector of fields) {
@@ -29,8 +28,7 @@ test.describe("Job Autofill E2E", () => {
 			return;
 		}
 
-		const testPagePath = "file://" + path.resolve(__dirname, "pages/test-page.html");
-		await page.goto(testPagePath);
+		await page.goto("http://localhost:5173/test-page.html");
 
 		// Trigger autofill via background script
 		if (extensionId === "not-found") {
