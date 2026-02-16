@@ -46,13 +46,19 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
 	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
 	const { profiles } = await browser.storage.sync.get(["profiles"]);
+	if (!profiles) {
+		console.error("[Job Autofill][background] No profiles found in storage");
+		return;
+	}
 	const profile = profiles?.[profileId];
 
 	if (!profile) return;
+	await sendAutofillCommand(tab.id, profile);
+});
 
-	// Request DOM snapshot from content script
+async function sendAutofillCommand(tabId: number, profile: Profile) {
 	try {
-		const response = await browser.tabs.sendMessage(tab.id, { type: "GET_DOM_SNAPSHOT" });
+		const response = await browser.tabs.sendMessage(tabId, { type: "GET_DOM_SNAPSHOT" });
 		if (!response) {
 			console.error("[Job Autofill][background] Received empty response for DOM snapshot");
 			return;
@@ -60,7 +66,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
 		const actions = matchFields(response as DomSnapshot, profile as Profile);
 		if (actions.length > 0) {
-			await browser.tabs.sendMessage(tab.id, { type: "APPLY_ACTIONS", actions });
+			await browser.tabs.sendMessage(tabId, { type: "APPLY_ACTIONS", actions });
 		}
 	} catch (error) {
 		console.error(
@@ -68,7 +74,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 			error,
 		);
 	}
-});
+}
 
 browser.runtime.onMessage.addListener((message, _sender) => {
 	if (message.type === "ANALYZE_FORM") {
