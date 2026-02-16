@@ -9,18 +9,6 @@ const distDir = path.join(__dirname, "dist");
 
 await mkdir(distDir, { recursive: true });
 
-// Clean up any old wasm files
-try {
-	const files = await readdir(distDir);
-	for (const file of files) {
-		if (file.endsWith(".wasm")) {
-			await rm(path.join(distDir, file));
-		}
-	}
-} catch (e) {
-	// ignore
-}
-
 await build({
 	entryPoints: {
 		background: path.join(__dirname, "src/background/index.ts"),
