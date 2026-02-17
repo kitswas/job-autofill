@@ -76,7 +76,7 @@ async function sendAutofillCommand(tabId: number, profile: Profile) {
 	}
 }
 
-browser.runtime.onMessage.addListener((message, _sender) => {
+browser.runtime.onMessage.addListener((message, sender) => {
 	if (message.type === "ANALYZE_FORM") {
 		const { domPayload, profilePayload } = message;
 		try {
@@ -87,6 +87,16 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 		} catch (e) {
 			console.error("[Job Autofill][background] ANALYZE_FORM error:", e);
 			return Promise.resolve({ actions: [] });
+		}
+	} else if (message.type === "TEST_TRIGGER_AUTOFILL") {
+		// --- E2E Test Bridge Handler ---
+		if (sender.tab?.id) {
+			console.log(
+				"[Job Autofill][background] Executing test autofill for tab:",
+				sender.tab.id,
+			);
+			sendAutofillCommand(sender.tab.id, mockProfile);
+			return Promise.resolve({ success: true });
 		}
 	}
 });

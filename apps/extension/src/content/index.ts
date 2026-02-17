@@ -150,7 +150,6 @@ browser.runtime.onMessage.addListener(async (message, _sender) => {
 			}
 
 			// Handle Workday Custom Selects / Multiselects
-			// These usually look like inputs with data-uxi-widget-type="selectinput" or "multiselect"
 			const isCustomSelect =
 				action.inputtype === "select" ||
 				action.inputtype === "multiselect" ||
@@ -197,8 +196,6 @@ browser.runtime.onMessage.addListener(async (message, _sender) => {
 				await new Promise((resolve) => setTimeout(resolve, 800));
 
 				// Find the first option in the search results list and click it
-				// We search for elements with role="option" or data-automation-id="menuItem"
-				// within the active list container
 				const listContainer = document.querySelector(
 					'[data-automation-id="activeListContainer"]',
 				);
@@ -287,5 +284,17 @@ browser.runtime.onMessage.addListener(async (message, _sender) => {
 			target.blur();
 		}
 		return Promise.resolve({ success: true });
+	}
+});
+
+// --- E2E Test Bridge ---
+window.addEventListener("message", (event) => {
+	if (event.source === window && event.data?.type === "PLAYWRIGHT_TRIGGER_AUTOFILL") {
+		console.log("[Job Autofill][content] Test trigger received. Forwarding to background...");
+		browser.runtime
+			.sendMessage({
+				type: "TEST_TRIGGER_AUTOFILL",
+			})
+			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
 	}
 });
