@@ -36,7 +36,7 @@ export function Sidebar({
 							>
 								<strong>{p.name}</strong>
 								<div style={{ fontSize: "0.8rem", opacity: 0.7 }}>
-									{Array.isArray(p.rules) ? p.rules.length : 0} fields
+									{Array.isArray(p.rules) ? p.rules.length : 0} rules
 								</div>
 							</a>
 						</li>
