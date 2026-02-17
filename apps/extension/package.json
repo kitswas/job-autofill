@@ -7,6 +7,7 @@
 		"build": "node build.js",
 		"test:e2e:prepare": "node scripts/prepare-e2e.js",
 		"test:e2e:run": "playwright test",
+		"test:e2e:report": "playwright show-report",
 		"test:e2e": "pnpm test:e2e:prepare && pnpm test:e2e:run"
 	},
 	"dependencies": {

@@ -45,7 +45,15 @@ pnpm build
 
 The final extension will be available in `apps/extension/dist`.
 
-### Testing in Browser
+### Automated End-to-End Testing
+
+```bash
+pnpm test:e2e
+# To see test results in a browser:
+
+```
+
+### Launch Browser for Testing (Manual)
 
 ```bash
 pnpm launch
