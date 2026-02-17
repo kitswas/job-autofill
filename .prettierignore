@@ -1,5 +1,8 @@
+playwright-report
+test-results
 node_modules
 dist
+dist-*
 pnpm-lock.yaml
 .git
 target
