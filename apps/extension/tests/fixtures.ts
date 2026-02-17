@@ -1,34 +1,11 @@
-import { test as base, chromium, firefox, type BrowserContext, type Page } from "@playwright/test";
+import { test as base, chromium, firefox, type BrowserContext } from "@playwright/test";
 import path from "path";
 import fs from "fs";
-import http from "http";
 import { fileURLToPath } from "url";
-import { spawn, type ChildProcess } from "child_process";
-import net from "net";
+import { type ChildProcess } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const waitForPort = (port: number, timeout = 10000) => {
-	const start = Date.now();
-	return new Promise((resolve, reject) => {
-		const check = () => {
-			if (Date.now() - start > timeout) {
-				reject(new Error(`Timeout waiting for port ${port}`));
-				return;
-			}
-			const socket = net.createConnection(port, "localhost");
-			socket.on("connect", () => {
-				socket.end();
-				resolve(true);
-			});
-			socket.on("error", () => {
-				setTimeout(check, 250);
-			});
-		};
-		check();
-	});
-};
 
 export const test = base.extend<{
 	context: BrowserContext;
@@ -67,10 +44,6 @@ export const test = base.extend<{
 
 			// Copy the extension to the extensions directory with its ID as name
 			// This is one way Firefox loads extensions in a profile
-			const extensionDest = path.join(
-				extensionsDir,
-				"job-autofill-e2e@kitswas.github.io.xpi",
-			);
 			// Since it's a directory, we might need to zip it or just use the directory
 			// Firefox also accepts directories if they are named correctly
 			const extensionDirDest = path.join(extensionsDir, "job-autofill-e2e@kitswas.github.io");

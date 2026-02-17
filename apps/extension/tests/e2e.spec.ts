@@ -1,10 +1,5 @@
 import { test, expect } from "./fixtures";
-import path from "path";
-import { fileURLToPath } from "url";
 import type { Page, Worker } from "@playwright/test";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 test.describe("Job Autofill E2E", () => {
 	test("should verify field visibility on test page", async ({ page }) => {
