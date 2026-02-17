@@ -294,6 +294,7 @@ window.addEventListener("message", (event) => {
 		browser.runtime
 			.sendMessage({
 				type: "TEST_TRIGGER_AUTOFILL",
+				profile: event.data.profile,
 			})
 			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
 	}

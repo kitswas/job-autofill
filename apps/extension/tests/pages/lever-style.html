@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Lever Style Test Page</title>
+		<style>
+			body {
+				font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+					sans-serif;
+				background-color: white;
+				padding: 20px;
+			}
+			.application-container {
+				max-width: 650px;
+				margin: 0 auto;
+			}
+			.application-field {
+				margin-bottom: 30px;
+			}
+			.field-label {
+				font-size: 14px;
+				font-weight: 700;
+				text-transform: uppercase;
+				margin-bottom: 10px;
+				color: #4a4a4a;
+				letter-spacing: 1px;
+			}
+			input {
+				width: 100%;
+				border: none;
+				border-bottom: 2px solid #eee;
+				padding: 10px 0;
+				font-size: 16px;
+				outline: none;
+				transition: border-color 0.2s;
+			}
+			input:focus {
+				border-bottom-color: #15c;
+			}
+			h2 {
+				margin-bottom: 40px;
+				font-weight: 300;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="application-container">
+			<h2>Apply for this position</h2>
+			<form>
+				<div class="application-field">
+					<div class="field-label">Full Name</div>
+					<input name="name" placeholder="Full Name" />
+				</div>
+				<div class="application-field">
+					<div class="field-label">Email</div>
+					<input name="email" type="email" placeholder="Email" />
+				</div>
+				<div class="application-field">
+					<div class="field-label">Phone</div>
+					<input name="phone" type="tel" placeholder="Phone" />
+				</div>
+				<div class="application-field">
+					<div class="field-label">Current Company</div>
+					<input name="org" placeholder="Current Company" />
+				</div>
+				<div class="application-field">
+					<div class="field-label">LinkedIn URL</div>
+					<input name="urls[LinkedIn]" placeholder="LinkedIn URL" />
+				</div>
+				<div class="application-field">
+					<div class="field-label">Portfolio URL</div>
+					<input name="urls[Portfolio]" placeholder="Portfolio URL" />
+				</div>
+				<div class="application-field">
+					<div class="field-label">Additional Information</div>
+					<textarea
+						name="comments"
+						placeholder="Add a cover letter or anything else you want to share."
+					></textarea>
+				</div>
+				<button type="button">Submit application</button>
+			</form>
+		</div>
+	</body>
+</html>

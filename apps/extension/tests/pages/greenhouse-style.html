@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Greenhouse Style Test Page</title>
+		<style>
+			body {
+				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+				color: #333;
+				line-height: 1.5;
+				padding: 20px;
+			}
+			#application-form {
+				max-width: 700px;
+				margin: 0 auto;
+			}
+			.field {
+				margin-bottom: 20px;
+			}
+			label {
+				display: block;
+				font-weight: bold;
+				margin-bottom: 5px;
+			}
+			input[type="text"],
+			input[type="email"],
+			input[type="tel"] {
+				width: 100%;
+				padding: 6px 12px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+			h1 {
+				border-bottom: 1px solid #eee;
+				padding-bottom: 10px;
+			}
+			.required::after {
+				content: " *";
+				color: #d9534f;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="application-form">
+			<h1>Submit your application</h1>
+			<form>
+				<div class="field">
+					<label for="first_name" class="required">First Name</label>
+					<input id="first_name" name="first_name" type="text" />
+				</div>
+				<div class="field">
+					<label for="last_name" class="required">Last Name</label>
+					<input id="last_name" name="last_name" type="text" />
+				</div>
+				<div class="field">
+					<label for="email" class="required">Email</label>
+					<input id="email" name="email" type="email" />
+				</div>
+				<div class="field">
+					<label for="phone" class="required">Phone</label>
+					<input id="phone" name="phone" type="tel" />
+				</div>
+				<div class="field">
+					<label for="job_application_answer_attributes_12345">LinkedIn Profile</label>
+					<input
+						id="job_application_answer_attributes_12345"
+						name="job_application[answer_attributes][12345]"
+						type="text"
+					/>
+				</div>
+				<div class="field">
+					<label for="job_application_answer_attributes_67890">Website</label>
+					<input
+						id="job_application_answer_attributes_67890"
+						name="job_application[answer_attributes][67890]"
+						type="text"
+					/>
+				</div>
+				<div class="field">
+					<label for="education_school_name_0">School</label>
+					<input
+						id="education_school_name_0"
+						name="education[school_name_0]"
+						type="text"
+					/>
+				</div>
+				<button type="button">Submit Application</button>
+			</form>
+		</div>
+	</body>
+</html>

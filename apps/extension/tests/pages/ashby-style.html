@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Ashby Style Test Page</title>
+		<style>
+			body {
+				font-family:
+					-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
+					"Helvetica Neue", Arial, sans-serif;
+				background-color: #fafafa;
+				padding: 40px;
+			}
+			.ashby-application-form {
+				max-width: 600px;
+				margin: 0 auto;
+				background: white;
+				border: 1px solid #e1e4e8;
+				border-radius: 6px;
+				padding: 48px;
+			}
+			.ashby-question {
+				margin-bottom: 24px;
+			}
+			.ashby-label {
+				display: block;
+				font-size: 14px;
+				font-weight: 600;
+				margin-bottom: 8px;
+				color: #24292e;
+			}
+			input[type="text"],
+			input[type="email"],
+			input[type="tel"] {
+				width: 100%;
+				height: 32px;
+				padding: 5px 12px;
+				font-size: 14px;
+				line-height: 20px;
+				color: #24292e;
+				vertical-align: middle;
+				background-color: #fff;
+				background-repeat: no-repeat;
+				background-position: right 8px center;
+				border: 1px solid #e1e4e8;
+				border-radius: 6px;
+				outline: none;
+				box-shadow: inset 0 1px 0 rgba(225, 228, 232, 0.2);
+			}
+			h1 {
+				font-size: 24px;
+				font-weight: 600;
+				margin-bottom: 32px;
+				border-bottom: 1px solid #eaecef;
+				padding-bottom: 8px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="ashby-application-form">
+			<h1>Apply for Software Engineer</h1>
+			<form>
+				<div class="ashby-question">
+					<label class="ashby-label">First Name</label>
+					<input type="text" name="first_name" />
+				</div>
+				<div class="ashby-question">
+					<label class="ashby-label">Last Name</label>
+					<input type="text" name="last_name" />
+				</div>
+				<div class="ashby-question">
+					<label class="ashby-label">Email</label>
+					<input type="email" name="email" />
+				</div>
+				<div class="ashby-question">
+					<label class="ashby-label">Phone Number</label>
+					<input type="tel" name="phone_number" />
+				</div>
+				<div class="ashby-question">
+					<label class="ashby-label">LinkedIn URL</label>
+					<input type="text" name="linkedin_url" />
+				</div>
+				<div class="ashby-question">
+					<label class="ashby-label">GitHub URL</label>
+					<input type="text" name="github_url" />
+				</div>
+				<button type="button">Submit Application</button>
+			</form>
+		</div>
+	</body>
+</html>

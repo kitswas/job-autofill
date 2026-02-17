@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
-import { matchFields, Profile, DomSnapshot, mockProfile } from "core";
+import { matchFields, Profile, DomSnapshot } from "core";
+import { standardProfile as mockProfile } from "../../tests/profiles";
 
 console.log("[Job Autofill][background] script loaded");
 
@@ -95,7 +96,8 @@ browser.runtime.onMessage.addListener((message, sender) => {
 				"[Job Autofill][background] Executing test autofill for tab:",
 				sender.tab.id,
 			);
-			sendAutofillCommand(sender.tab.id, mockProfile);
+			const profileToUse = message.profile || mockProfile;
+			sendAutofillCommand(sender.tab.id, profileToUse);
 			return Promise.resolve({ success: true });
 		}
 	}

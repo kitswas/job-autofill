@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Workday Style Test Page</title>
+		<style>
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				background-color: #f5f5f5;
+				padding: 20px;
+			}
+			.form-container {
+				max-width: 600px;
+				margin: 0 auto;
+				background: white;
+				padding: 40px;
+				border-radius: 8px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			}
+			.field-group {
+				margin-bottom: 24px;
+			}
+			label {
+				display: block;
+				font-weight: 600;
+				margin-bottom: 8px;
+				color: #333;
+			}
+			input {
+				width: 100%;
+				padding: 8px 12px;
+				border: 1px solid #ced4da;
+				border-radius: 4px;
+				box-sizing: border-box;
+			}
+			h1 {
+				color: #0056b3;
+				margin-top: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="form-container">
+			<h1>Workday Style Application</h1>
+			<form>
+				<div class="field-group">
+					<label id="lbl-fn" for="input-fn">First Name</label>
+					<input
+						id="input-fn"
+						data-automation-id="legalNameSection_firstName"
+						aria-labelledby="lbl-fn"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-ln" for="input-ln">Last Name</label>
+					<input
+						id="input-ln"
+						data-automation-id="legalNameSection_lastName"
+						aria-labelledby="lbl-ln"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-email" for="input-email">Email Address</label>
+					<input
+						id="input-email"
+						type="email"
+						data-automation-id="contactInformationSection_email"
+						aria-labelledby="lbl-email"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-phone" for="input-phone">Phone Number</label>
+					<input
+						id="input-phone"
+						type="tel"
+						data-automation-id="contactInformationSection_phoneNumber"
+						aria-labelledby="lbl-phone"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-city" for="input-city">City</label>
+					<input
+						id="input-city"
+						data-automation-id="addressSection_city"
+						aria-labelledby="lbl-city"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-zip" for="input-zip">Postal Code</label>
+					<input
+						id="input-zip"
+						data-automation-id="addressSection_postalCode"
+						aria-labelledby="lbl-zip"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-title" for="input-title">Job Title</label>
+					<input
+						id="input-title"
+						data-automation-id="experienceSection_jobTitle"
+						aria-labelledby="lbl-title"
+					/>
+				</div>
+				<div class="field-group">
+					<label id="lbl-company" for="input-company">Company</label>
+					<input
+						id="input-company"
+						data-automation-id="experienceSection_companyName"
+						aria-labelledby="lbl-company"
+					/>
+				</div>
+				<button type="button" id="check">Submit (Fake)</button>
+			</form>
+		</div>
+	</body>
+</html>
