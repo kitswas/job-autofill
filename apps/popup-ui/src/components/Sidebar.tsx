@@ -14,45 +14,35 @@ export function Sidebar({
 	onCreateProfile,
 }: SidebarProps) {
 	return (
-		<div
-			style={{
-				width: "300px",
-				borderRight: "1px solid #ccc",
-				padding: "20px",
-				backgroundColor: "#f9f9f9",
-				display: "flex",
-				flexDirection: "column",
-			}}
-		>
-			<h2>Profiles</h2>
-			<button
-				onClick={onCreateProfile}
-				style={{ width: "100%", padding: "10px", marginBottom: "20px" }}
-			>
-				+ Create Profile
-			</button>
+		<aside data-sidebar>
+			<header>
+				<h3>Profiles</h3>
+				<button onClick={onCreateProfile} style={{ width: "100%", marginBottom: "1rem" }}>
+					+ Create Profile
+				</button>
+			</header>
 
-			<div style={{ flex: 1, overflowY: "auto" }}>
-				{Object.values(profiles).map((p) => (
-					<div
-						key={p.id}
-						onClick={() => onSelectProfile(p)}
-						style={{
-							padding: "10px",
-							border: "1px solid #ddd",
-							marginBottom: "10px",
-							borderRadius: "4px",
-							cursor: "pointer",
-							backgroundColor: editingProfileId === p.id ? "#e0e0e0" : "white",
-						}}
-					>
-						<strong>{p.name}</strong>
-						<div style={{ fontSize: "12px", color: "#666" }}>
-							{Array.isArray(p.rules) ? p.rules.length : 0} fields
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
+			<nav>
+				<ul>
+					{Object.values(profiles).map((p) => (
+						<li key={p.id}>
+							<a
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									onSelectProfile(p);
+								}}
+								aria-current={editingProfileId === p.id ? "page" : undefined}
+							>
+								<strong>{p.name}</strong>
+								<div style={{ fontSize: "0.8rem", opacity: 0.7 }}>
+									{Array.isArray(p.rules) ? p.rules.length : 0} fields
+								</div>
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+		</aside>
 	);
 }

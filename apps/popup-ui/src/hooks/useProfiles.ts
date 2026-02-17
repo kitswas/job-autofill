@@ -84,6 +84,7 @@ export function useProfiles() {
 			],
 		};
 		setEditingProfile(newProfile);
+		window.ot.toast("New profile created.", "Success", { variant: "success" });
 	};
 
 	const createProfileFrom = (baseProfile: Profile) => {
@@ -93,6 +94,7 @@ export function useProfiles() {
 			name: baseProfile.name + " Copy",
 		};
 		setEditingProfile(newProfile);
+		window.ot.toast("Profile duplicated.", "Success", { variant: "success" });
 	};
 
 	const saveEditingProfile = () => {
@@ -100,14 +102,17 @@ export function useProfiles() {
 		const newProfiles = { ...profiles, [editingProfile.id]: editingProfile };
 		saveProfiles(newProfiles, selectedProfileId || editingProfile.id);
 		setEditingProfile(null);
+		window.ot.toast("Profile saved successfully.", "Success", { variant: "success" });
 	};
 
 	const deleteProfile = (id: string) => {
+		if (!window.confirm("Are you sure you want to delete this profile?")) return;
 		const { [id]: _, ...rest } = profiles;
 		saveProfiles(rest, selectedProfileId === id ? null : selectedProfileId);
 		if (editingProfile?.id === id) {
 			setEditingProfile(null);
 		}
+		window.ot.toast("Profile deleted.", "Success", { variant: "success" });
 	};
 
 	const addRule = () => {

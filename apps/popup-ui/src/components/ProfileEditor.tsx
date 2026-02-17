@@ -26,80 +26,67 @@ export function ProfileEditor({
 }: ProfileEditorProps) {
 	return (
 		<div>
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-				}}
-			>
-				<h1>Edit Profile</h1>
-				<div>
-					<button onClick={() => onDuplicate(profile)} style={{ marginRight: "10px" }}>
+			<header>
+				<h2>Edit Profile</h2>
+				<div
+					className="buttons gap-2"
+					style={{ display: "flex", justifyContent: "flex-end" }}
+				>
+					<button onClick={() => onDuplicate(profile)} data-variant="secondary">
 						Duplicate
 					</button>
-					<button
-						onClick={() => onDelete(profile.id)}
-						style={{
-							marginRight: "10px",
-							backgroundColor: "red",
-							color: "white",
-							border: "none",
-							padding: "8px 15px",
-							borderRadius: "4px",
-							cursor: "pointer",
-						}}
-					>
+					<button onClick={() => onDelete(profile.id)} data-variant="danger">
 						Delete Profile
 					</button>
-					<button onClick={onSave} style={{ padding: "8px 20px", fontWeight: "bold" }}>
-						Save Changes
-					</button>
+					<button onClick={onSave}>Save Changes</button>
 				</div>
-			</div>
+			</header>
 
-			<section style={{ marginBottom: "30px" }}>
-				<h3>Basic Info</h3>
-				<label>Profile Name:</label>
-				<br />
-				<input
-					type="text"
-					value={profile.name}
-					onChange={(e) => onUpdateProfile({ name: e.target.value })}
-					style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-				/>
-				<br />
-				<br />
-				<label>Enabled Domains (comma separated, use * for all):</label>
-				<br />
-				<input
-					type="text"
-					value={profile.enabledDomains.join(", ")}
-					onChange={(e) =>
-						onUpdateProfile({
-							enabledDomains: e.target.value.split(",").map((s) => s.trim()),
-						})
-					}
-					style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-				/>
+			<section style={{ marginBottom: "2rem" }}>
+				<h4>Basic Info</h4>
+				<label data-field>
+					Profile Name
+					<input
+						type="text"
+						value={profile.name}
+						onChange={(e) => onUpdateProfile({ name: e.target.value })}
+						placeholder="My Profile"
+					/>
+				</label>
+				<label data-field>
+					Enabled Domains (comma separated, use * for all)
+					<input
+						type="text"
+						value={profile.enabledDomains.join(", ")}
+						onChange={(e) =>
+							onUpdateProfile({
+								enabledDomains: e.target.value.split(",").map((s) => s.trim()),
+							})
+						}
+						placeholder="example.com, *"
+					/>
+				</label>
 			</section>
 
 			<section>
-				<div
+				<header
 					style={{
 						display: "flex",
 						justifyContent: "space-between",
 						alignItems: "center",
+						marginBottom: "1rem",
 					}}
 				>
 					<div>
-						<h3>Autofill Rules</h3>
-						<p style={{ fontSize: "0.9rem", color: "#666", marginTop: "-10px" }}>
+						<h4>Autofill Rules</h4>
+						<p style={{ opacity: 0.7, fontSize: "0.8rem", marginTop: "-0.5rem" }}>
 							Rules are applied in order, with later rules overwriting earlier ones.
 						</p>
 					</div>
-					<button onClick={onAddRule}>+ Add Field</button>
-				</div>
+					<button type="button" onClick={onAddRule} data-variant="primary">
+						+ Add Field
+					</button>
+				</header>
 				<RuleTable
 					rules={profile.rules}
 					onUpdateRule={onUpdateRule}

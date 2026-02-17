@@ -69,6 +69,9 @@ importers:
 
   apps/popup-ui:
     dependencies:
+      '@knadh/oat':
+        specifier: ^0.3.0
+        version: 0.3.0
       core:
         specifier: workspace:*
         version: link:../../packages/core
@@ -492,6 +495,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@knadh/oat@0.3.0':
+    resolution: {integrity: sha512-+hTYbrYAQOvRNSBhKSVMXb2UueppZtU6+o+Khxa3od1Ipve/3ApXmLh9lSzeFvWziQ7U7x5+uQ6LgbyzCl6jUw==}
 
   '@mdn/browser-compat-data@7.3.0':
     resolution: {integrity: sha512-B7X53zLkrQOVNzsWg4d+iE5vbrreOYB9H/2Ikeit9LPb3tqRNRsEAxysQduFLODBJBSgFGr2FkJLq7tMQkqLZQ==}
@@ -3181,6 +3187,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@knadh/oat@0.3.0': {}
 
   '@mdn/browser-compat-data@7.3.0': {}
 

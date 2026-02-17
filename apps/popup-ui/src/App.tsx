@@ -19,7 +19,7 @@ export function App() {
 	} = useProfiles();
 
 	return (
-		<div style={{ display: "flex", height: "100vh", fontFamily: "system-ui" }}>
+		<div data-sidebar-layout>
 			<Sidebar
 				profiles={profiles}
 				editingProfileId={editingProfile?.id}
@@ -27,7 +27,7 @@ export function App() {
 				onCreateProfile={createProfile}
 			/>
 
-			<div style={{ flex: 1, padding: "40px", overflowY: "auto" }}>
+			<main style={{ flex: 1, padding: "2rem", overflowY: "auto" }}>
 				{editingProfile ? (
 					<ProfileEditor
 						profile={editingProfile}
@@ -45,7 +45,7 @@ export function App() {
 						<h2>Select a profile to edit or create a new one.</h2>
 					</div>
 				)}
-			</div>
+			</main>
 		</div>
 	);
 }

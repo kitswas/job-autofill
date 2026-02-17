@@ -37,117 +37,134 @@ const inputTypes: { value: InputType; label: string }[] = [
 
 export function RuleTable({ rules, onUpdateRule, onDeleteRule, onReorderRule }: RuleTableProps) {
 	return (
-		<table style={{ width: "100%", borderCollapse: "collapse" }}>
+		<table style={{ width: "100%" }}>
 			<thead>
-				<tr
-					style={{
-						textAlign: "left",
-						borderBottom: "2px solid #eee",
-					}}
-				>
-					<th style={{ padding: "10px", width: "50px" }}>Order</th>
-					<th style={{ padding: "10px", width: "100px" }}>Match</th>
-					<th style={{ padding: "10px", width: "100px" }}>Input</th>
-					<th style={{ padding: "10px" }}>Field Name / Keywords</th>
-					<th style={{ padding: "10px" }}>Content to Fill</th>
-					<th style={{ padding: "10px", width: "80px" }}>Actions</th>
+				<tr>
+					<th style={{ width: "80px" }}>Order</th>
+					<th style={{ width: "120px" }}>Match</th>
+					<th style={{ width: "150px" }}>Input</th>
+					<th>Field Name / Keywords</th>
+					<th>Content to Fill</th>
+					<th style={{ width: "80px" }}>Actions</th>
 				</tr>
 			</thead>
 			<tbody>
 				{rules.map((rule, index) => (
-					<tr key={rule.id} style={{ borderBottom: "1px solid #eee" }}>
-						<td style={{ padding: "10px" }}>
-							<div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+					<tr key={rule.id}>
+						<td>
+							<div
+								style={{
+									display: "flex",
+									flexDirection: "column",
+									gap: "0.25rem",
+									padding: "0.25rem",
+								}}
+							>
 								<button
 									disabled={index === 0}
+									type="button"
 									onClick={() => onReorderRule(rule.id, "up")}
-									style={{ padding: "2px 5px", fontSize: "10px" }}
+									data-variant="secondary"
+									className="small"
+									title="Move Up"
 								>
 									▲
 								</button>
 								<button
 									disabled={index === rules.length - 1}
+									type="button"
 									onClick={() => onReorderRule(rule.id, "down")}
-									style={{ padding: "2px 5px", fontSize: "10px" }}
+									data-variant="secondary"
+									className="small"
+									title="Move Down"
 								>
 									▼
 								</button>
 							</div>
 						</td>
-						<td style={{ padding: "10px" }}>
-							<select
-								value={rule.matchtype}
-								onChange={(e) => onUpdateRule(rule.id, "matchtype", e.target.value)}
-								style={{ width: "100%", padding: "5px" }}
-							>
-								{matchTypes.map((t) => (
-									<option key={t.value} value={t.value}>
-										{t.label}
-									</option>
-								))}
-							</select>
+						<td>
+							<div data-field>
+								<select
+									aria-label="Match Type"
+									value={rule.matchtype}
+									onChange={(e) =>
+										onUpdateRule(rule.id, "matchtype", e.target.value)
+									}
+								>
+									{matchTypes.map((t) => (
+										<option key={t.value} value={t.value}>
+											{t.label}
+										</option>
+									))}
+								</select>
+							</div>
 						</td>
-						<td style={{ padding: "10px" }}>
-							<select
-								value={rule.inputtype}
-								onChange={(e) => onUpdateRule(rule.id, "inputtype", e.target.value)}
-								style={{ width: "100%", padding: "5px" }}
-							>
-								{inputTypes.map((t) => (
-									<option key={t.value} value={t.value}>
-										{t.label}
-									</option>
-								))}
-							</select>
+						<td>
+							<div data-field>
+								<select
+									aria-label="Input Type"
+									value={rule.inputtype}
+									onChange={(e) =>
+										onUpdateRule(rule.id, "inputtype", e.target.value)
+									}
+								>
+									{inputTypes.map((t) => (
+										<option key={t.value} value={t.value}>
+											{t.label}
+										</option>
+									))}
+								</select>
+							</div>
 						</td>
-						<td style={{ padding: "10px" }}>
-							<input
-								type="text"
-								placeholder="Field Name"
-								value={rule.name}
-								onChange={(e) => onUpdateRule(rule.id, "name", e.target.value)}
-								style={{ width: "90%", padding: "5px", marginBottom: "5px" }}
-							/>
-							<input
-								type="text"
-								placeholder="Keywords (comma separated)"
-								value={rule.keywords.join(", ")}
-								onChange={(e) =>
-									onUpdateRule(
-										rule.id,
-										"keywords",
-										e.target.value
-											.split(",")
-											.map((s) => s.trim())
-											.filter(Boolean),
-									)
-								}
-								style={{ width: "90%", padding: "5px" }}
-							/>
+						<td>
+							<label data-field>
+								<input
+									type="text"
+									placeholder="Field Name"
+									value={rule.name}
+									onChange={(e) => onUpdateRule(rule.id, "name", e.target.value)}
+									style={{ marginBottom: "0.5rem" }}
+								/>
+							</label>
+							<label data-field>
+								<input
+									type="text"
+									placeholder="Keywords (comma separated)"
+									value={rule.keywords.join(", ")}
+									onChange={(e) =>
+										onUpdateRule(
+											rule.id,
+											"keywords",
+											e.target.value
+												.split(",")
+												.map((s) => s.trim())
+												.filter(Boolean),
+										)
+									}
+								/>
+							</label>
 						</td>
-						<td style={{ padding: "10px" }}>
-							<textarea
-								value={rule.content}
-								onChange={(e) => onUpdateRule(rule.id, "content", e.target.value)}
-								style={{
-									width: "90%",
-									padding: "5px",
-									height: "60px",
-									resize: "vertical",
-								}}
-							/>
+						<td>
+							<label data-field>
+								<textarea
+									value={rule.content}
+									onChange={(e) =>
+										onUpdateRule(rule.id, "content", e.target.value)
+									}
+									placeholder="Content to Fill"
+									style={{
+										minHeight: "80px",
+										resize: "vertical",
+									}}
+								/>
+							</label>
 						</td>
-						<td style={{ padding: "10px" }}>
+						<td>
 							<button
+								type="button"
 								onClick={() => onDeleteRule(rule.id)}
-								style={{
-									backgroundColor: "#ff4444",
-									color: "white",
-									border: "none",
-									padding: "5px 10px",
-									borderRadius: "4px",
-									cursor: "pointer",
-								}}
+								data-variant="danger"
+								className="small"
 							>
 								Remove
 							</button>
