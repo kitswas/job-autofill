@@ -1,4 +1,5 @@
 import { test as base, chromium, firefox, type BrowserContext } from "@playwright/test";
+import { withExtension } from "playwright-webextext";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -35,31 +36,15 @@ export const test = base.extend<{
 			await use(context);
 			await context.close();
 		} else if (browserName === "firefox") {
+			// Wrap the Playwright firefox browser type with the extension helper
+			const firefoxWithExt = withExtension(firefox, pathToExtension);
+
 			const tempDir = path.join(
 				process.env.TEMP || "/tmp",
 				`playwright-firefox-${Math.random().toString(36).substring(7)}`,
 			);
-			const extensionsDir = path.join(tempDir, "extensions");
-			fs.mkdirSync(extensionsDir, { recursive: true });
 
-			// Copy the extension to the extensions directory with its ID as name
-			// This is one way Firefox loads extensions in a profile
-			// Since it's a directory, we might need to zip it or just use the directory
-			// Firefox also accepts directories if they are named correctly
-			const extensionDirDest = path.join(extensionsDir, "job-autofill-e2e@kitswas.github.io");
-
-			// Simple copy
-			const copyDir = (src, dest) => {
-				fs.mkdirSync(dest, { recursive: true });
-				for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-					if (entry.isDirectory())
-						copyDir(path.join(src, entry.name), path.join(dest, entry.name));
-					else fs.copyFileSync(path.join(src, entry.name), path.join(dest, entry.name));
-				}
-			};
-			copyDir(pathToExtension, extensionDirDest);
-
-			const context = await firefox.launchPersistentContext(tempDir, {
+			const context = await firefoxWithExt.launchPersistentContext(tempDir, {
 				headless: false,
 				firefoxUserPrefs: {
 					"xpinstall.signatures.required": false,
