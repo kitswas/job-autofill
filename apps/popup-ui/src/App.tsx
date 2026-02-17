@@ -1,6 +1,7 @@
 import { useProfiles } from "./hooks/useProfiles";
 import { Sidebar } from "./components/Sidebar";
 import { ProfileEditor } from "./components/ProfileEditor";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 
 export function App() {
 	const {
@@ -11,6 +12,9 @@ export function App() {
 		createProfileFrom,
 		saveEditingProfile,
 		deleteProfile,
+		confirmAction,
+		cancelAction,
+		confirmConfig,
 		addRule,
 		updateRule,
 		deleteRule,
@@ -46,6 +50,15 @@ export function App() {
 					</div>
 				)}
 			</main>
+
+			<ConfirmDialog
+				id="confirm-dialog"
+				title={confirmConfig?.title || "Confirm Action"}
+				description={confirmConfig?.description || "Are you sure?"}
+				confirmText="Confirm"
+				onConfirm={confirmAction}
+				onCancel={cancelAction}
+			/>
 		</div>
 	);
 }

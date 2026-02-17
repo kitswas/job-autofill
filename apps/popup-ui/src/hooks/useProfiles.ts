@@ -18,6 +18,19 @@ export function useProfiles() {
 	const [profiles, setProfiles] = useState<Record<string, Profile>>({});
 	const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
 	const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
+	const [confirmConfig, setConfirmConfig] = useState<{
+		title: string;
+		description: string;
+		onConfirm: () => void;
+	} | null>(null);
+
+	const showConfirm = (config: { title: string; description: string; onConfirm: () => void }) => {
+		setConfirmConfig(config);
+		const dialog = document.getElementById("confirm-dialog") as HTMLDialogElement;
+		if (dialog) {
+			dialog.showModal();
+		}
+	};
 
 	useEffect(() => {
 		storage.get().then((data) => {
@@ -106,13 +119,29 @@ export function useProfiles() {
 	};
 
 	const deleteProfile = (id: string) => {
-		if (!window.confirm("Are you sure you want to delete this profile?")) return;
-		const { [id]: _, ...rest } = profiles;
-		saveProfiles(rest, selectedProfileId === id ? null : selectedProfileId);
-		if (editingProfile?.id === id) {
-			setEditingProfile(null);
-		}
-		window.ot.toast("Profile deleted.", "Success", { variant: "success" });
+		showConfirm({
+			title: "Delete Profile",
+			description:
+				"Are you sure you want to delete this profile? This action cannot be undone.",
+			onConfirm: () => {
+				const { [id]: _, ...rest } = profiles;
+				saveProfiles(rest, selectedProfileId === id ? null : selectedProfileId);
+				if (editingProfile?.id === id) {
+					setEditingProfile(null);
+				}
+				window.ot.toast("Profile deleted.", "Success", { variant: "success" });
+			},
+		});
+	};
+
+	const confirmAction = () => {
+		const config = confirmConfig;
+		setConfirmConfig(null);
+		config?.onConfirm();
+	};
+
+	const cancelAction = () => {
+		setConfirmConfig(null);
 	};
 
 	const addRule = () => {
@@ -141,9 +170,16 @@ export function useProfiles() {
 
 	const deleteRule = (id: string) => {
 		if (!editingProfile) return;
-		setEditingProfile({
-			...editingProfile,
-			rules: editingProfile.rules.filter((r) => r.id !== id),
+		showConfirm({
+			title: "Remove Field",
+			description: "Are you sure you want to remove this autofill field?",
+			onConfirm: () => {
+				setEditingProfile({
+					...editingProfile,
+					rules: editingProfile.rules.filter((r) => r.id !== id),
+				});
+				window.ot.toast("Field removed.", "Success", { variant: "success" });
+			},
 		});
 	};
 
@@ -179,6 +215,9 @@ export function useProfiles() {
 		createProfileFrom,
 		saveEditingProfile,
 		deleteProfile,
+		confirmAction,
+		cancelAction,
+		confirmConfig,
 		addRule,
 		updateRule,
 		deleteRule,
