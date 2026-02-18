@@ -2,8 +2,8 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-	width="48"
-	height="48"
+	width="128"
+	height="128"
 	viewBox="0 0 12.7 12.7"
 	version="1.1"
 	id="svg1"
@@ -47,7 +47,7 @@
 		id="layer1"
 		transform="translate(-39.837498,-79.190002)">
 		<rect
-			style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.213147;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:11.4;stroke-dasharray:none;paint-order:normal"
+			style="fill:#fff;fill-rule:evenodd;stroke:#000000;stroke-width:0.213147;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:11.4;stroke-dasharray:none;paint-order:normal"
 			id="rect1"
 			width="11.671819"
 			height="3.9169827"

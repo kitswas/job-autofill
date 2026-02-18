@@ -4,22 +4,17 @@
 	"version": "0.1.0",
 	"description": "Autofill job application forms.",
 	"icons": {
-		"16": "icons/icon16.png",
-		"32": "icons/icon32.png",
-		"48": "icons/icon48.png",
-		"128": "icons/icon128.png"
+		"16": "icons/logo.svg",
+		"32": "icons/logo.svg",
+		"48": "icons/logo.svg",
+		"128": "icons/logo.svg"
 	},
 	"background": {
 		"scripts": ["background.js"],
 		"type": "module"
 	},
 	"action": {
-		"default_icon": {
-			"16": "icons/icon16.png",
-			"32": "icons/icon32.png",
-			"48": "icons/icon48.png",
-			"128": "icons/icon128.png"
-		},
+		"default_icon": "icons/logo.svg",
 		"default_title": "Job Autofill"
 	},
 	"permissions": ["storage", "scripting", "activeTab", "contextMenus"],
