@@ -39,6 +39,14 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				matchtype: "contains",
 				inputtype: "text",
 			},
+			{
+				id: "t5",
+				name: "Country",
+				content: "",
+				keywords: ["country", "nation"],
+				matchtype: "contains",
+				inputtype: "select",
+			},
 		],
 	},
 	{
@@ -101,7 +109,15 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				content: "",
 				keywords: ["source", "how did you hear"],
 				matchtype: "contains",
-				inputtype: "text",
+				inputtype: "any",
+			},
+			{
+				id: "w_country",
+				name: "Country",
+				content: "",
+				keywords: ["country", "nation"],
+				matchtype: "contains",
+				inputtype: "select",
 			},
 			{
 				id: "w8",

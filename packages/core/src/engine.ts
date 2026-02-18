@@ -65,7 +65,8 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 
 		const normalizedText = rawText
 			.replace(/([a-z])([A-Z])/g, "$1 $2")
-			.replace(/[_-]/g, " ")
+			.replace(/[._-]/g, " ")
+			.replace(/[()]/g, "")
 			.replace(/\s+/g, " ")
 			.trim()
 			.toLowerCase();
@@ -137,7 +138,8 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			for (const keyword of keywords) {
 				const normalizedKeyword = keyword
 					.replace(/([a-z])([A-Z])/g, "$1 $2")
-					.replace(/[_-]/g, " ")
+					.replace(/[._-]/g, " ")
+					.replace(/[()]/g, "")
 					.replace(/\s+/g, " ")
 					.trim()
 					.toLowerCase();

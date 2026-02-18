@@ -19,7 +19,7 @@ async function updateContextMenus() {
 	browser.contextMenus.create({
 		id: "autofill-root",
 		title: "Job Autofill",
-		contexts: ["editable"],
+		contexts: ["all"],
 	});
 
 	Object.values(profiles as Record<string, Profile>).forEach((profile) => {
@@ -27,7 +27,7 @@ async function updateContextMenus() {
 			id: `autofill-profile-${profile.id}`,
 			parentId: "autofill-root",
 			title: profile.name || "Unnamed Profile",
-			contexts: ["editable"],
+			contexts: ["all"],
 		});
 	});
 }

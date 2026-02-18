@@ -11,21 +11,12 @@
 		"default_title": "Job Autofill"
 	},
 	"permissions": ["storage", "scripting", "activeTab", "contextMenus"],
-	"host_permissions": [
-		"https://*.myworkdayjobs.com/*",
-		"https://*.workday.com/*",
-		"http://localhost/*",
-		"http://127.0.0.1/*"
-	],
+	"host_permissions": ["<all_urls>"],
 	"content_scripts": [
 		{
-			"matches": [
-				"https://*.myworkdayjobs.com/*",
-				"https://*.workday.com/*",
-				"http://localhost/*",
-				"http://127.0.0.1/*"
-			],
-			"js": ["content.js"]
+			"matches": ["<all_urls>"],
+			"js": ["content.js"],
+			"all_frames": true
 		}
 	],
 	"browser_specific_settings": {
