@@ -1,8 +1,10 @@
 import { DomSnapshot, DomField } from "core";
+import { getActiveAdapter } from "./registry";
 
 export function extractFields(): DomSnapshot {
 	const fields: DomField[] = [];
 	const elements = document.querySelectorAll("input, select, textarea");
+	const adapter = getActiveAdapter();
 
 	elements.forEach((el) => {
 		const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -74,7 +76,7 @@ export function extractFields(): DomSnapshot {
 			}
 		}
 
-		fields.push({
+		let field: DomField = {
 			id: element.id || null,
 			name: element.getAttribute("name"),
 			label: label || null,
@@ -83,7 +85,16 @@ export function extractFields(): DomSnapshot {
 			automationId: element.getAttribute("data-automation-id"),
 			kind: element.tagName.toLowerCase(),
 			type: (element as HTMLInputElement).type || null,
-		});
+		};
+
+		// Run through adapter hook if active
+		if (adapter?.onExtractField) {
+			const result = adapter.onExtractField(element, field);
+			if (result === null) return;
+			field = result;
+		}
+
+		fields.push(field);
 	});
 
 	return {
