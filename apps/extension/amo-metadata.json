@@ -1,11 +1,11 @@
 {
-	"version": { "license": "BSD-3-Clause" },
+	"version": { "license": "BSD-2-Clause" },
 	"categories": {},
 	"summary": {
-		"en-IN": "Autofill forms."
+		"en-US": "Autofill forms."
 	},
 	"homepage": {
-		"en-IN": "https://github.com/kitswas/job-autofill/"
+		"en-US": "https://github.com/kitswas/job-autofill/"
 	},
 	"is_experimental": true
 }
