@@ -12,7 +12,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Given Name",
 				content: "",
 				keywords: ["given name", "first name", "firstName"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -20,7 +20,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Family Name",
 				content: "",
 				keywords: ["family name", "last name", "lastName"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -28,7 +28,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Email",
 				content: "",
 				keywords: ["email", "e-mail", "emailAddress"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -36,7 +36,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Phone Number",
 				content: "",
 				keywords: ["phone number", "phoneNumber", "mobile", "phone"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -44,7 +44,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Country",
 				content: "",
 				keywords: ["country", "nation"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "select",
 			},
 		],
@@ -60,7 +60,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Given Name",
 				content: "",
 				keywords: ["legalName--firstName", "given name", "first name"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -68,7 +68,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Family Name",
 				content: "",
 				keywords: ["legalName--lastName", "family name", "last name"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -76,7 +76,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Address Line 1",
 				content: "",
 				keywords: ["addressLine1", "address line 1", "street"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -84,7 +84,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "City",
 				content: "",
 				keywords: ["city", "town"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -92,7 +92,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Postal Code",
 				content: "",
 				keywords: ["postalCode", "zip code", "postcode"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -100,7 +100,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Phone Number",
 				content: "",
 				keywords: ["phoneNumber", "phone number", "mobile", "phone"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -108,7 +108,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "How Did You Hear About Us?",
 				content: "",
 				keywords: ["source", "how did you hear"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "any",
 			},
 			{
@@ -116,7 +116,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Country",
 				content: "",
 				keywords: ["country", "nation"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "select",
 			},
 			{
@@ -124,7 +124,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Previous Worker",
 				content: "false",
 				keywords: ["candidateIsPreviousWorker", "worked for", "previous worker"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "any",
 			},
 		],
@@ -140,7 +140,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Job Title",
 				content: "",
 				keywords: ["jobTitle", "job title", "position"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -148,7 +148,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Company",
 				content: "",
 				keywords: ["companyName", "company", "employer"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -156,7 +156,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Location",
 				content: "",
 				keywords: ["location", "company location"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -164,7 +164,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Work Start Month",
 				content: "",
 				keywords: ["startDate dateSectionMonth", "from month"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "spinbox",
 			},
 			{
@@ -172,7 +172,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Work Start Year",
 				content: "",
 				keywords: ["startDate dateSectionYear", "from year"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "spinbox",
 			},
 			{
@@ -180,7 +180,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Work End Month",
 				content: "",
 				keywords: ["endDate dateSectionMonth", "to month"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "spinbox",
 			},
 			{
@@ -188,7 +188,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Work End Year",
 				content: "",
 				keywords: ["endDate dateSectionYear", "to year"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "spinbox",
 			},
 			{
@@ -196,7 +196,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Role Description",
 				content: "",
 				keywords: ["roleDescription", "role description", "responsibilities", "summary"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -204,7 +204,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "School or University",
 				content: "",
 				keywords: ["schoolName", "school", "university", "college"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -212,7 +212,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Degree",
 				content: "",
 				keywords: ["degree"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "select",
 			},
 			{
@@ -220,7 +220,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Field of Study",
 				content: "",
 				keywords: ["fieldOfStudy", "field of study", "major"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "select",
 			},
 			{
@@ -228,7 +228,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "GPA",
 				content: "",
 				keywords: ["gradeAverage", "gpa", "overall result"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "number",
 			},
 			{
@@ -236,7 +236,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Education Start Year",
 				content: "",
 				keywords: ["firstYearAttended dateSectionYear", "education from year"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "spinbox",
 			},
 			{
@@ -244,7 +244,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Education End Year",
 				content: "",
 				keywords: ["lastYearAttended dateSectionYear", "education to year"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "spinbox",
 			},
 			{
@@ -252,7 +252,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Skills",
 				content: "",
 				keywords: ["skills", "type to add skills"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "multiselect",
 			},
 			{
@@ -260,7 +260,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "LinkedIn",
 				content: "",
 				keywords: ["linkedInAccount", "linkedin"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 			{
@@ -268,7 +268,7 @@ export const PROFILE_TEMPLATES: Profile[] = [
 				name: "Website / Portfolio",
 				content: "",
 				keywords: ["website", "portfolio", "personal link"],
-				matchtype: "contains",
+				matchtype: "fuzzy",
 				inputtype: "text",
 			},
 		],

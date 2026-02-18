@@ -75,7 +75,7 @@ export function useProfiles() {
 					name: "full_name",
 					content: "",
 					keywords: ["name", "full name"],
-					matchtype: "contains",
+					matchtype: "fuzzy",
 					inputtype: "any",
 				},
 				{
@@ -83,7 +83,7 @@ export function useProfiles() {
 					name: "email",
 					content: "",
 					keywords: ["email", "e-mail"],
-					matchtype: "contains",
+					matchtype: "fuzzy",
 					inputtype: "any",
 				},
 				{
@@ -91,7 +91,7 @@ export function useProfiles() {
 					name: "phone",
 					content: "",
 					keywords: ["phone", "mobile"],
-					matchtype: "contains",
+					matchtype: "fuzzy",
 					inputtype: "any",
 				},
 			],
@@ -151,7 +151,7 @@ export function useProfiles() {
 			name: `field_${editingProfile.rules.length + 1}`,
 			content: "",
 			keywords: [],
-			matchtype: "contains",
+			matchtype: "fuzzy",
 			inputtype: "any",
 		};
 		setEditingProfile({

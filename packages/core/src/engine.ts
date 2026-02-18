@@ -18,7 +18,7 @@ function calculateScore(
 			return normalizedText.startsWith(normalizedKeyword) ? 30 : 0;
 		case "fuzzy": {
 			// Basic substring check as a fast path for fuzzy
-			if (normalizedText.includes(normalizedKeyword)) return 40;
+			if (normalizedText.includes(normalizedKeyword)) return 50;
 
 			const fuse = new Fuse([normalizedText], {
 				includeScore: true,
@@ -26,7 +26,7 @@ function calculateScore(
 			});
 			const results = fuse.search(normalizedKeyword);
 			if (results.length > 0 && results[0].score !== undefined) {
-				return Math.round((1 - results[0].score) * 40);
+				return Math.round((1 - results[0].score) * 50);
 			}
 			return 0;
 		}

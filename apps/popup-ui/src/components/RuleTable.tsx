@@ -8,10 +8,10 @@ interface RuleTableProps {
 }
 
 const matchTypes: { value: MatchType; label: string }[] = [
+	{ value: "fuzzy", label: "Fuzzy" },
 	{ value: "exact", label: "Exact" },
 	{ value: "contains", label: "Contains" },
 	{ value: "starts_with", label: "Starts with" },
-	{ value: "fuzzy", label: "Fuzzy" },
 ];
 
 const inputTypes: { value: InputType; label: string }[] = [
