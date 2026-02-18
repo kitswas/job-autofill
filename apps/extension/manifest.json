@@ -28,7 +28,10 @@
 	],
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "job-autofill@kitswas.github.io"
+			"id": "job-autofill@kitswas.github.io",
+			"data_collection_permissions": {
+				"required": ["none"]
+			}
 		}
 	}
 }
