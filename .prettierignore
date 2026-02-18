@@ -1,5 +1,6 @@
 playwright-report
 test-results
+web-ext-artifacts
 node_modules
 dist
 dist-*
