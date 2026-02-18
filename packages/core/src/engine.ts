@@ -2,45 +2,31 @@ import Fuse from "fuse.js";
 import { Action, DomSnapshot, Profile, Rule } from "./types";
 import { MATCH_SCORES, FUZZY_THRESHOLD, REGEX } from "./constants";
 
-function calculateScore(
-	normalizedText: string,
-	normalizedKeyword: string,
-	type: Rule["matchtype"],
-): number {
-	switch (type) {
-		case "exact": {
-			const escapedKeyword = normalizedKeyword.replace(REGEX.ESCAPE_REGEX, "\\$&");
-			const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
-			return regex.test(normalizedText) ? MATCH_SCORES.EXACT : 0;
-		}
-		case "contains":
-			return normalizedText.includes(normalizedKeyword) ? MATCH_SCORES.CONTAINS : 0;
-		case "starts_with":
-			return normalizedText.startsWith(normalizedKeyword) ? MATCH_SCORES.STARTS_WITH : 0;
-		case "fuzzy": {
-			// Basic substring check as a fast path for fuzzy
-			if (normalizedText.includes(normalizedKeyword)) return MATCH_SCORES.FUZZY_SUBSTRING;
+/**
+ * Normalizes text for matching by removing special characters, handling camelCase,
+ * and converting to lowercase.
+ */
+function normalizeText(text: string | null): string {
+	if (!text) return "";
+	return text
+		.replace(REGEX.CAMEL_CASE, "$1 $2")
+		.replace(REGEX.SPECIAL_CHARS, " ")
+		.replace(REGEX.PARENTHESES, "")
+		.replace(REGEX.WHITESPACE, " ")
+		.trim()
+		.toLowerCase();
+}
 
-			const fuse = new Fuse([normalizedText], {
-				includeScore: true,
-				threshold: FUZZY_THRESHOLD,
-			});
-			const results = fuse.search(normalizedKeyword);
-			if (results.length > 0 && results[0].score !== undefined) {
-				return Math.round((1 - results[0].score) * MATCH_SCORES.FUZZY_BASE);
-			}
-			return 0;
-		}
-		default:
-			return 0;
-	}
+interface PreprocessedRule {
+	rule: Rule;
+	normalizedKeywords: string[];
 }
 
 export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 	const fieldBestMatches = new Map<string, { action: Action; score: number }>();
 	const hostname = new URL(dom.url).hostname;
 
-	// Check if profile is enabled for this domain
+	// 1. Check if profile is enabled for this domain
 	const isEnabled = profile.enabledDomains.some((domain) => {
 		if (domain === "*") return true;
 		return hostname === domain || hostname.endsWith(`.${domain}`);
@@ -48,6 +34,13 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 
 	if (!isEnabled) return [];
 
+	// 2. Pre-process rules: Normalize keywords once
+	const preprocessedRules: PreprocessedRule[] = profile.rules.map((rule) => ({
+		rule,
+		normalizedKeywords: [rule.name, ...rule.keywords].map(normalizeText).filter(Boolean),
+	}));
+
+	// 3. Process fields
 	for (const field of dom.fields) {
 		if (!["input", "textarea", "select"].includes(field.kind)) {
 			continue;
@@ -64,13 +57,8 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			.filter(Boolean)
 			.join(" ");
 
-		const normalizedText = rawText
-			.replace(REGEX.CAMEL_CASE, "$1 $2")
-			.replace(REGEX.SPECIAL_CHARS, " ")
-			.replace(REGEX.PARENTHESES, "")
-			.replace(REGEX.WHITESPACE, " ")
-			.trim()
-			.toLowerCase();
+		const normalizedFieldText = normalizeText(rawText);
+		if (!normalizedFieldText) continue;
 
 		const selector = field.id
 			? `[id="${field.id}"]`
@@ -82,8 +70,15 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 
 		if (!selector) continue;
 
-		for (const rule of profile.rules) {
-			// Filter by inputtype compatibility
+		// One Fuse instance per field to avoid redundant initializations
+		const fieldFuse = new Fuse([normalizedFieldText], {
+			includeScore: true,
+			threshold: FUZZY_THRESHOLD,
+		});
+
+		// 4. Match against preprocessed rules
+		for (const { rule, normalizedKeywords } of preprocessedRules) {
+			// Type compatibility check
 			if (rule.inputtype !== "any") {
 				const isSelect =
 					field.kind === "select" ||
@@ -133,22 +128,38 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 				if (rule.inputtype === "datetime-local" && t !== "datetime-local") continue;
 			}
 
-			const keywords = [rule.name, ...rule.keywords];
-
 			let maxRuleScore = 0;
-			for (const keyword of keywords) {
-				const normalizedKeyword = keyword
-					.replace(REGEX.CAMEL_CASE, "$1 $2")
-					.replace(REGEX.SPECIAL_CHARS, " ")
-					.replace(REGEX.PARENTHESES, "")
-					.replace(REGEX.WHITESPACE, " ")
-					.trim()
-					.toLowerCase();
 
-				const score = calculateScore(normalizedText, normalizedKeyword, rule.matchtype);
-				if (score > maxRuleScore) {
-					maxRuleScore = score;
+			for (const kw of normalizedKeywords) {
+				let score = 0;
+				switch (rule.matchtype) {
+					case "exact": {
+						const escapedKeyword = kw.replace(REGEX.ESCAPE_REGEX, "\\$&");
+						const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
+						if (regex.test(normalizedFieldText)) score = MATCH_SCORES.EXACT;
+						break;
+					}
+					case "contains":
+						if (normalizedFieldText.includes(kw)) score = MATCH_SCORES.CONTAINS;
+						break;
+					case "starts_with":
+						if (normalizedFieldText.startsWith(kw)) score = MATCH_SCORES.STARTS_WITH;
+						break;
+					case "fuzzy": {
+						if (normalizedFieldText.includes(kw)) {
+							score = MATCH_SCORES.FUZZY_SUBSTRING;
+						} else {
+							const results = fieldFuse.search(kw);
+							if (results.length > 0 && results[0].score !== undefined) {
+								score = Math.round(
+									(1 - results[0].score) * MATCH_SCORES.FUZZY_BASE,
+								);
+							}
+						}
+						break;
+					}
 				}
+				if (score > maxRuleScore) maxRuleScore = score;
 			}
 
 			if (maxRuleScore > 0) {
