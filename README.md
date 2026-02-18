@@ -1,6 +1,12 @@
 # Job Autofill
 
-A professional browser extension for managing and automating job application forms.
+A browser extension for managing and autofilling job application forms.
+
+> [!IMPORTANT]  
+> This is a learning experiment and for my personal use.  
+> Not intended for public use. **Use at your own risk.**  
+> The code is made available for critique, as-is, without any warranties.  
+> Feature requests are _highly likely_ to be ignored.
 
 ## Features
 
@@ -19,7 +25,7 @@ A professional browser extension for managing and automating job application for
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/)
+- [Node.js (LTS, use nvm to manage node versions)](https://nodejs.org/)
 - [pnpm](https://pnpm.io/)
 
 ### Setup
@@ -50,7 +56,7 @@ The final extension will be available in `apps/extension/dist`.
 ```bash
 pnpm test:e2e
 # To see test results in a browser:
-
+pnpm test:e2e:report
 ```
 
 ### Launch Browser for Testing (Manual)
