@@ -1,12 +1,14 @@
 {
 	"name": "job-autofill",
 	"private": true,
+	"license": "BSD-3-Clause",
 	"scripts": {
 		"dev:popup": "pnpm --filter popup-ui dev",
 		"build": "pnpm build:core && pnpm build:popup && pnpm build:extension",
 		"build:core": "pnpm --filter core build",
 		"build:popup": "pnpm --filter popup-ui build",
 		"build:extension": "pnpm --filter extension build",
+		"sign:extension": "pnpm --filter extension build && pnpm --filter extension sign",
 		"type-check": "pnpm -r exec tsc --noEmit",
 		"lint": "pnpm -w exec eslint --ext .ts,.tsx,.js,.jsx \"apps/**\" \"packages/**\"",
 		"format": "prettier --write .",
