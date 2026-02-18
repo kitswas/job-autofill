@@ -28,6 +28,7 @@ await build({
 });
 
 await copyFile(path.join(__dirname, "manifest.json"), path.join(distDir, "manifest.json"));
+await cp(path.join(__dirname, "icons"), path.join(distDir, "icons"), { recursive: true });
 
 // Copy popup files (now dashboard)
 const popupDist = path.join(__dirname, "../popup-ui/dist");
