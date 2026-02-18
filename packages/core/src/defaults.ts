@@ -1,4 +1,45 @@
-import { CURRENT_SCHEMA_VERSION, Profile } from "./types";
+import { CURRENT_SCHEMA_VERSION } from "./constants";
+import { Profile, Rule } from "./types";
+
+export const DEFAULT_RULE: Omit<Rule, "id"> = {
+	name: "New Field",
+	content: "",
+	keywords: [],
+	matchtype: "fuzzy",
+	inputtype: "any",
+};
+
+export const DEFAULT_PROFILE: Omit<Profile, "id"> = {
+	version: CURRENT_SCHEMA_VERSION,
+	name: "New Profile",
+	enabledDomains: ["*"],
+	rules: [
+		{
+			id: "1",
+			name: "Full Name",
+			content: "",
+			keywords: ["name", "full name"],
+			matchtype: "fuzzy",
+			inputtype: "any",
+		},
+		{
+			id: "2",
+			name: "Email",
+			content: "",
+			keywords: ["email", "e-mail"],
+			matchtype: "fuzzy",
+			inputtype: "any",
+		},
+		{
+			id: "3",
+			name: "Phone",
+			content: "",
+			keywords: ["phone", "mobile"],
+			matchtype: "fuzzy",
+			inputtype: "any",
+		},
+	],
+};
 
 export const PROFILE_TEMPLATES: Profile[] = [
 	{

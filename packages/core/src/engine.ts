@@ -1,5 +1,6 @@
 import Fuse from "fuse.js";
 import { Action, DomSnapshot, Profile, Rule } from "./types";
+import { MATCH_SCORES, FUZZY_THRESHOLD, REGEX } from "./constants";
 
 function calculateScore(
 	normalizedText: string,
@@ -8,25 +9,25 @@ function calculateScore(
 ): number {
 	switch (type) {
 		case "exact": {
-			const escapedKeyword = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const escapedKeyword = normalizedKeyword.replace(REGEX.ESCAPE_REGEX, "\\$&");
 			const regex = new RegExp(`\\b${escapedKeyword}\\b`, "i");
-			return regex.test(normalizedText) ? 100 : 0;
+			return regex.test(normalizedText) ? MATCH_SCORES.EXACT : 0;
 		}
 		case "contains":
-			return normalizedText.includes(normalizedKeyword) ? 50 : 0;
+			return normalizedText.includes(normalizedKeyword) ? MATCH_SCORES.CONTAINS : 0;
 		case "starts_with":
-			return normalizedText.startsWith(normalizedKeyword) ? 30 : 0;
+			return normalizedText.startsWith(normalizedKeyword) ? MATCH_SCORES.STARTS_WITH : 0;
 		case "fuzzy": {
 			// Basic substring check as a fast path for fuzzy
-			if (normalizedText.includes(normalizedKeyword)) return 50;
+			if (normalizedText.includes(normalizedKeyword)) return MATCH_SCORES.FUZZY_SUBSTRING;
 
 			const fuse = new Fuse([normalizedText], {
 				includeScore: true,
-				threshold: 0.4,
+				threshold: FUZZY_THRESHOLD,
 			});
 			const results = fuse.search(normalizedKeyword);
 			if (results.length > 0 && results[0].score !== undefined) {
-				return Math.round((1 - results[0].score) * 50);
+				return Math.round((1 - results[0].score) * MATCH_SCORES.FUZZY_BASE);
 			}
 			return 0;
 		}
@@ -64,10 +65,10 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			.join(" ");
 
 		const normalizedText = rawText
-			.replace(/([a-z])([A-Z])/g, "$1 $2")
-			.replace(/[._-]/g, " ")
-			.replace(/[()]/g, "")
-			.replace(/\s+/g, " ")
+			.replace(REGEX.CAMEL_CASE, "$1 $2")
+			.replace(REGEX.SPECIAL_CHARS, " ")
+			.replace(REGEX.PARENTHESES, "")
+			.replace(REGEX.WHITESPACE, " ")
 			.trim()
 			.toLowerCase();
 
@@ -137,10 +138,10 @@ export function matchFields(dom: DomSnapshot, profile: Profile): Action[] {
 			let maxRuleScore = 0;
 			for (const keyword of keywords) {
 				const normalizedKeyword = keyword
-					.replace(/([a-z])([A-Z])/g, "$1 $2")
-					.replace(/[._-]/g, " ")
-					.replace(/[()]/g, "")
-					.replace(/\s+/g, " ")
+					.replace(REGEX.CAMEL_CASE, "$1 $2")
+					.replace(REGEX.SPECIAL_CHARS, " ")
+					.replace(REGEX.PARENTHESES, "")
+					.replace(REGEX.WHITESPACE, " ")
 					.trim()
 					.toLowerCase();
 

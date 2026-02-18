@@ -36,8 +36,6 @@ export type InputType =
 	| "time"
 	| "datetime-local";
 
-export const CURRENT_SCHEMA_VERSION = 1;
-
 export type Rule = {
 	id: string;
 	name: string;

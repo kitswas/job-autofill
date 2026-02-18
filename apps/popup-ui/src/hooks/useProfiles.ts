@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Profile, Rule, PROFILE_TEMPLATES, CURRENT_SCHEMA_VERSION } from "core";
+import {
+	Profile,
+	Rule,
+	PROFILE_TEMPLATES,
+	CURRENT_SCHEMA_VERSION,
+	DEFAULT_PROFILE,
+	DEFAULT_RULE,
+} from "core";
 import { storage } from "../storage";
 
 function migrateProfile(profile: any): Profile {
@@ -65,36 +72,8 @@ export function useProfiles() {
 
 	const createProfile = () => {
 		const newProfile: Profile = {
-			version: CURRENT_SCHEMA_VERSION,
+			...DEFAULT_PROFILE,
 			id: Date.now().toString(),
-			name: "New Profile",
-			enabledDomains: ["*"],
-			rules: [
-				{
-					id: "1",
-					name: "full_name",
-					content: "",
-					keywords: ["name", "full name"],
-					matchtype: "fuzzy",
-					inputtype: "any",
-				},
-				{
-					id: "2",
-					name: "email",
-					content: "",
-					keywords: ["email", "e-mail"],
-					matchtype: "fuzzy",
-					inputtype: "any",
-				},
-				{
-					id: "3",
-					name: "phone",
-					content: "",
-					keywords: ["phone", "mobile"],
-					matchtype: "fuzzy",
-					inputtype: "any",
-				},
-			],
 		};
 		setEditingProfile(newProfile);
 		window.ot.toast("New profile created.", "Success", { variant: "success" });
@@ -147,12 +126,9 @@ export function useProfiles() {
 	const addRule = () => {
 		if (!editingProfile) return;
 		const newRule: Rule = {
+			...DEFAULT_RULE,
 			id: Date.now().toString(),
 			name: `field_${editingProfile.rules.length + 1}`,
-			content: "",
-			keywords: [],
-			matchtype: "fuzzy",
-			inputtype: "any",
 		};
 		setEditingProfile({
 			...editingProfile,
