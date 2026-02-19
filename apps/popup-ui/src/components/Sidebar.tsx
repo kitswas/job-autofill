@@ -5,6 +5,7 @@ interface SidebarProps {
 	editingProfileId?: string;
 	onSelectProfile: (profile: Profile) => void;
 	onCreateProfile: () => void;
+	storageUsage: { used: number; total: number };
 }
 
 export function Sidebar({
@@ -12,6 +13,7 @@ export function Sidebar({
 	editingProfileId,
 	onSelectProfile,
 	onCreateProfile,
+	storageUsage,
 }: SidebarProps) {
 	return (
 		<>
@@ -21,7 +23,7 @@ export function Sidebar({
 				</button>
 				<span style={{ marginLeft: "1rem", fontWeight: "bold" }}>Job Autofill</span>
 			</nav>
-			<aside data-sidebar>
+			<aside data-sidebar style={{ display: "flex", flexDirection: "column" }}>
 				<header>
 					<div
 						style={{
@@ -49,7 +51,7 @@ export function Sidebar({
 					</button>
 				</header>
 
-				<nav>
+				<nav style={{ flex: 1, overflowY: "auto" }}>
 					<ul>
 						{Object.values(profiles).map((p) => (
 							<li key={p.id}>
@@ -70,6 +72,38 @@ export function Sidebar({
 						))}
 					</ul>
 				</nav>
+
+				<footer
+					style={{
+						marginTop: "auto",
+						padding: "1rem",
+						borderTop: "1px solid rgba(128, 128, 128, 0.2)",
+						fontSize: "0.8rem",
+					}}
+				>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "space-between",
+							marginBottom: "0.25rem",
+						}}
+					>
+						<span>Storage Used</span>
+						<span>{Math.round((storageUsage.used / storageUsage.total) * 100)}%</span>
+					</div>
+					<meter
+						value={storageUsage.used}
+						optimum={0.2 * storageUsage.total}
+						low={0.5 * storageUsage.total}
+						high={0.8 * storageUsage.total}
+						max={storageUsage.total}
+						style={{ width: "100%", height: "0.5rem" }}
+					/>
+					<div style={{ textAlign: "right", opacity: 0.6, fontSize: "0.7rem" }}>
+						{(storageUsage.used / 1024).toFixed(1)} KB /{" "}
+						{(storageUsage.total / 1024).toFixed(0)} KB
+					</div>
+				</footer>
 			</aside>
 		</>
 	);

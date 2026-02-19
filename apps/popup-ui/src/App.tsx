@@ -20,6 +20,7 @@ export function App() {
 		deleteRule,
 		reorderRule,
 		updateEditingProfile,
+		storageUsage,
 	} = useProfiles();
 
 	return (
@@ -29,6 +30,7 @@ export function App() {
 				editingProfileId={editingProfile?.id}
 				onSelectProfile={setEditingProfile}
 				onCreateProfile={createProfile}
+				storageUsage={storageUsage}
 			/>
 
 			<main style={{ flex: 1, padding: "2rem", overflowY: "auto" }}>

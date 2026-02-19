@@ -1,4 +1,4 @@
-import { Profile } from "core";
+import { Profile, STORAGE_SYNC_QUOTA_BYTES } from "core";
 
 type StorageData = {
 	profiles: Record<string, Profile>;
@@ -58,6 +58,28 @@ export const storage = {
 			if (data.selectedProfileId !== undefined) {
 				localStorage.setItem("selectedProfileId", data.selectedProfileId || "");
 			}
+		}
+	},
+	getUsage: async (): Promise<{ used: number; total: number }> => {
+		const browser = await getBrowser();
+		if (browser) {
+			try {
+				const used = (await browser.storage.sync.getBytesInUse(null)) || 0;
+				const total = STORAGE_SYNC_QUOTA_BYTES;
+				return { used, total };
+			} catch (error) {
+				console.error("Error getting storage usage:", error);
+				return { used: 0, total: STORAGE_SYNC_QUOTA_BYTES };
+			}
+		} else {
+			// Local storage fallback approximation, for demonstration in dev mode.
+			let used = 0;
+			for (const key in localStorage) {
+				if (localStorage.hasOwnProperty(key)) {
+					used += (localStorage[key] as string).length * 2; // Approximate byte size
+				}
+			}
+			return { used, total: STORAGE_SYNC_QUOTA_BYTES };
 		}
 	},
 };

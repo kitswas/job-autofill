@@ -6,6 +6,7 @@ import {
 	CURRENT_SCHEMA_VERSION,
 	DEFAULT_PROFILE,
 	DEFAULT_RULE,
+	STORAGE_SYNC_QUOTA_BYTES,
 } from "core";
 import { storage } from "../storage";
 
@@ -30,6 +31,10 @@ export function useProfiles() {
 		description: string;
 		onConfirm: () => void;
 	} | null>(null);
+	const [storageUsage, setStorageUsage] = useState<{ used: number; total: number }>({
+		used: 0,
+		total: STORAGE_SYNC_QUOTA_BYTES,
+	});
 
 	const showConfirm = (config: { title: string; description: string; onConfirm: () => void }) => {
 		setConfirmConfig(config);
@@ -59,6 +64,7 @@ export function useProfiles() {
 				setSelectedProfileId(data.selectedProfileId);
 			}
 		});
+		storage.getUsage().then(setStorageUsage);
 	}, []);
 
 	const saveProfiles = async (
@@ -68,6 +74,7 @@ export function useProfiles() {
 		setProfiles(newProfiles);
 		setSelectedProfileId(newSelectedId);
 		await storage.set({ profiles: newProfiles, selectedProfileId: newSelectedId });
+		storage.getUsage().then(setStorageUsage);
 	};
 
 	const createProfile = () => {
@@ -199,5 +206,6 @@ export function useProfiles() {
 		deleteRule,
 		reorderRule,
 		updateEditingProfile,
+		storageUsage,
 	};
 }
