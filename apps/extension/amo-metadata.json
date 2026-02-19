@@ -1,6 +1,6 @@
 {
 	"version": { "license": "BSD-2-Clause" },
-	"categories": {},
+	"categories": { "firefox": ["other"] },
 	"summary": {
 		"en-US": "Autofill forms."
 	},

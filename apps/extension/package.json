@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node build.js",
-		"sign": "web-ext sign --source-dir dist --api-key $env:AMO_JWT_ISSUER --api-secret $env:AMO_JWT_SECRET --channel listed",
+		"sign": "node scripts/sign.js",
 		"test:e2e:prepare": "node scripts/prepare-e2e.js",
 		"test:e2e:run": "playwright test",
 		"test:e2e:report": "playwright show-report",
