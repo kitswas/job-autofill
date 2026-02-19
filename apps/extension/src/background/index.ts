@@ -10,26 +10,33 @@ browser.action.onClicked.addListener(() => {
 });
 
 // Update context menus based on profiles
-async function updateContextMenus() {
-	await browser.contextMenus.removeAll();
+function updateContextMenus() {
+	browser.contextMenus
+		.removeAll()
+		.then(() => {
+			return browser.storage.sync.get(["profiles"]);
+		})
+		.then(({ profiles }) => {
+			if (!profiles) return;
 
-	const { profiles } = await browser.storage.sync.get(["profiles"]);
-	if (!profiles) return;
+			browser.contextMenus.create({
+				id: "autofill-root",
+				title: "Job Autofill",
+				contexts: ["all"],
+			});
 
-	browser.contextMenus.create({
-		id: "autofill-root",
-		title: "Job Autofill",
-		contexts: ["all"],
-	});
-
-	Object.values(profiles as Record<string, Profile>).forEach((profile) => {
-		browser.contextMenus.create({
-			id: `autofill-profile-${profile.id}`,
-			parentId: "autofill-root",
-			title: profile.name || "Unnamed Profile",
-			contexts: ["all"],
+			Object.values(profiles as Record<string, Profile>).forEach((profile) => {
+				browser.contextMenus.create({
+					id: `autofill-profile-${profile.id}`,
+					parentId: "autofill-root",
+					title: profile.name || "Unnamed Profile",
+					contexts: ["all"],
+				});
+			});
+		})
+		.catch((error) => {
+			console.error("[Job Autofill][background] Error updating context menus:", error);
 		});
-	});
 }
 
 // Initial update
@@ -42,39 +49,53 @@ browser.storage.onChanged.addListener((changes) => {
 	}
 });
 
-browser.contextMenus.onClicked.addListener(async (info, tab) => {
+browser.contextMenus.onClicked.addListener((info, tab) => {
 	if (!tab?.id || !info.menuItemId.toString().startsWith("autofill-profile-")) return;
 
 	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
-	const { profiles } = await browser.storage.sync.get(["profiles"]);
-	if (!profiles) {
-		console.error("[Job Autofill][background] No profiles found in storage");
-		return;
-	}
-	const profile = profiles?.[profileId];
+	browser.storage.sync
+		.get(["profiles"])
+		.then(({ profiles }) => {
+			if (!profiles) {
+				console.error("[Job Autofill][background] No profiles found in storage");
+				return;
+			}
+			const profile = profiles?.[profileId];
 
-	if (!profile) return;
-	await sendAutofillCommand(tab.id, profile);
+			if (!profile) return;
+			return sendAutofillCommand(tab.id, profile);
+		})
+		.catch((error) => {
+			console.error("[Job Autofill][background] Error handling context menu click:", error);
+		});
 });
 
 async function sendAutofillCommand(tabId: number, profile: Profile) {
-	try {
-		const response = await browser.tabs.sendMessage(tabId, { type: "GET_DOM_SNAPSHOT" });
-		if (!response) {
-			console.error("[Job Autofill][background] Received empty response for DOM snapshot");
-			return;
-		}
+	return browser.tabs
+		.sendMessage(tabId, { type: "GET_DOM_SNAPSHOT" })
+		.then((response) => {
+			if (!response) {
+				console.error(
+					"[Job Autofill][background] Received empty response for DOM snapshot",
+				);
+				return;
+			}
 
-		const actions = matchFields(response as DomSnapshot, profile as Profile);
-		if (actions.length > 0) {
-			await browser.tabs.sendMessage(tabId, { type: "APPLY_ACTIONS", actions });
-		}
-	} catch (error) {
-		console.error(
-			"[Job Autofill][background] Failed to get DOM snapshot or apply actions:",
-			error,
-		);
-	}
+			const actions = matchFields(response as DomSnapshot, profile as Profile);
+			if (actions.length > 0) {
+				return browser.tabs
+					.sendMessage(tabId, { type: "APPLY_ACTIONS", actions })
+					.catch((error) => {
+						console.error(
+							"[Job Autofill][background] Failed to send APPLY_ACTIONS message:",
+							error,
+						);
+					});
+			}
+		})
+		.catch((error) => {
+			console.error("[Job Autofill][background] Failed to get DOM snapshot:", error);
+		});
 }
 
 browser.runtime.onMessage.addListener((message, sender) => {
