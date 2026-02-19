@@ -1,9 +1,11 @@
-import { Profile, STORAGE_SYNC_QUOTA_BYTES } from "core";
+import { Profile, STORAGE_SYNC_QUOTA_BYTES, STORAGE_SYNC_QUOTA_BYTES_PER_ITEM } from "core";
 
 type StorageData = {
 	profiles: Record<string, Profile>;
 	selectedProfileId: string | null;
 };
+
+const PROFILE_KEY_PREFIX = "profile_";
 
 // Check if we are running in an extension environment without crashing
 const isExtension =
@@ -28,57 +30,164 @@ export const storage = {
 		const browser = await getBrowser();
 		if (browser) {
 			try {
-				const result = await browser.storage.sync.get(["profiles", "selectedProfileId"]);
-				return {
-					profiles: result.profiles || {},
-					selectedProfileId: result.selectedProfileId || null,
-				};
+				const allData = await browser.storage.sync.get(null);
+				const profiles: Record<string, Profile> = {};
+				const selectedProfileId: string | null = allData.selectedProfileId || null;
+
+				Object.keys(allData).forEach((key) => {
+					if (key.startsWith(PROFILE_KEY_PREFIX)) {
+						const profileId = key.slice(PROFILE_KEY_PREFIX.length);
+						profiles[profileId] = allData[key];
+					}
+				});
+
+				return { profiles, selectedProfileId };
 			} catch (error) {
 				console.error("Error accessing extension storage:", error);
 				return { profiles: {}, selectedProfileId: null };
 			}
 		} else {
-			const profiles = JSON.parse(localStorage.getItem("profiles") || "{}");
+			const profiles: Record<string, Profile> = {};
 			const selectedProfileId = localStorage.getItem("selectedProfileId");
+
+			for (let i = 0; i < localStorage.length; i++) {
+				const key = localStorage.key(i);
+				if (key?.startsWith(PROFILE_KEY_PREFIX)) {
+					const profileId = key.slice(PROFILE_KEY_PREFIX.length);
+					try {
+						profiles[profileId] = JSON.parse(localStorage.getItem(key) || "{}");
+					} catch (e) {
+						console.error(`Error parsing localStorage profile ${profileId}:`, e);
+					}
+				}
+			}
+
 			return { profiles, selectedProfileId };
 		}
 	},
 	set: async (data: Partial<StorageData>): Promise<void> => {
 		const browser = await getBrowser();
 		if (browser) {
-			return browser.storage.sync.set(data).catch((error) => {
+			const itemsToSet: Record<string, any> = {};
+
+			if (data.selectedProfileId !== undefined) {
+				itemsToSet.selectedProfileId = data.selectedProfileId;
+			}
+
+			if (data.profiles) {
+				// Get current storage to see what to remove
+				const allData = await browser.storage.sync.get(null);
+				const existingProfileKeys = Object.keys(allData).filter((key) =>
+					key.startsWith(PROFILE_KEY_PREFIX),
+				);
+
+				const newProfileKeys = Object.keys(data.profiles).map(
+					(id) => `${PROFILE_KEY_PREFIX}${id}`,
+				);
+
+				// Keys to remove
+				const keysToRemove = existingProfileKeys.filter(
+					(key) => !newProfileKeys.includes(key),
+				);
+				if (keysToRemove.length > 0) {
+					await browser.storage.sync.remove(keysToRemove);
+				}
+
+				// Keys to set
+				Object.entries(data.profiles).forEach(([id, profile]) => {
+					itemsToSet[`${PROFILE_KEY_PREFIX}${id}`] = profile;
+				});
+			}
+
+			return browser.storage.sync.set(itemsToSet).catch((error) => {
 				console.error("Error saving to extension storage:", error);
 				throw error;
 			});
 		} else {
 			if (data.profiles) {
-				localStorage.setItem("profiles", JSON.stringify(data.profiles));
+				// Handle removals in localStorage
+				const currentKeys: string[] = [];
+				for (let i = 0; i < localStorage.length; i++) {
+					const key = localStorage.key(i);
+					if (key?.startsWith(PROFILE_KEY_PREFIX)) {
+						currentKeys.push(key);
+					}
+				}
+
+				const newKeys = Object.keys(data.profiles).map(
+					(id) => `${PROFILE_KEY_PREFIX}${id}`,
+				);
+				currentKeys.forEach((key) => {
+					if (!newKeys.includes(key)) {
+						localStorage.removeItem(key);
+					}
+				});
+
+				// Set new values
+				Object.entries(data.profiles).forEach(([id, profile]) => {
+					localStorage.setItem(`${PROFILE_KEY_PREFIX}${id}`, JSON.stringify(profile));
+				});
 			}
 			if (data.selectedProfileId !== undefined) {
 				localStorage.setItem("selectedProfileId", data.selectedProfileId || "");
 			}
 		}
 	},
-	getUsage: async (): Promise<{ used: number; total: number }> => {
+	getUsage: async (): Promise<{
+		used: number;
+		total: number;
+		maxPerItem: number;
+		largestItemSize: number;
+	}> => {
 		const browser = await getBrowser();
 		if (browser) {
 			try {
+				const allData = await browser.storage.sync.get(null);
+				const keys = Object.keys(allData);
 				const used = (await browser.storage.sync.getBytesInUse(null)) || 0;
-				const total = STORAGE_SYNC_QUOTA_BYTES;
-				return { used, total };
+
+				let largestItemSize = 0;
+				for (const key of keys) {
+					const size = (await browser.storage.sync.getBytesInUse(key)) || 0;
+					if (size > largestItemSize) {
+						largestItemSize = size;
+					}
+				}
+
+				return {
+					used,
+					total: STORAGE_SYNC_QUOTA_BYTES,
+					maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
+					largestItemSize,
+				};
 			} catch (error) {
 				console.error("Error getting storage usage:", error);
-				return { used: 0, total: STORAGE_SYNC_QUOTA_BYTES };
+				return {
+					used: 0,
+					total: STORAGE_SYNC_QUOTA_BYTES,
+					maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
+					largestItemSize: 0,
+				};
 			}
 		} else {
-			// Local storage fallback approximation, for demonstration in dev mode.
+			// Local storage fallback approximation
 			let used = 0;
+			let largestItemSize = 0;
 			for (const key in localStorage) {
 				if (localStorage.hasOwnProperty(key)) {
-					used += (localStorage[key] as string).length * 2; // Approximate byte size
+					const size = (localStorage[key] as string).length * 2;
+					used += size;
+					if (size > largestItemSize) {
+						largestItemSize = size;
+					}
 				}
 			}
-			return { used, total: STORAGE_SYNC_QUOTA_BYTES };
+			return {
+				used,
+				total: STORAGE_SYNC_QUOTA_BYTES,
+				maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
+				largestItemSize,
+			};
 		}
 	},
 };

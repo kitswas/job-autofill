@@ -5,7 +5,7 @@ interface SidebarProps {
 	editingProfileId?: string;
 	onSelectProfile: (profile: Profile) => void;
 	onCreateProfile: () => void;
-	storageUsage: { used: number; total: number };
+	storageUsage: { used: number; total: number; maxPerItem: number; largestItemSize: number };
 }
 
 export function Sidebar({
@@ -15,6 +15,8 @@ export function Sidebar({
 	onCreateProfile,
 	storageUsage,
 }: SidebarProps) {
+	const itemLimitProgress = (storageUsage.largestItemSize / storageUsage.maxPerItem) * 100;
+
 	return (
 		<>
 			<nav data-topnav>
@@ -88,7 +90,7 @@ export function Sidebar({
 							marginBottom: "0.25rem",
 						}}
 					>
-						<span>Storage Used</span>
+						<span>Total Usage</span>
 						<span>{Math.round((storageUsage.used / storageUsage.total) * 100)}%</span>
 					</div>
 					<meter
@@ -102,6 +104,31 @@ export function Sidebar({
 					<div style={{ textAlign: "right", opacity: 0.6, fontSize: "0.7rem" }}>
 						{(storageUsage.used / 1024).toFixed(1)} KB /{" "}
 						{(storageUsage.total / 1024).toFixed(0)} KB
+					</div>
+
+					<div style={{ marginTop: "1rem" }}>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								marginBottom: "0.25rem",
+							}}
+						>
+							<span>Largest Profile Size</span>
+							<span>{Math.round(itemLimitProgress)}%</span>
+						</div>
+						<meter
+							value={storageUsage.largestItemSize}
+							optimum={0.2 * storageUsage.maxPerItem}
+							low={0.5 * storageUsage.maxPerItem}
+							high={0.8 * storageUsage.maxPerItem}
+							max={storageUsage.maxPerItem}
+							style={{ width: "100%", height: "0.5rem" }}
+						/>
+						<div style={{ textAlign: "right", opacity: 0.6, fontSize: "0.7rem" }}>
+							{(storageUsage.largestItemSize / 1024).toFixed(1)} KB /{" "}
+							{(storageUsage.maxPerItem / 1024).toFixed(1)} KB
+						</div>
 					</div>
 				</footer>
 			</aside>

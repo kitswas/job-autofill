@@ -7,6 +7,7 @@ import {
 	DEFAULT_PROFILE,
 	DEFAULT_RULE,
 	STORAGE_SYNC_QUOTA_BYTES,
+	STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
 } from "core";
 import { storage } from "../storage";
 
@@ -31,9 +32,16 @@ export function useProfiles() {
 		description: string;
 		onConfirm: () => void;
 	} | null>(null);
-	const [storageUsage, setStorageUsage] = useState<{ used: number; total: number }>({
+	const [storageUsage, setStorageUsage] = useState<{
+		used: number;
+		total: number;
+		maxPerItem: number;
+		largestItemSize: number;
+	}>({
 		used: 0,
 		total: STORAGE_SYNC_QUOTA_BYTES,
+		maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
+		largestItemSize: 0,
 	});
 
 	const showConfirm = (config: { title: string; description: string; onConfirm: () => void }) => {

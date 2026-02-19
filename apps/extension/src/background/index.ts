@@ -14,10 +14,18 @@ function updateContextMenus() {
 	browser.contextMenus
 		.removeAll()
 		.then(() => {
-			return browser.storage.sync.get(["profiles"]);
+			return browser.storage.sync.get(null);
 		})
-		.then(({ profiles }) => {
-			if (!profiles) return;
+		.then((allData) => {
+			const profiles: Record<string, Profile> = {};
+			Object.keys(allData).forEach((key) => {
+				if (key.startsWith("profile_")) {
+					const id = key.slice(8); // "profile_".length
+					profiles[id] = allData[key];
+				}
+			});
+
+			if (Object.keys(profiles).length === 0) return;
 
 			browser.contextMenus.create({
 				id: "autofill-root",
@@ -25,7 +33,7 @@ function updateContextMenus() {
 				contexts: ["all"],
 			});
 
-			Object.values(profiles as Record<string, Profile>).forEach((profile) => {
+			Object.values(profiles).forEach((profile) => {
 				browser.contextMenus.create({
 					id: `autofill-profile-${profile.id}`,
 					parentId: "autofill-root",
@@ -44,7 +52,8 @@ updateContextMenus();
 
 // Watch for profile changes to update menus
 browser.storage.onChanged.addListener((changes) => {
-	if (changes.profiles) {
+	const hasProfileChanges = Object.keys(changes).some((key) => key.startsWith("profile_"));
+	if (hasProfileChanges) {
 		updateContextMenus();
 	}
 });
@@ -54,15 +63,16 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
 	browser.storage.sync
-		.get(["profiles"])
-		.then(({ profiles }) => {
-			if (!profiles) {
-				console.error("[Job Autofill][background] No profiles found in storage");
+		.get([`profile_${profileId}`])
+		.then((result) => {
+			const profile = result[`profile_${profileId}`];
+			if (!profile) {
+				console.error(
+					"[Job Autofill][background] Profile not found in storage:",
+					profileId,
+				);
 				return;
 			}
-			const profile = profiles?.[profileId];
-
-			if (!profile) return;
 			return sendAutofillCommand(tab.id, profile);
 		})
 		.catch((error) => {
@@ -132,7 +142,7 @@ if (typeof __TEST_MODE__ !== "undefined" && __TEST_MODE__) {
 	browser.runtime.onInstalled.addListener(() => {
 		browser.storage.sync
 			.set({
-				profiles: { [mockProfile.id]: mockProfile },
+				[`profile_${mockProfile.id}`]: mockProfile,
 			})
 			.then(() => {
 				console.log("[Job Autofill][background] Test mode: Mock profile loaded");
