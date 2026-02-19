@@ -1,4 +1,5 @@
 import { Profile } from "core";
+import { StorageMeter } from "./StorageMeter";
 
 interface SidebarProps {
 	profiles: Record<string, Profile>;
@@ -15,8 +16,6 @@ export function Sidebar({
 	onCreateProfile,
 	storageUsage,
 }: SidebarProps) {
-	const itemLimitProgress = (storageUsage.largestItemSize / storageUsage.maxPerItem) * 100;
-
 	return (
 		<>
 			<nav data-topnav>
@@ -77,59 +76,26 @@ export function Sidebar({
 
 				<footer
 					style={{
-						marginTop: "auto",
+						gap: "1rem",
+						display: "flex",
+						flexDirection: "column",
 						padding: "1rem",
 						borderTop: "1px solid rgba(128, 128, 128, 0.2)",
 						fontSize: "0.8rem",
 					}}
 				>
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							marginBottom: "0.25rem",
-						}}
-					>
-						<span>Total Usage</span>
-						<span>{Math.round((storageUsage.used / storageUsage.total) * 100)}%</span>
-					</div>
-					<meter
+					<StorageMeter
+						label="Total Usage"
 						value={storageUsage.used}
-						optimum={0.2 * storageUsage.total}
-						low={0.5 * storageUsage.total}
-						high={0.8 * storageUsage.total}
 						max={storageUsage.total}
-						style={{ width: "100%", height: "0.5rem" }}
+						subText={`${(storageUsage.used / 1024).toFixed(1)} KB / ${(storageUsage.total / 1024).toFixed(0)} KB`}
 					/>
-					<div style={{ textAlign: "right", opacity: 0.6, fontSize: "0.7rem" }}>
-						{(storageUsage.used / 1024).toFixed(1)} KB /{" "}
-						{(storageUsage.total / 1024).toFixed(0)} KB
-					</div>
-
-					<div style={{ marginTop: "1rem" }}>
-						<div
-							style={{
-								display: "flex",
-								justifyContent: "space-between",
-								marginBottom: "0.25rem",
-							}}
-						>
-							<span>Largest Profile Size</span>
-							<span>{Math.round(itemLimitProgress)}%</span>
-						</div>
-						<meter
-							value={storageUsage.largestItemSize}
-							optimum={0.2 * storageUsage.maxPerItem}
-							low={0.5 * storageUsage.maxPerItem}
-							high={0.8 * storageUsage.maxPerItem}
-							max={storageUsage.maxPerItem}
-							style={{ width: "100%", height: "0.5rem" }}
-						/>
-						<div style={{ textAlign: "right", opacity: 0.6, fontSize: "0.7rem" }}>
-							{(storageUsage.largestItemSize / 1024).toFixed(1)} KB /{" "}
-							{(storageUsage.maxPerItem / 1024).toFixed(1)} KB
-						</div>
-					</div>
+					<StorageMeter
+						label="Largest Profile Size"
+						value={storageUsage.largestItemSize}
+						max={storageUsage.maxPerItem}
+						subText={`${(storageUsage.largestItemSize / 1024).toFixed(1)} KB / ${(storageUsage.maxPerItem / 1024).toFixed(1)} KB`}
+					/>
 				</footer>
 			</aside>
 		</>
