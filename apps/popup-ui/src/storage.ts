@@ -46,11 +46,10 @@ export const storage = {
 	set: async (data: Partial<StorageData>): Promise<void> => {
 		const browser = await getBrowser();
 		if (browser) {
-			try {
-				await browser.storage.sync.set(data);
-			} catch (error) {
+			return browser.storage.sync.set(data).catch((error) => {
 				console.error("Error saving to extension storage:", error);
-			}
+				throw error;
+			});
 		} else {
 			if (data.profiles) {
 				localStorage.setItem("profiles", JSON.stringify(data.profiles));

@@ -108,10 +108,19 @@ if (typeof __TEST_MODE__ !== "undefined" && __TEST_MODE__) {
 	(globalThis as any).sendAutofillCommand = sendAutofillCommand;
 	(globalThis as any).mockProfile = mockProfile;
 
-	browser.runtime.onInstalled.addListener(async () => {
-		await browser.storage.sync.set({
-			profiles: { [mockProfile.id]: mockProfile },
-		});
-		console.log("[Job Autofill][background] Test mode: Mock profile loaded");
+	browser.runtime.onInstalled.addListener(() => {
+		browser.storage.sync
+			.set({
+				profiles: { [mockProfile.id]: mockProfile },
+			})
+			.then(() => {
+				console.log("[Job Autofill][background] Test mode: Mock profile loaded");
+			})
+			.catch((error) => {
+				console.error(
+					"[Job Autofill][background] Error loading mock profile in test mode:",
+					error,
+				);
+			});
 	});
 }

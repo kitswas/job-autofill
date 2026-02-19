@@ -71,10 +71,17 @@ export function useProfiles() {
 		newProfiles: Record<string, Profile>,
 		newSelectedId: string | null,
 	) => {
-		setProfiles(newProfiles);
-		setSelectedProfileId(newSelectedId);
-		await storage.set({ profiles: newProfiles, selectedProfileId: newSelectedId });
-		storage.getUsage().then(setStorageUsage);
+		return storage
+			.set({ profiles: newProfiles, selectedProfileId: newSelectedId })
+			.then(() => {
+				setProfiles(newProfiles);
+				setSelectedProfileId(newSelectedId);
+				storage.getUsage().then(setStorageUsage);
+			})
+			.catch((error) => {
+				console.error("Error saving profiles:", error);
+				throw error; // Re-throw so saveEditingProfile can handle it
+			});
 	};
 
 	const createProfile = () => {
@@ -99,9 +106,17 @@ export function useProfiles() {
 	const saveEditingProfile = () => {
 		if (!editingProfile) return;
 		const newProfiles = { ...profiles, [editingProfile.id]: editingProfile };
-		saveProfiles(newProfiles, selectedProfileId || editingProfile.id);
-		setEditingProfile(null);
-		window.ot.toast("Profile saved successfully.", "Success", { variant: "success" });
+		saveProfiles(newProfiles, selectedProfileId || editingProfile.id)
+			.then(() => {
+				setEditingProfile(null);
+				window.ot.toast("Profile saved.", "Success", { variant: "success" });
+			})
+			.catch((error) => {
+				console.error("Error saving profile:", error);
+				window.ot.toast(`Failed to save profile: ${error.message}`, "Error", {
+					variant: "danger",
+				});
+			});
 	};
 
 	const deleteProfile = (id: string) => {
@@ -111,11 +126,19 @@ export function useProfiles() {
 				"Are you sure you want to delete this profile? This action cannot be undone.",
 			onConfirm: () => {
 				const { [id]: _, ...rest } = profiles;
-				saveProfiles(rest, selectedProfileId === id ? null : selectedProfileId);
-				if (editingProfile?.id === id) {
-					setEditingProfile(null);
-				}
-				window.ot.toast("Profile deleted.", "Success", { variant: "success" });
+				saveProfiles(rest, selectedProfileId === id ? null : selectedProfileId)
+					.then(() => {
+						if (editingProfile?.id === id) {
+							setEditingProfile(null);
+						}
+						window.ot.toast("Profile deleted.", "Success", { variant: "success" });
+					})
+					.catch((error) => {
+						console.error("Error deleting profile:", error);
+						window.ot.toast(`Failed to delete profile: ${error.message}`, "Error", {
+							variant: "danger",
+						});
+					});
 			},
 		});
 	};
