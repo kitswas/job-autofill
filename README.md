@@ -56,6 +56,8 @@ The final extension will be available in `apps/extension/dist`.
 
 ### Automated End-to-End Testing
 
+Uses Playwright, tests on Firefox and Chromium.
+
 ```bash
 pnpm test:e2e
 # To see test results in a browser:
