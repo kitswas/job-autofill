@@ -1,5 +1,8 @@
 # Job Autofill
 
+> [!NOTE]
+> Still putting the finishing touches.
+
 A browser extension for managing and autofilling job application forms.
 
 > [!IMPORTANT]  
