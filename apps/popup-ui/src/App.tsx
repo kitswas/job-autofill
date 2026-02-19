@@ -21,6 +21,7 @@ export function App() {
 		reorderRule,
 		updateEditingProfile,
 		storageUsage,
+		getStoredProfileSize,
 	} = useProfiles();
 
 	return (
@@ -45,6 +46,7 @@ export function App() {
 						onUpdateRule={updateRule}
 						onDeleteRule={deleteRule}
 						onReorderRule={reorderRule}
+						getStoredProfileSize={getStoredProfileSize}
 					/>
 				) : (
 					<div style={{ textAlign: "center", marginTop: "100px", color: "#888" }}>

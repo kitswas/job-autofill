@@ -6,7 +6,7 @@ interface SidebarProps {
 	editingProfileId?: string;
 	onSelectProfile: (profile: Profile) => void;
 	onCreateProfile: () => void;
-	storageUsage: { used: number; total: number; maxPerItem: number; largestItemSize: number };
+	storageUsage: { used: number; total: number; maxPerItem: number };
 }
 
 export function Sidebar({
@@ -89,12 +89,6 @@ export function Sidebar({
 						value={storageUsage.used}
 						max={storageUsage.total}
 						subText={`${(storageUsage.used / 1024).toFixed(1)} KB / ${(storageUsage.total / 1024).toFixed(0)} KB`}
-					/>
-					<StorageMeter
-						label="Largest Profile Size"
-						value={storageUsage.largestItemSize}
-						max={storageUsage.maxPerItem}
-						subText={`${(storageUsage.largestItemSize / 1024).toFixed(1)} KB / ${(storageUsage.maxPerItem / 1024).toFixed(1)} KB`}
 					/>
 				</footer>
 			</aside>

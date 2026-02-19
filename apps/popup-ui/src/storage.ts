@@ -5,7 +5,7 @@ type StorageData = {
 	selectedProfileId: string | null;
 };
 
-const PROFILE_KEY_PREFIX = "profile_";
+export const PROFILE_KEY_PREFIX = "profile_";
 
 // Check if we are running in an extension environment without crashing
 const isExtension =
@@ -133,11 +133,30 @@ export const storage = {
 			}
 		}
 	},
+	getUsageForKey: async (
+		key: string,
+	): Promise<{
+		used: number;
+	}> => {
+		const browser = await getBrowser();
+		if (browser) {
+			try {
+				const used = await browser.storage.sync.getBytesInUse(key);
+				return { used: used || 0 };
+			} catch (error) {
+				console.error("Error getting storage usage for key:", key, error);
+				return { used: 0 };
+			}
+		} else {
+			const value = localStorage.getItem(key);
+			const used = value ? value.length * 2 : 0; // Approximate size in bytes
+			return { used };
+		}
+	},
 	getUsage: async (): Promise<{
 		used: number;
 		total: number;
 		maxPerItem: number;
-		largestItemSize: number;
 	}> => {
 		const browser = await getBrowser();
 		if (browser) {
@@ -146,19 +165,10 @@ export const storage = {
 				const keys = Object.keys(allData);
 				const used = (await browser.storage.sync.getBytesInUse(null)) || 0;
 
-				let largestItemSize = 0;
-				for (const key of keys) {
-					const size = (await browser.storage.sync.getBytesInUse(key)) || 0;
-					if (size > largestItemSize) {
-						largestItemSize = size;
-					}
-				}
-
 				return {
 					used,
 					total: STORAGE_SYNC_QUOTA_BYTES,
 					maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
-					largestItemSize,
 				};
 			} catch (error) {
 				console.error("Error getting storage usage:", error);
@@ -166,27 +176,21 @@ export const storage = {
 					used: 0,
 					total: STORAGE_SYNC_QUOTA_BYTES,
 					maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
-					largestItemSize: 0,
 				};
 			}
 		} else {
 			// Local storage fallback approximation
 			let used = 0;
-			let largestItemSize = 0;
 			for (const key in localStorage) {
 				if (localStorage.hasOwnProperty(key)) {
 					const size = (localStorage[key] as string).length * 2;
 					used += size;
-					if (size > largestItemSize) {
-						largestItemSize = size;
-					}
 				}
 			}
 			return {
 				used,
 				total: STORAGE_SYNC_QUOTA_BYTES,
 				maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
-				largestItemSize,
 			};
 		}
 	},

@@ -1,5 +1,6 @@
-import { Profile, Rule } from "core";
+import { Profile, Rule, STORAGE_SYNC_QUOTA_BYTES_PER_ITEM } from "core";
 import { RuleTable } from "./RuleTable";
+import { StorageMeter } from "./StorageMeter";
 
 interface ProfileEditorProps {
 	profile: Profile;
@@ -11,6 +12,7 @@ interface ProfileEditorProps {
 	onUpdateRule: (id: string, field: keyof Rule, value: any) => void;
 	onDeleteRule: (id: string) => void;
 	onReorderRule: (id: string, direction: "up" | "down") => void;
+	getStoredProfileSize: (profile: Profile) => number;
 }
 
 export function ProfileEditor({
@@ -23,22 +25,42 @@ export function ProfileEditor({
 	onUpdateRule,
 	onDeleteRule,
 	onReorderRule,
+	getStoredProfileSize,
 }: ProfileEditorProps) {
+	const profileSize = getStoredProfileSize(profile);
+
 	return (
 		<div>
 			<header>
 				<h2>Edit Profile</h2>
 				<div
-					className="buttons gap-2"
-					style={{ display: "flex", justifyContent: "flex-end" }}
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						justifyContent: "space-between",
+						margin: "1rem 0",
+					}}
 				>
-					<button onClick={() => onDuplicate(profile)} data-variant="secondary">
-						Duplicate
-					</button>
-					<button onClick={() => onDelete(profile.id)} data-variant="danger">
-						Delete Profile
-					</button>
-					<button onClick={onSave}>Save Changes</button>
+					<div style={{ width: "33%", minWidth: "200px" }}>
+						<StorageMeter
+							label="Profile Size (Updates on Save)"
+							value={profileSize}
+							max={STORAGE_SYNC_QUOTA_BYTES_PER_ITEM}
+							subText={`${(profileSize / 1024).toFixed(1)} KB / ${(STORAGE_SYNC_QUOTA_BYTES_PER_ITEM / 1024).toFixed(1)} KB`}
+						/>
+					</div>
+					<div
+						className="buttons gap-2"
+						style={{ display: "flex", justifyContent: "flex-end" }}
+					>
+						<button onClick={() => onDuplicate(profile)} data-variant="secondary">
+							Duplicate
+						</button>
+						<button onClick={() => onDelete(profile.id)} data-variant="danger">
+							Delete Profile
+						</button>
+						<button onClick={onSave}>Save Changes</button>
+					</div>
 				</div>
 			</header>
 

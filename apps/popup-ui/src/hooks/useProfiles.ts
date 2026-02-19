@@ -9,7 +9,7 @@ import {
 	STORAGE_SYNC_QUOTA_BYTES,
 	STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
 } from "core";
-import { storage } from "../storage";
+import { storage, PROFILE_KEY_PREFIX } from "../storage";
 
 function migrateProfile(profile: any): Profile {
 	const currentProfile = { ...profile };
@@ -36,13 +36,12 @@ export function useProfiles() {
 		used: number;
 		total: number;
 		maxPerItem: number;
-		largestItemSize: number;
 	}>({
 		used: 0,
 		total: STORAGE_SYNC_QUOTA_BYTES,
 		maxPerItem: STORAGE_SYNC_QUOTA_BYTES_PER_ITEM,
-		largestItemSize: 0,
 	});
+	const [usageByProfile, setUsageByProfile] = useState<Record<string, number>>({});
 
 	const showConfirm = (config: { title: string; description: string; onConfirm: () => void }) => {
 		setConfirmConfig(config);
@@ -220,6 +219,37 @@ export function useProfiles() {
 		setEditingProfile({ ...editingProfile, ...updates });
 	};
 
+	useEffect(() => {
+		const ids = Object.keys(profiles);
+
+		// Refresh sizes for every profile whenever the profiles map changes
+		ids.forEach((id) => {
+			const key = `${PROFILE_KEY_PREFIX}${id}`;
+			storage
+				.getUsageForKey(key)
+				.then((usage) => {
+					setUsageByProfile((prev) => {
+						if (prev[id] === usage.used) return prev; // no-op when unchanged
+						return { ...prev, [id]: usage.used };
+					});
+				})
+				.catch((error) => console.error("Error getting profile size:", error));
+		});
+
+		// Remove cached sizes for profiles that were deleted
+		setUsageByProfile((prev) => {
+			const next: Record<string, number> = {};
+			ids.forEach((id) => {
+				if (prev[id] !== undefined) next[id] = prev[id];
+			});
+			return next;
+		});
+	}, [profiles]);
+
+	const getStoredProfileSize = (profile: Profile) => {
+		return usageByProfile[profile.id] ?? 0;
+	};
+
 	return {
 		profiles,
 		selectedProfileId,
@@ -238,5 +268,6 @@ export function useProfiles() {
 		reorderRule,
 		updateEditingProfile,
 		storageUsage,
+		getStoredProfileSize,
 	};
 }
