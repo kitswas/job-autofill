@@ -3,6 +3,7 @@ import { Profile, STORAGE_SYNC_QUOTA_BYTES, STORAGE_SYNC_QUOTA_BYTES_PER_ITEM } 
 type StorageData = {
 	profiles: Record<string, Profile>;
 	selectedProfileId: string | null;
+	hasSeenOnboarding: boolean;
 };
 
 export const PROFILE_KEY_PREFIX = "profile_";
@@ -30,25 +31,27 @@ export const storage = {
 		const browser = await getBrowser();
 		if (browser) {
 			try {
-				const allData = await browser.storage.sync.get(null);
+				const allData = (await browser.storage.sync.get(null)) as Record<string, any>;
 				const profiles: Record<string, Profile> = {};
 				const selectedProfileId: string | null = allData.selectedProfileId || null;
+				const hasSeenOnboarding: boolean = allData.hasSeenOnboarding || false;
 
 				Object.keys(allData).forEach((key) => {
 					if (key.startsWith(PROFILE_KEY_PREFIX)) {
 						const profileId = key.slice(PROFILE_KEY_PREFIX.length);
-						profiles[profileId] = allData[key];
+						profiles[profileId] = allData[key] as Profile;
 					}
 				});
 
-				return { profiles, selectedProfileId };
+				return { profiles, selectedProfileId, hasSeenOnboarding };
 			} catch (error) {
 				console.error("Error accessing extension storage:", error);
-				return { profiles: {}, selectedProfileId: null };
+				return { profiles: {}, selectedProfileId: null, hasSeenOnboarding: false };
 			}
 		} else {
 			const profiles: Record<string, Profile> = {};
 			const selectedProfileId = localStorage.getItem("selectedProfileId");
+			const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding") === "true";
 
 			for (let i = 0; i < localStorage.length; i++) {
 				const key = localStorage.key(i);
@@ -62,7 +65,7 @@ export const storage = {
 				}
 			}
 
-			return { profiles, selectedProfileId };
+			return { profiles, selectedProfileId, hasSeenOnboarding };
 		}
 	},
 	set: async (data: Partial<StorageData>): Promise<void> => {
@@ -72,6 +75,10 @@ export const storage = {
 
 			if (data.selectedProfileId !== undefined) {
 				itemsToSet.selectedProfileId = data.selectedProfileId;
+			}
+
+			if (data.hasSeenOnboarding !== undefined) {
+				itemsToSet.hasSeenOnboarding = data.hasSeenOnboarding;
 			}
 
 			if (data.profiles) {
@@ -130,6 +137,12 @@ export const storage = {
 			}
 			if (data.selectedProfileId !== undefined) {
 				localStorage.setItem("selectedProfileId", data.selectedProfileId || "");
+			}
+			if (data.hasSeenOnboarding !== undefined) {
+				localStorage.setItem(
+					"hasSeenOnboarding",
+					data.hasSeenOnboarding ? "true" : "false",
+				);
 			}
 		}
 	},

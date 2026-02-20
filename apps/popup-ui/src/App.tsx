@@ -2,6 +2,7 @@ import { useProfiles } from "./hooks/useProfiles";
 import { Sidebar } from "./components/Sidebar";
 import { ProfileEditor } from "./components/ProfileEditor";
 import { ConfirmDialog } from "./components/ConfirmDialog";
+import { Onboarding } from "./components/Onboarding";
 
 export function App() {
 	const {
@@ -22,7 +23,13 @@ export function App() {
 		updateEditingProfile,
 		storageUsage,
 		getStoredProfileSize,
+		hasSeenOnboarding,
+		completeOnboarding,
 	} = useProfiles();
+
+	if (!hasSeenOnboarding) {
+		return <Onboarding onComplete={completeOnboarding} />;
+	}
 
 	return (
 		<div data-sidebar-layout>

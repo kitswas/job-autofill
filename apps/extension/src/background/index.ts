@@ -16,12 +16,12 @@ function updateContextMenus() {
 		.then(() => {
 			return browser.storage.sync.get(null);
 		})
-		.then((allData) => {
+		.then((allData: Record<string, any>) => {
 			const profiles: Record<string, Profile> = {};
 			Object.keys(allData).forEach((key) => {
 				if (key.startsWith("profile_")) {
 					const id = key.slice(8); // "profile_".length
-					profiles[id] = allData[key];
+					profiles[id] = allData[key] as Profile;
 				}
 			});
 
@@ -50,6 +50,20 @@ function updateContextMenus() {
 // Initial update
 updateContextMenus();
 
+// Onboarding and updates
+browser.runtime.onInstalled.addListener((details) => {
+	if (details.reason === "install") {
+		browser.tabs.create({ url: "index.html" });
+	} else if (details.reason === "update") {
+		const currentVersion = browser.runtime.getManifest().version;
+		const previousVersion = details.previousVersion;
+		console.info(
+			`[Job Autofill][background] Updated from ${previousVersion} to ${currentVersion}`,
+		);
+		// Optional: Show a "What's New" notification or page
+	}
+});
+
 // Watch for profile changes to update menus
 browser.storage.onChanged.addListener((changes) => {
 	const hasProfileChanges = Object.keys(changes).some((key) => key.startsWith("profile_"));
@@ -62,10 +76,11 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 	if (!tab?.id || !info.menuItemId.toString().startsWith("autofill-profile-")) return;
 
 	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
+	const tabId = tab.id;
 	browser.storage.sync
 		.get([`profile_${profileId}`])
 		.then((result) => {
-			const profile = result[`profile_${profileId}`];
+			const profile = result[`profile_${profileId}`] as Profile;
 			if (!profile) {
 				console.error(
 					"[Job Autofill][background] Profile not found in storage:",
@@ -73,7 +88,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 				);
 				return;
 			}
-			return sendAutofillCommand(tab.id, profile);
+			return sendAutofillCommand(tabId, profile);
 		})
 		.catch((error) => {
 			console.error("[Job Autofill][background] Error handling context menu click:", error);
@@ -108,7 +123,7 @@ async function sendAutofillCommand(tabId: number, profile: Profile) {
 		});
 }
 
-browser.runtime.onMessage.addListener((message, sender) => {
+browser.runtime.onMessage.addListener((message: any, sender: browser.Runtime.MessageSender) => {
 	if (message.type === "ANALYZE_FORM") {
 		const { domPayload, profilePayload } = message;
 		try {

@@ -27,6 +27,7 @@ export function useProfiles() {
 	const [profiles, setProfiles] = useState<Record<string, Profile>>({});
 	const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
 	const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
+	const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean>(true); // Default to true to avoid flashing
 	const [confirmConfig, setConfirmConfig] = useState<{
 		title: string;
 		description: string;
@@ -53,6 +54,8 @@ export function useProfiles() {
 
 	useEffect(() => {
 		storage.get().then((data) => {
+			setHasSeenOnboarding(data.hasSeenOnboarding);
+
 			if (Object.keys(data.profiles).length === 0) {
 				// Prepopulate with templates
 				const initialProfiles: Record<string, Profile> = {};
@@ -89,6 +92,12 @@ export function useProfiles() {
 				console.error("Error saving profiles:", error);
 				throw error; // Re-throw so saveEditingProfile can handle it
 			});
+	};
+
+	const completeOnboarding = () => {
+		storage.set({ hasSeenOnboarding: true }).then(() => {
+			setHasSeenOnboarding(true);
+		});
 	};
 
 	const createProfile = () => {
@@ -269,5 +278,7 @@ export function useProfiles() {
 		updateEditingProfile,
 		storageUsage,
 		getStoredProfileSize,
+		hasSeenOnboarding,
+		completeOnboarding,
 	};
 }
