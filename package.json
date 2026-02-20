@@ -21,17 +21,23 @@
 		"package": "pnpm build:core && pnpm build:popup && pnpm --filter extension package",
 		"sign:extension": "pnpm build && pnpm --filter extension sign",
 		"launch": "start-server-and-test \"http-server apps/extension/tests/pages -p 5173 -c-1\" http://localhost:5173/test-page.html \"cd apps/extension/dist && web-ext run --browser-console --devtools --start-url http://localhost:5173/test-page.html\"",
-		"prepare": "husky"
+		"prepare": "husky",
+		"docs:graph": "pnpm depcruise packages/core apps/extension apps/popup-ui --include-only \"src/\" --output-type dot > docs/dependency-graph.dot && dot -Tsvg docs/dependency-graph.dot -o docs/dependency-graph.svg",
+		"docs:typedoc": "typedoc --options typedoc.json",
+		"docs:all": "pnpm run docs:graph && pnpm run docs:typedoc"
 	},
 	"devDependencies": {
 		"@typescript-eslint/eslint-plugin": "^8.56.0",
 		"@typescript-eslint/parser": "^8.56.0",
-		"eslint": "^10.0.0",
+		"dependency-cruiser": "^17.3.8",
+		"eslint": "^10.0.1",
 		"eslint-plugin-react": "^7.37.5",
 		"http-server": "^14.1.1",
 		"husky": "^9.1.7",
 		"prettier": "^3.8.1",
 		"start-server-and-test": "^2.1.3",
+		"typedoc": "^0.28.17",
+		"typedoc-plugin-mermaid": "^1.12.0",
 		"typescript": "^5.9.3",
 		"web-ext": "^9.3.0"
 	}

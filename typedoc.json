@@ -1,0 +1,10 @@
+{
+	"entryPoints": ["packages/*/src/**/*.{ts,tsx}", "apps/*/src/**/*.{ts,tsx}"],
+	"out": "docs/html",
+	"tsconfig": "typedoc.tsconfig.json",
+	"plugin": ["typedoc-plugin-mermaid"],
+	"exclude": ["**/__tests__/**", "**/*.spec.ts", "**/*.test.ts"],
+	"includeVersion": true,
+	"excludeExternals": true,
+	"entryPointStrategy": "expand"
+}

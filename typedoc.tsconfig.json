@@ -1,0 +1,10 @@
+{
+	"extends": "./packages/ts-config/tsconfig.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"allowSyntheticDefaultImports": true
+	},
+	"include": ["packages/core/src/**/*", "apps/extension/src/**/*", "apps/popup-ui/src/**/*"],
+	"exclude": ["**/__tests__/**", "**/*.spec.ts", "**/*.test.ts"]
+}

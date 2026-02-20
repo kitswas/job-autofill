@@ -1,0 +1,57 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>job-autofill</title><meta name="description" content="Documentation for job-autofill"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">job-autofill</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>job-autofill</h1></div><div class="tsd-panel tsd-typography"><h1 id="job-autofill" class="tsd-anchor-link">Job Autofill<a href="#job-autofill" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<div class="tsd-alert tsd-alert-note"><div class="tsd-alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="assets/icons.svg#icon-alertNote"></use></svg><span>Note</span></div><p>
+Still putting the finishing touches.</p>
+</div>
+<p>A browser extension for managing and autofilling job application forms.</p>
+<div class="tsd-alert tsd-alert-important"><div class="tsd-alert-title"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><use href="assets/icons.svg#icon-alertImportant"></use></svg><span>Important</span></div><p><br>
+This is a learning experiment and for my personal use.<br>
+Not intended for public use. <strong>Use at your own risk.</strong><br>
+The code is made available for critique, as-is, without any warranties.<br>
+Feature requests are <em>highly likely</em> to be ignored.</p>
+</div>
+<h2 id="features" class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>Profile Dashboard</strong>: Manage multiple application profiles in a full-page interface.</li>
+<li><strong>Dynamic Rules</strong>: Define custom keywords to match form fields for flexible autofilling.</li>
+<li><strong>Context Menu</strong>: Right-click any input to fill using a specific profile.</li>
+<li><strong>Privacy First</strong>: All data is stored locally via <code>browser.storage</code>.</li>
+</ul>
+<h2 id="project-structure" class="tsd-anchor-link">Project Structure<a href="#project-structure" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><code>apps/extension</code>: The core browser extension (Background &amp; Content scripts).</li>
+<li><code>apps/popup-ui</code>: React-based management dashboard.</li>
+<li><code>packages/core</code>: Shared TypeScript logic and matching engine.</li>
+</ul>
+<h2 id="development" class="tsd-anchor-link">Development<a href="#development" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="prerequisites" class="tsd-anchor-link">Prerequisites<a href="#prerequisites" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="https://nodejs.org/">Node.js (LTS, use nvm to manage node versions)</a></li>
+<li><a href="https://pnpm.io/">pnpm</a></li>
+</ul>
+<h3 id="setup" class="tsd-anchor-link">Setup<a href="#setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build:core</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="dashboard-ui-development-with-hmr" class="tsd-anchor-link">Dashboard UI Development (with HMR)<a href="#dashboard-ui-development-with-hmr" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">dev:popup</span>
+</code><button type="button">Copy</button></pre>
+
+<p><em>The dashboard includes a mock storage layer for debugging in a standard browser tab.</em></p>
+<h3 id="building-the-extension" class="tsd-anchor-link">Building the Extension<a href="#building-the-extension" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build</span>
+</code><button type="button">Copy</button></pre>
+
+<p>The final extension will be available in <code>apps/extension/dist</code>.</p>
+<h3 id="automated-end-to-end-testing" class="tsd-anchor-link">Automated End-to-End Testing<a href="#automated-end-to-end-testing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Uses Playwright, tests on Firefox and Chromium.</p>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test:e2e</span><br/><span class="hl-3"># To see test results in a browser:</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test:e2e:report</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="launch-browser-for-testing-manual" class="tsd-anchor-link">Launch Browser for Testing (Manual)<a href="#launch-browser-for-testing-manual" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">launch</span>
+</code><button type="button">Copy</button></pre>
+
+<p>This starts a test server and runs the extension using <code>web-ext</code>.</p>
+<h3 id="dependency-graph" class="tsd-anchor-link">Dependency Graph<a href="#dependency-graph" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><img src="media/dependency-graph.svg" alt="Dependency Graph"></p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#job-autofill"><span>Job <wbr/>Autofill</span></a><ul><li><a href="#features"><span>Features</span></a></li><li><a href="#project-structure"><span>Project <wbr/>Structure</span></a></li><li><a href="#development"><span>Development</span></a></li><li><ul><li><a href="#prerequisites"><span>Prerequisites</span></a></li><li><a href="#setup"><span>Setup</span></a></li><li><a href="#dashboard-ui-development-with-hmr"><span>Dashboard <wbr/>UI <wbr/>Development (with <wbr/>HMR)</span></a></li><li><a href="#building-the-extension"><span>Building the <wbr/>Extension</span></a></li><li><a href="#automated-end-to-end-testing"><span>Automated <wbr/>End-<wbr/>to-<wbr/>End <wbr/>Testing</span></a></li><li><a href="#launch-browser-for-testing-manual"><span>Launch <wbr/>Browser for <wbr/>Testing (<wbr/>Manual)</span></a></li><li><a href="#dependency-graph"><span>Dependency <wbr/>Graph</span></a></li></ul></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">job-autofill</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

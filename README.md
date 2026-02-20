@@ -71,3 +71,7 @@ pnpm launch
 ```
 
 This starts a test server and runs the extension using `web-ext`.
+
+### Dependency Graph
+
+![Dependency Graph](docs/dependency-graph.svg)
