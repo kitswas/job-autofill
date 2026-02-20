@@ -1,0 +1,107 @@
+name: Release Extension
+
+on:
+    workflow_dispatch:
+        inputs:
+            channel:
+                description: "Signing channel (unlisted or listed)"
+                required: true
+                default: "unlisted"
+                type: choice
+                options:
+                    - unlisted
+                    - listed
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install
+            - run: pnpm lint
+            - run: pnpm format:check
+
+    test-unit:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install
+            - run: pnpm test
+
+    test-e2e:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install
+            - name: Install Playwright Browsers
+              run: pnpm exec playwright install --with-deps
+            - run: pnpm test:e2e
+            - name: Upload Playwright Report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report
+                  path: apps/extension/playwright-report/
+                  retention-days: 15
+
+    build-and-sign:
+        needs: [lint, test-unit, test-e2e]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install
+
+            - name: Package Extension
+              run: pnpm package
+
+            - name: Sign Extension (AMO)
+              run: pnpm sign:extension
+              env:
+                  AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+                  AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+                  AMO_CHANNEL: ${{ inputs.channel }}
+
+            - name: Archive Chromium Extension
+              run: |
+                  cd apps/extension/dist-chromium
+                  zip -r ../../../extension-chrome.zip .
+
+            - name: Upload Firefox Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: extension-firefox-xpi
+                  path: apps/extension/web-ext-artifacts/*.xpi
+
+            - name: Upload Chrome Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: extension-chrome-zip
+                  path: extension-chrome.zip

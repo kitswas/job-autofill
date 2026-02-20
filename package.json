@@ -1,15 +1,13 @@
 {
 	"name": "job-autofill",
 	"private": true,
-	"license": "BSD-3-Clause",
+	"license": "BSD-2-Clause",
 	"scripts": {
 		"dev:popup": "pnpm --filter popup-ui dev",
 		"build": "pnpm build:core && pnpm build:popup && pnpm build:extension",
 		"build:core": "pnpm --filter core build",
 		"build:popup": "pnpm --filter popup-ui build",
 		"build:extension": "pnpm --filter extension build",
-		"sign:extension": "pnpm --filter extension build && pnpm --filter extension sign",
-		"type-check": "pnpm -r exec tsc --noEmit",
 		"lint": "pnpm -w exec eslint --ext .ts,.tsx,.js,.jsx \"apps/**\" \"packages/**\"",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
@@ -19,6 +17,9 @@
 		"test:e2e:run": "pnpm --filter extension test:e2e:run",
 		"test:e2e:report": "pnpm --filter extension test:e2e:report",
 		"test:e2e": "pnpm test:e2e:prepare && pnpm test:e2e:run",
+		"type-check": "pnpm -r exec tsc --noEmit",
+		"package": "pnpm build:core && pnpm build:popup && pnpm --filter extension package",
+		"sign:extension": "pnpm build && pnpm --filter extension sign",
 		"launch": "start-server-and-test \"http-server apps/extension/tests/pages -p 5173 -c-1\" http://localhost:5173/test-page.html \"cd apps/extension/dist && web-ext run --browser-console --devtools --start-url http://localhost:5173/test-page.html\"",
 		"prepare": "husky"
 	},

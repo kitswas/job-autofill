@@ -10,6 +10,8 @@ const amoMetadataPath = path.join(extensionDir, "amo-metadata.json");
 
 const issuer = process.env.AMO_JWT_ISSUER;
 const secret = process.env.AMO_JWT_SECRET;
+const channel = process.env.AMO_CHANNEL || "unlisted";
+
 if (!issuer || !secret) {
 	console.error("Missing environment variables: AMO_JWT_ISSUER and/or AMO_JWT_SECRET");
 	console.error("Set them in your shell or use setx / $env:... for persistent values.");
@@ -26,7 +28,7 @@ const baseArgs = [
 	"--amo-metadata",
 	amoMetadataPath,
 	"--channel",
-	"listed",
+	channel,
 ];
 
 const candidates = [
