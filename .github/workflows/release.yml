@@ -39,7 +39,7 @@ jobs:
               with:
                   node-version: 24
                   cache: "pnpm"
-            - run: pnpm install
+            - run: pnpm install -r
             - run: pnpm test
 
     test-e2e:
@@ -53,7 +53,7 @@ jobs:
               with:
                   node-version: 24
                   cache: "pnpm"
-            - run: pnpm install
+            - run: pnpm install -r
             - name: Install Playwright Browsers
               run: pnpm exec playwright install --with-deps
             - run: pnpm test:e2e
@@ -77,7 +77,7 @@ jobs:
               with:
                   node-version: 24
                   cache: "pnpm"
-            - run: pnpm install
+            - run: pnpm install -r
 
             - name: Package Extension
               run: pnpm package

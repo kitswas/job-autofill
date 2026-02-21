@@ -34,7 +34,7 @@ A browser extension for managing and autofilling job application forms.
 ### Setup
 
 ```bash
-pnpm install
+pnpm install -r
 pnpm build:core
 ```
 
