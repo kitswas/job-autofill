@@ -3,7 +3,16 @@
 > [!NOTE]
 > Still putting the finishing touches.
 
+<div align="center">
+
+<img src="apps/extension/icons/logo.svg" alt="Job Autofill Animated Logo" width="256" />
+
 A browser extension for managing and autofilling job application forms.
+
+</div>
+
+| ![Onboarding Screen](assets/onboarding.png) | ![Profile Dashboard](assets/profiles.png) |
+| :-----------------------------------------: | :---------------------------------------: |
 
 > [!IMPORTANT]  
 > This is a learning experiment and for my personal use.  
