@@ -1,4 +1,10 @@
 import { Profile, STORAGE_SYNC_QUOTA_BYTES, STORAGE_SYNC_QUOTA_BYTES_PER_ITEM } from "core";
+import {
+	compressJsonValue,
+	formatBytes,
+	getUtf8ByteLength,
+	maybeDecompressProfile,
+} from "./storageCompression";
 
 type StorageData = {
 	profiles: Record<string, Profile>;
@@ -36,14 +42,24 @@ export const storage = {
 				const selectedProfileId: string | null = allData.selectedProfileId || null;
 				const hasSeenOnboarding: boolean = allData.hasSeenOnboarding || false;
 
-				Object.keys(allData).forEach((key) => {
-					if (key.startsWith(PROFILE_KEY_PREFIX)) {
+				const profileDecodeJobs = Object.keys(allData)
+					.filter((key) => key.startsWith(PROFILE_KEY_PREFIX))
+					.map((key) => {
 						const profileId = key.slice(PROFILE_KEY_PREFIX.length);
-						profiles[profileId] = allData[key] as Profile;
-					}
-				});
+						return maybeDecompressProfile(allData[key])
+							.then((decodedProfile) => {
+								profiles[profileId] = decodedProfile;
+							})
+							.catch((error) => {
+								console.error(`Error decoding stored profile ${profileId}:`, error);
+							});
+					});
 
-				return { profiles, selectedProfileId, hasSeenOnboarding };
+				return Promise.all(profileDecodeJobs).then(() => ({
+					profiles,
+					selectedProfileId,
+					hasSeenOnboarding,
+				}));
 			} catch (error) {
 				console.error("Error accessing extension storage:", error);
 				return { profiles: {}, selectedProfileId: null, hasSeenOnboarding: false };
@@ -72,6 +88,10 @@ export const storage = {
 		const browser = await getBrowser();
 		if (browser) {
 			const itemsToSet: Record<string, any> = {};
+			let totalBeforeBytes = 0;
+			let totalAfterBytes = 0;
+			let compressedProfiles = 0;
+			let profileSyncWork: Promise<void> = Promise.resolve();
 
 			if (data.selectedProfileId !== undefined) {
 				itemsToSet.selectedProfileId = data.selectedProfileId;
@@ -81,35 +101,67 @@ export const storage = {
 				itemsToSet.hasSeenOnboarding = data.hasSeenOnboarding;
 			}
 
-			if (data.profiles) {
-				// Get current storage to see what to remove
-				const allData = await browser.storage.sync.get(null);
-				const existingProfileKeys = Object.keys(allData).filter((key) =>
-					key.startsWith(PROFILE_KEY_PREFIX),
-				);
+			const profilesData = data.profiles;
+			if (profilesData) {
+				profileSyncWork = browser.storage.sync.get(null).then((allData) => {
+					const existingProfileKeys = Object.keys(allData).filter((key) =>
+						key.startsWith(PROFILE_KEY_PREFIX),
+					);
 
-				const newProfileKeys = Object.keys(data.profiles).map(
-					(id) => `${PROFILE_KEY_PREFIX}${id}`,
-				);
+					const newProfileKeys = Object.keys(profilesData).map(
+						(id) => `${PROFILE_KEY_PREFIX}${id}`,
+					);
 
-				// Keys to remove
-				const keysToRemove = existingProfileKeys.filter(
-					(key) => !newProfileKeys.includes(key),
-				);
-				if (keysToRemove.length > 0) {
-					await browser.storage.sync.remove(keysToRemove);
-				}
+					const keysToRemove = existingProfileKeys.filter(
+						(key) => !newProfileKeys.includes(key),
+					);
+					const removePromise =
+						keysToRemove.length > 0
+							? browser.storage.sync.remove(keysToRemove)
+							: Promise.resolve();
 
-				// Keys to set
-				Object.entries(data.profiles).forEach(([id, profile]) => {
-					itemsToSet[`${PROFILE_KEY_PREFIX}${id}`] = profile;
+					return removePromise.then(() => {
+						const profileEntries = Object.entries(profilesData);
+						const compressionJobs = profileEntries.map(([id, profile]) => {
+							const key = `${PROFILE_KEY_PREFIX}${id}`;
+							const before = getUtf8ByteLength(JSON.stringify(profile));
+							totalBeforeBytes += before;
+
+							return compressJsonValue(profile).then((compressed) => {
+								if (compressed) {
+									itemsToSet[key] = compressed;
+									totalAfterBytes += getUtf8ByteLength(
+										JSON.stringify(compressed),
+									);
+									compressedProfiles++;
+									return;
+								}
+
+								itemsToSet[key] = profile;
+								totalAfterBytes += before;
+							});
+						});
+
+						return Promise.all(compressionJobs).then(() => {
+							if (Object.keys(profilesData).length > 0) {
+								const delta = totalBeforeBytes - totalAfterBytes;
+								const ratio =
+									totalBeforeBytes > 0 ? (delta / totalBeforeBytes) * 100 : 0;
+								console.debug(
+									`[storage] Profile payload size: ${formatBytes(totalBeforeBytes)} -> ${formatBytes(totalAfterBytes)} (${ratio.toFixed(1)}% ${delta >= 0 ? "smaller" : "larger"}; compressed ${compressedProfiles}/${Object.keys(profilesData).length})`,
+								);
+							}
+						});
+					});
 				});
 			}
 
-			return browser.storage.sync.set(itemsToSet).catch((error) => {
-				console.error("Error saving to extension storage:", error);
-				throw error;
-			});
+			return profileSyncWork
+				.then(() => browser.storage.sync.set(itemsToSet))
+				.catch((error) => {
+					console.error("Error saving to extension storage:", error);
+					throw error;
+				});
 		} else {
 			if (data.profiles) {
 				// Handle removals in localStorage
