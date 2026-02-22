@@ -15,11 +15,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 				flexDirection: "column",
 				alignItems: "center",
 				justifyContent: "center",
-				height: "100vh",
 				padding: "2rem",
 				textAlign: "center",
 				maxWidth: "600px",
-				margin: "0 auto",
+				margin: "auto",
 			}}
 		>
 			<img
