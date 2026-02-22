@@ -56,6 +56,27 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 				</ul>
 			</div>
 
+			<p>
+				This extension is free and open-source.{" "}
+				<a href="https://github.com/JobAutofill/job-autofill" target="_blank">
+					Code is available on GitHub.
+					<img
+						src="https://simpleicons.org/icons/github.svg"
+						alt="GitHub"
+						width="24"
+						height="24"
+						style={{
+							display: "inline-block",
+							verticalAlign: "bottom",
+							marginLeft: "0.5rem",
+							backgroundColor: "white",
+							padding: "1px",
+							borderRadius: "50%",
+						}}
+					/>
+				</a>
+			</p>
+
 			<button
 				className="btn"
 				onClick={onComplete}
