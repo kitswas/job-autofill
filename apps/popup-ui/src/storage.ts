@@ -1,10 +1,5 @@
 import { Profile, STORAGE_SYNC_QUOTA_BYTES, STORAGE_SYNC_QUOTA_BYTES_PER_ITEM } from "core";
-import {
-	compressJsonValue,
-	formatBytes,
-	getUtf8ByteLength,
-	maybeDecompressProfile,
-} from "./storageCompression";
+import { compress, decompress } from "./storageCompression";
 
 type StorageData = {
 	profiles: Record<string, Profile>;
@@ -53,7 +48,7 @@ class ExtensionStorageProvider implements StorageProvider {
 				.filter((key) => key.startsWith(PROFILE_KEY_PREFIX))
 				.map((key) => {
 					const profileId = key.slice(PROFILE_KEY_PREFIX.length);
-					return maybeDecompressProfile(allData[key])
+					return decompress<Profile>(allData[key])
 						.then((decodedProfile) => {
 							profiles[profileId] = decodedProfile;
 						})
@@ -75,8 +70,7 @@ class ExtensionStorageProvider implements StorageProvider {
 
 	async set(data: Partial<StorageData>): Promise<void> {
 		const itemsToSet: Record<string, any> = {};
-		let totalBeforeBytes = 0;
-		let totalAfterBytes = 0;
+		let totalSavedPercent = 0;
 		let compressedProfiles = 0;
 		let profileSyncWork: Promise<void> = Promise.resolve();
 
@@ -111,29 +105,26 @@ class ExtensionStorageProvider implements StorageProvider {
 					const profileEntries = Object.entries(profilesData);
 					const compressionJobs = profileEntries.map(([id, profile]) => {
 						const key = `${PROFILE_KEY_PREFIX}${id}`;
-						const before = getUtf8ByteLength(JSON.stringify(profile));
-						totalBeforeBytes += before;
 
-						return compressJsonValue(profile).then((compressed) => {
-							if (compressed) {
-								itemsToSet[key] = compressed;
-								totalAfterBytes += getUtf8ByteLength(JSON.stringify(compressed));
+						return compress(profile).then((result) => {
+							if (result) {
+								itemsToSet[key] = result.data;
+								totalSavedPercent += result.savedPercent;
 								compressedProfiles++;
 								return;
 							}
 
 							itemsToSet[key] = profile;
-							totalAfterBytes += before;
 						});
 					});
 
 					return Promise.all(compressionJobs).then(() => {
-						if (Object.keys(profilesData).length > 0) {
-							const delta = totalBeforeBytes - totalAfterBytes;
-							const ratio =
-								totalBeforeBytes > 0 ? (delta / totalBeforeBytes) * 100 : 0;
+						const total = Object.keys(profilesData).length;
+						if (total > 0) {
+							const avgSaved =
+								compressedProfiles > 0 ? totalSavedPercent / compressedProfiles : 0;
 							console.debug(
-								`[storage] Profile payload size: ${formatBytes(totalBeforeBytes)} -> ${formatBytes(totalAfterBytes)} (${ratio.toFixed(1)}% ${delta >= 0 ? "smaller" : "larger"}; compressed ${compressedProfiles}/${Object.keys(profilesData).length})`,
+								`[storage] Compressed ${compressedProfiles}/${total} profiles (avg ${avgSaved.toFixed(1)}% savings)`,
 							);
 						}
 					});

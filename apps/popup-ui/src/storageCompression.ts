@@ -1,15 +1,9 @@
-import { Profile } from "core";
-
-export type CompressedStorageValue = {
+type CompressedStorageValue = {
 	__jaCompressed: true;
 	v: 1;
-	alg: "deflate";
+	alg: "deflate-raw";
 	data: string;
 };
-
-export function getUtf8ByteLength(value: string): number {
-	return new TextEncoder().encode(value).length;
-}
 
 function bytesToBase64(bytes: Uint8Array): string {
 	let binary = "";
@@ -36,12 +30,17 @@ function isCompressedStorageValue(value: unknown): value is CompressedStorageVal
 	return (
 		candidate.__jaCompressed === true &&
 		candidate.v === 1 &&
-		candidate.alg === "deflate" &&
+		candidate.alg === "deflate-raw" &&
 		typeof candidate.data === "string"
 	);
 }
 
-export function compressJsonValue(value: unknown): Promise<CompressedStorageValue | null> {
+export type CompressResult = {
+	data: CompressedStorageValue;
+	savedPercent: number;
+};
+
+export async function compress(value: unknown): Promise<CompressResult | null> {
 	if (typeof CompressionStream === "undefined") {
 		return Promise.resolve(null);
 	}
@@ -50,21 +49,24 @@ export function compressJsonValue(value: unknown): Promise<CompressedStorageValu
 	const input = new TextEncoder().encode(json);
 	const compressedStream = new Blob([input])
 		.stream()
-		.pipeThrough(new CompressionStream("deflate"));
-	return new Response(compressedStream).arrayBuffer().then((compressedBuffer) => {
-		const compressedBytes = new Uint8Array(compressedBuffer);
-		return {
-			__jaCompressed: true,
-			v: 1,
-			alg: "deflate",
-			data: bytesToBase64(compressedBytes),
-		};
-	});
+		.pipeThrough(new CompressionStream("deflate-raw"));
+	const compressedBuffer = await new Response(compressedStream).arrayBuffer();
+	const compressedBytes = new Uint8Array(compressedBuffer);
+	const encoded = bytesToBase64(compressedBytes);
+	const afterBytes = new TextEncoder().encode(encoded).length;
+	// Base64 adds overhead - skip compression if it doesn't actually save space
+	if (afterBytes >= input.byteLength) {
+		return null;
+	}
+	return {
+		data: { __jaCompressed: true, v: 1, alg: "deflate-raw", data: encoded },
+		savedPercent: ((input.byteLength - afterBytes) / input.byteLength) * 100,
+	};
 }
 
-export function maybeDecompressProfile(value: unknown): Promise<Profile> {
+export async function decompress<T = unknown>(value: unknown): Promise<T> {
 	if (!isCompressedStorageValue(value)) {
-		return Promise.resolve(value as Profile);
+		return Promise.resolve(value as T);
 	}
 
 	if (typeof DecompressionStream === "undefined") {
@@ -76,13 +78,6 @@ export function maybeDecompressProfile(value: unknown): Promise<Profile> {
 	blobInput.set(compressedBytes);
 	const decompressedStream = new Blob([blobInput.buffer])
 		.stream()
-		.pipeThrough(new DecompressionStream("deflate"));
-	return new Response(decompressedStream).text().then((json) => JSON.parse(json) as Profile);
-}
-
-export function formatBytes(bytes: number): string {
-	if (bytes < 1024) return `${bytes} B`;
-	const kb = bytes / 1024;
-	if (kb < 1024) return `${kb.toFixed(1)} KB`;
-	return `${(kb / 1024).toFixed(2)} MB`;
+		.pipeThrough(new DecompressionStream("deflate-raw"));
+	return new Response(decompressedStream).text().then((json) => JSON.parse(json) as T);
 }
