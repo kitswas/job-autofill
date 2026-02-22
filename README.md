@@ -81,6 +81,13 @@ pnpm launch
 
 This starts a test server and runs the extension using `web-ext`.
 
+For Android (See [official docs](https://extensionworkshop.com/documentation/develop/developing-extensions-for-firefox-for-android/)):
+
+```bash
+adb devices # Get your device ID
+pnpm --filter=extension exec web-ext run -t firefox-android --firefox-apk org.mozilla.firefox --source-dir ./dist --adb-device <device_id>
+```
+
 ### Dependency Graph
 
 ![Dependency Graph](docs/dependency-graph.svg)
