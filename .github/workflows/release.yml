@@ -11,12 +11,18 @@ on:
                 options:
                     - unlisted
                     - listed
+            ref:
+                description: "Git ref to build from (branch, tag, or commit)"
+                default: "main"
+                type: string
 
 jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ inputs.ref }}
             - uses: pnpm/action-setup@v4
               with:
                   version: 10
@@ -31,7 +37,9 @@ jobs:
     test-unit:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ inputs.ref }}
             - uses: pnpm/action-setup@v4
               with:
                   version: 10
@@ -45,7 +53,9 @@ jobs:
     test-e2e:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ inputs.ref }}
             - uses: pnpm/action-setup@v4
               with:
                   version: 10
@@ -70,7 +80,9 @@ jobs:
         needs: [lint, test-unit, test-e2e]
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ inputs.ref }}
             - uses: pnpm/action-setup@v4
               with:
                   version: 10
