@@ -1,8 +1,5 @@
 # Job Autofill
 
-> [!NOTE]
-> Still putting the finishing touches.
-
 <div align="center">
 
 <img src="apps/extension/icons/logo.svg" alt="Job Autofill Animated Logo" width="256" />
@@ -19,6 +16,12 @@ A browser extension for managing and autofilling job application forms.
 > Not intended for public use. **Use at your own risk.**  
 > The code is made available for critique, as-is, without any warranties.  
 > Feature requests are _highly likely_ to be ignored.
+
+Available on Firefox and Chromium-based browsers.
+
+[<img src="https://raw.githubusercontent.com/kitswas/VirtualGamePad/refs/heads/main/assets/badge_Github_download.svg" alt="Get it on GitHub" style="height:4em;"> ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/kitswas/job-autofill/total) ![GitHub Latest Release](https://img.shields.io/github/v/release/kitswas/job-autofill?logo=github)](https://github.com/kitswas/job-autofill/releases)
+
+[![Firefox Add-on](https://extensionworkshop.com/assets/img/documentation/publish/get-the-addon-178x60px.dad84b42.png)](https://addons.mozilla.org/en-GB/firefox/addon/job-autofill/)
 
 ## Features
 
