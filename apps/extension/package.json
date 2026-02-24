@@ -18,8 +18,8 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.58.2",
-		"@types/node": "^25.2.3",
-		"@types/webextension-polyfill": "^0.12.4",
+		"@types/node": "^25.3.0",
+		"@types/webextension-polyfill": "^0.12.5",
 		"esbuild": "^0.27.3",
 		"playwright-webextext": "^0.0.4",
 		"typescript": "^5.9.3"
