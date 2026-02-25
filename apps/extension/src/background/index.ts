@@ -170,6 +170,16 @@ browser.runtime.onMessage.addListener((message: any, sender: browser.Runtime.Mes
 			sendAutofillCommand(sender.tab.id, profileToUse);
 			return Promise.resolve({ success: true });
 		}
+	} else if (message.type === "TEST_TRIGGER_CREATE_PROFILE") {
+		// --- E2E Test Bridge Handler ---
+		if (sender.tab?.id) {
+			console.log(
+				"[Job Autofill][background] Executing test create-profile for tab:",
+				sender.tab.id,
+			);
+			handleCreateProfileFromPage(sender.tab.id);
+			return Promise.resolve({ success: true });
+		}
 	}
 });
 

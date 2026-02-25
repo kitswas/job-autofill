@@ -24,5 +24,15 @@ window.addEventListener("message", (event) => {
 				profile: event.data.profile,
 			})
 			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
+	} else if (
+		event.source === window &&
+		event.data?.type === "PLAYWRIGHT_TRIGGER_CREATE_PROFILE"
+	) {
+		console.log(
+			"[Job Autofill][content] Create-profile trigger received. Forwarding to background...",
+		);
+		browser.runtime
+			.sendMessage({ type: "TEST_TRIGGER_CREATE_PROFILE" })
+			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
 	}
 });

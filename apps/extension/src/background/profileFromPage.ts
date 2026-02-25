@@ -1,5 +1,13 @@
 import browser from "webextension-polyfill";
-import { DomField, DomSnapshot, InputType, Rule, Profile, CURRENT_SCHEMA_VERSION } from "core";
+import {
+	DomField,
+	DomSnapshot,
+	InputType,
+	Rule,
+	Profile,
+	CURRENT_SCHEMA_VERSION,
+	MatchType,
+} from "core";
 
 // Derive the best InputType for a rule from a DOM field
 function deriveInputType(field: DomField): InputType {
@@ -70,7 +78,7 @@ export function createProfileFromSnapshot(snapshot: DomSnapshot): Profile {
 			name: label,
 			content: "",
 			keywords: [labelLower],
-			matchtype: "fuzzy",
+			matchtype: "fuzzy" as MatchType,
 			inputtype: deriveInputType(field),
 		});
 	});
