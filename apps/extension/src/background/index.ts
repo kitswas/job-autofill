@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { matchFields, Profile, DomSnapshot } from "core";
+import { handleCreateProfileFromPage } from "./profileFromPage";
 import { standardProfile as mockProfile } from "../../tests/profiles";
 
 console.log("[Job Autofill][background] script loaded");
@@ -25,22 +26,36 @@ function updateContextMenus() {
 				}
 			});
 
-			if (Object.keys(profiles).length === 0) return;
-
 			browser.contextMenus.create({
 				id: "autofill-root",
 				title: "Job Autofill",
 				contexts: ["all"],
 			});
 
-			Object.values(profiles).forEach((profile) => {
+			browser.contextMenus.create({
+				id: "create-profile-from-page",
+				parentId: "autofill-root",
+				title: "Create profile from page",
+				contexts: ["all"],
+			});
+
+			if (Object.keys(profiles).length > 0) {
 				browser.contextMenus.create({
-					id: `autofill-profile-${profile.id}`,
+					id: "autofill-profiles-separator",
 					parentId: "autofill-root",
-					title: profile.name || "Unnamed Profile",
+					type: "separator",
 					contexts: ["all"],
 				});
-			});
+
+				Object.values(profiles).forEach((profile) => {
+					browser.contextMenus.create({
+						id: `autofill-profile-${profile.id}`,
+						parentId: "autofill-root",
+						title: profile.name || "Unnamed Profile",
+						contexts: ["all"],
+					});
+				});
+			}
 		})
 		.catch((error) => {
 			console.error("[Job Autofill][background] Error updating context menus:", error);
@@ -73,10 +88,19 @@ browser.storage.onChanged.addListener((changes) => {
 });
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
-	if (!tab?.id || !info.menuItemId.toString().startsWith("autofill-profile-")) return;
+	if (!tab?.id) return;
 
-	const profileId = info.menuItemId.toString().replace("autofill-profile-", "");
+	const menuItemId = info.menuItemId.toString();
 	const tabId = tab.id;
+
+	if (menuItemId === "create-profile-from-page") {
+		handleCreateProfileFromPage(tabId);
+		return;
+	}
+
+	if (!menuItemId.startsWith("autofill-profile-")) return;
+
+	const profileId = menuItemId.replace("autofill-profile-", "");
 	browser.storage.sync
 		.get([`profile_${profileId}`])
 		.then((result) => {
