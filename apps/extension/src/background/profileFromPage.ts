@@ -27,26 +27,62 @@ export function createProfileFromSnapshot(snapshot: DomSnapshot): Profile {
 	const seenLabels = new Set<string>();
 	const rules: Rule[] = [];
 
+	function normalizeKey(str?: string | null) {
+		return (str || "").toString().trim().toLowerCase();
+	}
+
 	snapshot.fields.forEach((field, index) => {
-		const label = (
-			field.id ||
-			field.name ||
-			field.placeholder ||
+		// Prefer human readable labels for the rule name
+		const readableLabel = (
 			field.label ||
 			field.ariaLabel ||
+			field.placeholder ||
+			field.name ||
+			field.id ||
 			""
-		).trim();
-		if (!label) return;
+		)
+			.toString()
+			.trim();
+		if (!readableLabel) return;
 
-		const labelLower = label.toLowerCase();
-		if (seenLabels.has(labelLower)) return;
-		seenLabels.add(labelLower);
+		const labelKey = normalizeKey(readableLabel);
+		if (!labelKey) return;
+		if (seenLabels.has(labelKey)) return;
+		seenLabels.add(labelKey);
+
+		// Build keywords array with prioritized attributes. Keywords are used
+		// for matching, so include multiple fallbacks (label, name, id, placeholder).
+		const kwCandidates = [
+			field.label,
+			field.ariaLabel,
+			field.name,
+			field.id,
+			field.automationId,
+		]
+			.filter(Boolean)
+			.map((s) => s!.toString().trim())
+			.filter(Boolean);
+
+		// Deduplicate and lowercase keywords
+		const seenKw = new Set<string>();
+		const keywords: string[] = [];
+		for (const k of kwCandidates) {
+			const nk = normalizeKey(k);
+			if (!nk) continue;
+			if (seenKw.has(nk)) continue;
+			seenKw.add(nk);
+			keywords.push(k);
+		}
+
+		if (keywords.length === 0) return;
+
+		const ruleName = readableLabel || keywords[0] || `field_${index + 1}`;
 
 		rules.push({
-			id: (index + 1).toString(),
-			name: label,
+			id: (Date.now() + index).toString(),
+			name: ruleName,
 			content: "",
-			keywords: [labelLower],
+			keywords,
 			matchtype: "fuzzy" as MatchType,
 			inputtype: deriveInputType(field),
 		});
