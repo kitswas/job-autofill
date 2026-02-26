@@ -159,63 +159,20 @@ browser.runtime.onMessage.addListener((message: any, sender: browser.Runtime.Mes
 			console.error("[Job Autofill][background] ANALYZE_FORM error:", e);
 			return Promise.resolve({ actions: [] });
 		}
-	} else if (message.type === "TEST_TRIGGER_AUTOFILL") {
-		// --- E2E Test Bridge Handler ---
-		if (sender.tab?.id) {
-			console.log(
-				"[Job Autofill][background] Executing test autofill for tab:",
-				sender.tab.id,
-			);
-			const profileToUse = message.profile || mockProfile;
-			sendAutofillCommand(sender.tab.id, profileToUse);
-			return Promise.resolve({ success: true });
-		}
-	} else if (message.type === "TEST_TRIGGER_CREATE_PROFILE") {
-		// --- E2E Test Bridge Handler ---
-		if (sender.tab?.id) {
-			console.log(
-				"[Job Autofill][background] Executing test create-profile for tab:",
-				sender.tab.id,
-			);
-			handleCreateProfileFromPage(sender.tab.id);
-			return Promise.resolve({ success: true });
-		}
-	} else if (message.type === "TEST_GET_PROFILES") {
-		// Return all stored profiles (used by E2E tests)
-		return browser.storage.sync
-			.get(null)
-			.then((allData: Record<string, any>) => {
-				const profiles: Record<string, any> = {};
-				Object.keys(allData).forEach((k) => {
-					if (k.startsWith("profile_")) profiles[k] = allData[k];
-				});
-				return Promise.resolve({ profiles });
-			})
-			.catch((err) => {
-				console.error("[Job Autofill][background] TEST_GET_PROFILES error:", err);
-				return Promise.resolve({ profiles: {} });
-			});
 	}
 });
 
-// Test Mode Configuration
+// --- E2E Test Bridge (dev only) ---
 if (typeof __TEST_MODE__ !== "undefined" && __TEST_MODE__) {
-	(globalThis as any).sendAutofillCommand = sendAutofillCommand;
-	(globalThis as any).mockProfile = mockProfile;
-
-	browser.runtime.onInstalled.addListener(() => {
-		browser.storage.sync
-			.set({
-				[`profile_${mockProfile.id}`]: mockProfile,
-			})
-			.then(() => {
-				console.log("[Job Autofill][background] Test mode: Mock profile loaded");
-			})
-			.catch((error) => {
-				console.error(
-					"[Job Autofill][background] Error loading mock profile in test mode:",
-					error,
-				);
-			});
-	});
+	import("./testBridge")
+		.then((m) =>
+			m.setupBackgroundTestBridge({
+				sendAutofillCommand,
+				mockProfile,
+				handleCreateProfileFromPage,
+			}),
+		)
+		.catch((err) =>
+			console.error("[Job Autofill][background] Failed to load test bridge:", err),
+		);
 }

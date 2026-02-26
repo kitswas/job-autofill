@@ -14,33 +14,9 @@ browser.runtime.onMessage.addListener(
 	},
 );
 
-// --- E2E Test Bridge ---
-window.addEventListener("message", (event) => {
-	if (event.source === window && event.data?.type === "PLAYWRIGHT_TRIGGER_AUTOFILL") {
-		console.log("[Job Autofill][content] Test trigger received. Forwarding to background...");
-		browser.runtime
-			.sendMessage({
-				type: "TEST_TRIGGER_AUTOFILL",
-				profile: event.data.profile,
-			})
-			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
-	} else if (
-		event.source === window &&
-		event.data?.type === "PLAYWRIGHT_TRIGGER_CREATE_PROFILE"
-	) {
-		console.log(
-			"[Job Autofill][content] Create-profile trigger received. Forwarding to background...",
-		);
-		browser.runtime
-			.sendMessage({ type: "TEST_TRIGGER_CREATE_PROFILE" })
-			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
-	} else if (event.source === window && event.data?.type === "PLAYWRIGHT_REQUEST_PROFILES") {
-		// Page requests the current profiles from the background for testing
-		browser.runtime
-			.sendMessage({ type: "TEST_GET_PROFILES" })
-			.then((result) => {
-				window.postMessage({ type: "PLAYWRIGHT_RESPONSE_PROFILES", data: result }, "*");
-			})
-			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
-	}
-});
+// --- E2E Test Bridge (dev only) ---
+if (typeof __TEST_MODE__ !== "undefined" && __TEST_MODE__) {
+	import("./testBridge")
+		.then((m) => m.setupContentTestBridge())
+		.catch((err) => console.error("[Job Autofill][content] Failed to load test bridge:", err));
+}
