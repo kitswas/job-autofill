@@ -11,38 +11,7 @@ import {
 
 // Derive the best InputType for a rule from a DOM field
 function deriveInputType(field: DomField): InputType {
-	if (field.kind === "textarea") return "textarea";
-	if (field.kind === "select") return "select";
-	switch (field.type?.toLowerCase()) {
-		case "email":
-			return "email";
-		case "tel":
-			return "tel";
-		case "url":
-			return "url";
-		case "password":
-			return "password";
-		case "number":
-			return "number";
-		case "date":
-			return "date";
-		case "checkbox":
-			return "checkbox";
-		case "radio":
-			return "radio";
-		case "time":
-			return "time";
-		case "datetime-local":
-			return "datetime-local";
-		case "range":
-			return "range";
-		case "file":
-			return "file";
-		case "text":
-			return "text";
-		default:
-			return "any";
-	}
+	return (field.type?.toLowerCase() as InputType) || "any";
 }
 
 // Build a new Profile from a DOM snapshot captured on a page
