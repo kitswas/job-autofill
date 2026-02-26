@@ -1,15 +1,13 @@
 import { Action } from "core";
 import { getActiveAdapter } from "./registry";
+import { resolveFormElement } from "./domWalker";
 
 export async function applyActions(actions: Action[]): Promise<{ success: boolean }> {
 	const adapter = getActiveAdapter();
 
 	for (const action of actions) {
-		const target = document.querySelector(action.selector) as
-			| HTMLInputElement
-			| HTMLTextAreaElement
-			| HTMLSelectElement
-			| null;
+		const rawTarget = document.querySelector(action.selector);
+		const target = rawTarget ? resolveFormElement(rawTarget) : null;
 
 		if (!target) continue;
 

@@ -1,14 +1,39 @@
 import { DomSnapshot, DomField } from "core";
 import { getActiveAdapter } from "./registry";
+import { deepQueryFormElements } from "./domWalker";
+
+/**
+ * Attempts to find a label for a form element by looking at its
+ * shadow host's context in the light DOM.
+ */
+function resolveLabelFromHost(host: Element): string | null {
+	const ariaLabel = host.getAttribute("aria-label");
+	if (ariaLabel?.trim()) return ariaLabel.trim();
+
+	if (host.id) {
+		const root = host.getRootNode();
+		const scope = root instanceof Document ? root : document;
+		const label = scope.querySelector(`label[for="${CSS.escape(host.id)}"]`);
+		if (label?.textContent?.trim()) return label.textContent.trim();
+	}
+
+	const container =
+		host.closest(".form-group, fieldset, .field, .form-field, .control-group") ||
+		host.parentElement;
+	if (container) {
+		const label = container.querySelector("label");
+		if (label?.textContent?.trim()) return label.textContent.trim();
+	}
+
+	return null;
+}
 
 export function extractFields(): DomSnapshot {
 	const fields: DomField[] = [];
-	const elements = document.querySelectorAll("input, select, textarea");
+	const entries = deepQueryFormElements(document);
 	const adapter = getActiveAdapter();
 
-	elements.forEach((el) => {
-		const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-
+	entries.forEach(({ element, shadowHost }) => {
 		// Ignore hidden fields
 		if (
 			element.type === "hidden" ||
@@ -76,13 +101,24 @@ export function extractFields(): DomSnapshot {
 			}
 		}
 
+		// For elements inside Shadow DOM, resolve label from the host's context
+		if (!label && shadowHost) {
+			label = resolveLabelFromHost(shadowHost);
+		}
+
 		let field: DomField = {
-			id: element.id || null,
-			name: element.getAttribute("name"),
+			id: element.id || shadowHost?.id || null,
+			name: element.getAttribute("name") || shadowHost?.getAttribute("name") || null,
 			label: label || null,
-			ariaLabel: element.getAttribute("aria-label"),
+			ariaLabel:
+				element.getAttribute("aria-label") ||
+				shadowHost?.getAttribute("aria-label") ||
+				null,
 			placeholder: element.getAttribute("placeholder"),
-			automationId: element.getAttribute("data-automation-id"),
+			automationId:
+				element.getAttribute("data-automation-id") ||
+				shadowHost?.getAttribute("data-automation-id") ||
+				null,
 			kind: element.tagName.toLowerCase(),
 			type: (element as HTMLInputElement).type || null,
 		};
