@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node build.js",
+		"build:dev": "node build.js --test",
 		"package": "node scripts/package.js",
 		"sign": "node scripts/sign.js",
 		"test:e2e:prepare": "node scripts/prepare-e2e.js",
