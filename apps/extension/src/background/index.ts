@@ -180,6 +180,21 @@ browser.runtime.onMessage.addListener((message: any, sender: browser.Runtime.Mes
 			handleCreateProfileFromPage(sender.tab.id);
 			return Promise.resolve({ success: true });
 		}
+	} else if (message.type === "TEST_GET_PROFILES") {
+		// Return all stored profiles (used by E2E tests)
+		return browser.storage.sync
+			.get(null)
+			.then((allData: Record<string, any>) => {
+				const profiles: Record<string, any> = {};
+				Object.keys(allData).forEach((k) => {
+					if (k.startsWith("profile_")) profiles[k] = allData[k];
+				});
+				return Promise.resolve({ profiles });
+			})
+			.catch((err) => {
+				console.error("[Job Autofill][background] TEST_GET_PROFILES error:", err);
+				return Promise.resolve({ profiles: {} });
+			});
 	}
 });
 

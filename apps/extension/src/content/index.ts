@@ -34,5 +34,13 @@ window.addEventListener("message", (event) => {
 		browser.runtime
 			.sendMessage({ type: "TEST_TRIGGER_CREATE_PROFILE" })
 			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
+	} else if (event.source === window && event.data?.type === "PLAYWRIGHT_REQUEST_PROFILES") {
+		// Page requests the current profiles from the background for testing
+		browser.runtime
+			.sendMessage({ type: "TEST_GET_PROFILES" })
+			.then((result) => {
+				window.postMessage({ type: "PLAYWRIGHT_RESPONSE_PROFILES", data: result }, "*");
+			})
+			.catch((err) => console.error("[Job Autofill][content] Bridge error:", err));
 	}
 });
