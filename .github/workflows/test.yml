@@ -1,0 +1,61 @@
+name: Run automated tests
+
+on:
+    pull_request:
+        branches: [main]
+    push:
+        branches: [main]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install
+            - run: pnpm lint
+            - run: pnpm format:check
+
+    test-unit:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install -r
+            - run: pnpm test
+
+    test-e2e:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+            - run: pnpm install -r
+            - name: Install Playwright Browsers
+              run: pnpm --filter extension exec playwright install --with-deps
+            - name: Run E2E tests
+              run: xvfb-run pnpm test:e2e
+            - name: Upload Playwright Report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report
+                  path: apps/extension/playwright-report/
+                  retention-days: 1
