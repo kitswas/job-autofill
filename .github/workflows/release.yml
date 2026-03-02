@@ -3,10 +3,6 @@ name: Release Extension
 on:
     workflow_dispatch:
         inputs:
-            version:
-                description: "Release version (without leading v, e.g. 1.2.3)"
-                required: true
-                type: string
             channel:
                 description: "Signing channel (unlisted or listed)"
                 required: true
@@ -21,7 +17,35 @@ on:
                 type: string
 
 jobs:
+    check-release-tag:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.check_tag.outputs.version }}
+            tag_exists: ${{ steps.check_tag.outputs.tag_exists }}
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ inputs.ref }}
+            - name: Read Manifest Version and Check Tag
+              id: check_tag
+              run: |
+                  VERSION=$(node -p "require('./apps/extension/manifest.json').version")
+                  TAG="v${VERSION}"
+
+                  if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" > /dev/null; then
+                      TAG_EXISTS=true
+                      echo "Tag ${TAG} already exists. Skipping release workflow."
+                  else
+                      TAG_EXISTS=false
+                      echo "Tag ${TAG} does not exist. Continuing release workflow."
+                  fi
+
+                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+                  echo "tag_exists=${TAG_EXISTS}" >> "$GITHUB_OUTPUT"
+
     lint:
+        needs: [check-release-tag]
+        if: needs.check-release-tag.outputs.tag_exists != 'true'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
@@ -39,6 +63,8 @@ jobs:
             - run: pnpm format:check
 
     test-unit:
+        needs: [check-release-tag]
+        if: needs.check-release-tag.outputs.tag_exists != 'true'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
@@ -55,6 +81,8 @@ jobs:
             - run: pnpm test
 
     test-e2e:
+        needs: [check-release-tag]
+        if: needs.check-release-tag.outputs.tag_exists != 'true'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
@@ -81,7 +109,8 @@ jobs:
                   retention-days: 15
 
     build-and-sign:
-        needs: [lint, test-unit, test-e2e]
+        needs: [check-release-tag, lint, test-unit, test-e2e]
+        if: needs.check-release-tag.outputs.tag_exists != 'true'
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -128,8 +157,8 @@ jobs:
             - name: Create GitHub Release and Upload Assets
               uses: softprops/action-gh-release@v2
               with:
-                  tag_name: v${{ inputs.version }}
-                  name: v${{ inputs.version }}
+                  tag_name: v${{ needs.check-release-tag.outputs.version }}
+                  name: v${{ needs.check-release-tag.outputs.version }}
                   target_commitish: ${{ inputs.ref }}
                   generate_release_notes: true
                   files: |
