@@ -1,3 +1,5 @@
+[![Run automated tests](https://github.com/kitswas/job-autofill/actions/workflows/test.yml/badge.svg)](https://github.com/kitswas/job-autofill/actions/workflows/test.yml) [![Generate docs and deploy to Pages](https://github.com/kitswas/job-autofill/actions/workflows/static.yml/badge.svg)](https://github.com/kitswas/job-autofill/actions/workflows/static.yml)
+
 # Job Autofill
 
 <div align="center">
